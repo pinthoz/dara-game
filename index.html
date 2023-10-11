@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <script src="script.js"></script>
+    <title>Jogo Dara</title>
+</head>
+<body>
+    <h1>Jogo Dara</h1>
+    <div class="game-settings">
+        <label for="board-size">Escolha o tamanho do tabuleiro:</label>
+        <select id="board-size">
+            <option value="5">6x5</option>
+            <option value="6">6x6</option>
+        </select>
+        <button id="start-game">Iniciar Jogo</button>
+    </div>
+    <div class="game-container">
+    </div>
+    <div class="game-info">
+        <p>Vez do jogador: <span id="current-player">Branco</span></p>
+        <p id="game-result"></p>
+    </div>
+</body>
+</html>

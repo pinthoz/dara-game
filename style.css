@@ -1,0 +1,52 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+}
+
+h1 {
+    color: #333;
+}
+
+.game-settings {
+    margin-bottom: 20px;
+}
+
+.game-container {
+    display: grid;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 20px;
+    grid-template-columns: repeat(6, 50px);
+
+}
+
+.cell {
+    width: 50px;
+    height: 50px;
+    text-align: center;
+    vertical-align: middle;
+    font-size: 24px;
+    border: 1px solid #333;
+    cursor: pointer;
+}
+
+
+.playerB {
+    background-image: url('https://cdn.britannica.com/68/195168-050-BBAE019A/football.jpg'); /* Substitua 'caminho/para/o/arquivo/playerX.png' pelo caminho real da sua imagem */
+    background-size: cover;
+
+}
+
+.playerW {
+    background-image: url('https://t3.ftcdn.net/jpg/05/38/85/44/360_F_538854422_f2dbRaRNHKLyzXDtNbyyf72cQLiYA81d.jpg'); /* Substitua 'caminho/para/o/arquivo/playerX.png' pelo caminho real da sua imagem */
+    background-size: cover;
+}
+
+.game-info {
+    display: none;
+    margin-top: 20px;
+}
+
+.game-info.active {
+    display: block;
+}
