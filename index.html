@@ -9,20 +9,42 @@
     <title>Jogo Dara</title>
 </head>
 <body>
-    <h1>Jogo Dara</h1>
+    <div class="header">
+        <h1>Jogo Dara</h1>
+    </div>
     <div class="game-settings">
         <label for="board-size">Escolha o tamanho do tabuleiro:</label>
         <select id="board-size">
             <option value="5">6x5</option>
             <option value="6">6x6</option>
         </select>
-        <button id="start-game">Iniciar Jogo</button>
+        <label for="opponent">Jogar contra:</label>
+        <select id="opponent">
+            <option value="human">Humano</option>
+            <option value="computer">Computador</option>
+        </select>
+        <label for="first-play">Primeiro a jogar:</label>
+        <select id="first-play">
+            <option value="branco">Branco</option>
+            <option value="preto">Preto</option>
+        </select>
+        <label for="level">Nível do jogo:</label>  <!-- meter invisivel se o jogo for contra um humano-->
+        <select id="level">
+            <option value="easy">Fácil</option>
+            <option value="medium">Médio</option>
+            <option value="hard">Difícil</option>
+        </select>
+        <br>
+        <button id="start-game" class="start-button">Iniciar Jogo</button>
     </div>
     <div class="game-container">
     </div>
     <div class="game-info">
         <p>Vez do jogador: <span id="current-player">Branco</span></p>
         <p id="game-result"></p>
+    </div>
+    <div class="login-button">
+        <button id="login">Login</button>
     </div>
 </body>
 </html>
