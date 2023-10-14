@@ -65,25 +65,43 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para renderizar o tabuleiro atual
     function renderBoard() {
-        if (boardSize === 6){
-        for (let row = 0; row < boardSize; row++) {
-            for (let col = 0; col < boardSize; col++) {
-                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                cell.textContent = board[row][col];
+        if (boardSize === 6) {
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    cell.textContent = '';
+    
+                    // Verifica a classe da célula e define o background-image correspondente
+                    if (board[row][col] === 'playerW') {
+                        cell.style.backgroundImage = 'url(/assets/"white.png")'; // Substitua o caminho correto da imagem
+                    } else if (board[row][col] === 'playerB') {
+                        cell.style.backgroundImage = 'url("/assets/black.png")'; // Substitua o caminho correto da imagem
+                    } else {
+                        cell.style.backgroundImage = 'none'; // Limpa o background-image se não houver jogador na célula
+                    }
+                }
             }
-        }
-    } else {
-        const numRows = 6;
-        const numCols = 5; 
-
-        for (let row = 0; row < numRows; row++) {
-            for (let col = 0; col < numCols; col++) {
-                const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                cell.textContent = board[row][col];
+        } else {
+            const numRows = 6;
+            const numCols = 5;
+    
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    cell.textContent = '';
+    
+                    // Verifica a classe da célula e define o background-image correspondente
+                    if (board[row][col] === 'playerW') {
+                        cell.style.backgroundImage = 'url("/assets/white.png")'; // Substitua o caminho correto da imagem
+                    } else if (board[row][col] === 'playerB') {
+                        cell.style.backgroundImage = 'url("/assets/black.png")'; // Substitua o caminho correto da imagem
+                    } else {
+                        cell.style.backgroundImage = 'none'; // Limpa o background-image se não houver jogador na célula
+                    }
+                }
             }
         }
     }
-}
 
     // Event listener para o botão "Iniciar Jogo"
     startGameButton.addEventListener('click', () => {

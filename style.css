@@ -55,18 +55,13 @@ label{
     font-size: 24px;
     border: 1px solid #333;
     cursor: pointer;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
-
-.playerB {
-    background-image: url('https://cdn.britannica.com/68/195168-050-BBAE019A/football.jpg'); /* Substitua 'caminho/para/o/arquivo/playerX.png' pelo caminho real da sua imagem */
-    background-size: cover;
-
-}
-
-.playerW {
-    background-image: url('https://t3.ftcdn.net/jpg/05/38/85/44/360_F_538854422_f2dbRaRNHKLyzXDtNbyyf72cQLiYA81d.jpg'); /* Substitua 'caminho/para/o/arquivo/playerX.png' pelo caminho real da sua imagem */
-    background-size: cover;
+.playerB, .playerW {
+    background-size: 100% 100%; /* Isso fará com que a imagem ocupe 100% da largura e altura do tile */
 }
 
 .game-info {
