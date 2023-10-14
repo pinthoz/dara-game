@@ -1,6 +1,3 @@
-
-
-
 document.addEventListener('DOMContentLoaded', () => {
     const boardSizeSelect = document.querySelector('#board-size');
     const startGameButton = document.querySelector('#start-game');
@@ -49,19 +46,13 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 }
 
+        
+
 
     // Função para lidar com o clique em uma célula
 // Função para lidar com o clique em uma célula
     function handleCellClick(row, col) {
-        if (!isGameActive) {
-            // Iniciar o jogo
-            isGameActive = true;
-            currentPlayer = "Branco";
-            renderBoard();
-        }
-
         if (!isGameActive || board[row][col]) return;
-            board.playTurn(currentPlayer, row, col);
 
         // Exemplo simples: alternar entre "playerB" e "playerW"
         const playerClass = currentPlayer === 'Branco' ? 'playerB' : 'playerW';
@@ -69,12 +60,6 @@ document.addEventListener('DOMContentLoaded', () => {
         renderBoard();
         currentPlayer = currentPlayer === 'Branco' ? 'Preto' : 'Branco';
         currentPlayerDisplay.textContent = currentPlayer;
-
-        // Verificar se o jogo terminou
-    if (board.isGameOver()) {
-        // Renderizar o vencedor
-        gameResultDisplay.textContent = board.renderWinner();
-    }
     }
 
 
@@ -105,11 +90,10 @@ document.addEventListener('DOMContentLoaded', () => {
         boardSize = parseInt(boardSizeSelect.value);
         gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
         generateBoard();
-        isGameActive = true;
         currentPlayer = 'Branco';
-        renderBoard();
+        currentPlayerDisplay.textContent = currentPlayer;
         gameResultDisplay.textContent = '';
-
+        isGameActive = true;
 
         // Adiciona a classe "active" ao elemento ".game-info"
         const gameInfoElement = document.querySelector('.game-info');
