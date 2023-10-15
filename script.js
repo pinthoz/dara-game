@@ -12,6 +12,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let putPhase = true;
     let rowSelected = 0;
     let colSelected = 0;
+    let playerBpieces = 12;
+    let playerWpieces = 12;
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
         if (boardSize === 6){
@@ -52,19 +54,56 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Função para lidar com o clique em uma célula
-// Função para lidar com o clique em uma célula
+
     function handleCellClick(row, col) {
-        let possible = possible_play(row, col, currentPlayer );
-        if (!isGameActive || board[row][col] ) return;
-        // Exemplo simples: alternar entre "playerB" e "playerW"
-    if (possible){
-        const playerClass = currentPlayer === 'Branco' ? 'playerB' : 'playerW';
-        board[row][col] = playerClass;
-        renderBoard();
-        currentPlayer = currentPlayer === 'Branco' ? 'Preto' : 'Branco';
+        let possible = possible_play(row, col, currentPlayer);
+
+        if (!isGameActive || board[row][col]) return;
+
+        if (putPhase) {
+            // Verifique se o jogador ainda tem peças disponíveis
+            if (currentPlayer === 'Branco' && playerBpieces > 0) {
+                if (possible) {
+                    const playerClass = 'playerB';
+                    board[row][col] = playerClass;
+                    renderBoard();
+                    playerBpieces--;
+                } else {
+                    alert('Jogada Inválida');
+                }
+            } else if (currentPlayer === 'Preto' && playerWpieces > 0) {
+                if (possible) {
+                    const playerClass = 'playerW';
+                    board[row][col] = playerClass;
+                    renderBoard();
+                    playerWpieces--;
+                } else {
+                    alert('Jogada Inválida');
+                }
+            } else {
+                alert('Você já colocou todas as peças permitidas durante a fase de colocação.');
+            }
+
+            console.log(playerBpieces, playerWpieces);
+
+            if (playerBpieces === 0 && playerWpieces === 0) {
+                putPhase = false;
+                currentPlayer = 'Branco'; // ou 'Preto', dependendo de quem deve começar após a fase de colocação
+                currentPlayerDisplay.textContent = currentPlayer;
+            }
+        } else {
+            alert('Jogada Inválida');
+        }
+
+        // Troca o jogador atual
+        if (currentPlayer === 'Branco') {
+            currentPlayer = 'Preto';
+        } else {
+            currentPlayer = 'Branco';
+        }
         currentPlayerDisplay.textContent = currentPlayer;
-        }   
     }
+
 
 
     // Função para renderizar o tabuleiro atual
