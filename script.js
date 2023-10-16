@@ -186,7 +186,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         }
     
-        /*// Check Vertical
+        // Check Vertical
         min = Math.max(0, i - 3);
         max = Math.min(boardSize - 1, i);
     
@@ -204,7 +204,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
         }
-        */
+        
         board[i][j] = '';
         if (!putPhase) {
             board[rowSelected][colSelected] = currentPlayer;
