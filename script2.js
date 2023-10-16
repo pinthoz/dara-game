@@ -77,14 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     alert('Jogada Inválida');
                 }
-            }   else if (playerBpieces === 0 && playerWpieces === 0) {
-                    putPhase = false;
-                    currentPlayer = '1'; // ou 'Preto', dependendo de quem deve começar após a fase de colocação
-                    currentPlayerDisplay.textContent = currentPlayer;
-                }
+            } else {
+                alert('Você já colocou todas as peças permitidas durante a fase de colocação.');
             }
-        console.log(playerBpieces, playerWpieces);
 
+            console.log(playerBpieces, playerWpieces);
+
+            if (playerBpieces === 0 && playerWpieces === 0) {
+                putPhase = false;
+                currentPlayer = '1'; // ou 'Preto', dependendo de quem deve começar após a fase de colocação
+                currentPlayerDisplay.textContent = currentPlayer;
+            }
+        } else {
+            alert('Jogada Inválida');
+        }
 
         console.log('aqui');
         // Troca o jogador atual
@@ -195,7 +201,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         }
         
-
         if (!putPhase) {
             board[rowSelected][colSelected] = currentPlayer;
         }
