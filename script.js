@@ -64,7 +64,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Verifique se o jogador ainda tem peças disponíveis
             if (currentPlayer === '1' && playerBpieces > 0) {
                 if (possible) {
-                    const playerClass = '2';
+                    const playerClass = '1';
                     board[row][col] = playerClass;
                     renderBoard();
                     playerBpieces--;
@@ -73,7 +73,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else if (currentPlayer === '2' && playerWpieces > 0) {
                 if (possible) {
-                    const playerClass = '1';
+                    const playerClass = '2';
                     board[row][col] = playerClass;
                     renderBoard();
                     playerWpieces--;
@@ -163,14 +163,18 @@ document.addEventListener('DOMContentLoaded', () => {
         let min = Math.max(0, j - 3);
         let max = Math.min(boardSize - 1, j);
 
+        console.log("min " + min + " max " + max);
+
         for (let k = min; k <= max; k++) {
+            console.log("|" + currentPlayer + "|" + board[i][k] + "|" + board[i][k + 1] + "|" +  board[i][k + 2] + "|" + board[i][k + 3]) + "|";
             if (
             currentPlayer === board[i][k] &&
             board[i][k] === board[i][k + 1] &&
             board[i][k + 1] === board[i][k + 2] &&
             board[i][k + 2] === board[i][k + 3]
         ) {
-            board[i][j] = 0;
+            board[i][j] = '';
+            console.log("verdade");
             if (!putPhase) {
                 board[rowSelected][colSelected] = currentPlayer;
             }
@@ -178,7 +182,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         }
     
-        // Check Vertical
+        /*// Check Vertical
         min = Math.max(0, i - 3);
         max = Math.min(boardSize - 1, i);
     
@@ -196,7 +200,7 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
         }
-    
+        */
         board[i][j] = '';
         if (!putPhase) {
             board[rowSelected][colSelected] = currentPlayer;
