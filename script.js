@@ -14,9 +14,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let colSelected = 0;
     let playerBpieces = 12;
     let playerWpieces = 12;
-    let selectedPieceCell = null;
-
-
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
         if (boardSize === 6){
@@ -80,27 +77,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 } else {
                     alert('Jogada Inválida');
                 }
-            }   else if (playerBpieces === 0 && playerWpieces === 0) {
-                    putPhase = false;
-                    currentPlayer = '1'; // ou 'Preto', dependendo de quem deve começar após a fase de colocação
-                    currentPlayerDisplay.textContent = currentPlayer;
-                }
-            }else {
-                if (board[row][col] === currentPlayer) {
-                    // Verifica se a célula clicada pertence ao jogador atual
-                    // Remove a classe "selected-cell" de qualquer célula anteriormente selecionada
-                    const selectedCells = document.querySelectorAll('.selected-cell');
-                    selectedCells.forEach(cell => cell.classList.remove('selected-cell'));
-                    
-                    // Adiciona a classe "selected-cell" à célula atual
-                    const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                    selectedCell.classList.add('selected-cell');
-                } else {
-                    alert('Você só pode selecionar suas próprias peças.');
-                }
+            } else {
+                alert('Você já colocou todas as peças permitidas durante a fase de colocação.');
             }
-        console.log(playerBpieces, playerWpieces);
 
+            console.log(playerBpieces, playerWpieces);
+
+            if (playerBpieces === 0 && playerWpieces === 0) {
+                putPhase = false;
+                currentPlayer = '1'; // ou 'Preto', dependendo de quem deve começar após a fase de colocação
+                currentPlayerDisplay.textContent = currentPlayer;
+            }
+        } else {
+            alert('Jogada Inválida');
+        }
 
         console.log('aqui');
         // Troca o jogador atual
@@ -211,14 +201,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
         }
         
-
         if (!putPhase) {
             board[rowSelected][colSelected] = currentPlayer;
         }
         console.log('true - Move is possible');
         return true;
     }
-
     
 
     // Event listener para o botão "Iniciar Jogo"
@@ -235,36 +223,6 @@ document.addEventListener('DOMContentLoaded', () => {
         const gameInfoElement = document.querySelector('.game-info');
         gameInfoElement.classList.add('active');
 
-    });
-
-    cell.addEventListener('click', () => {
-        if (selectedPieceCell) {
-            const row = cell.dataset.row;
-            const col = cell.dataset.col;
-    
-            // Verifica se a célula de destino está vazia e se o movimento é válido
-            if (board[row][col] === '' && possible_play(row, col, currentPlayer)) {
-                // Move a peça 
-                board[row][col] = currentPlayer;
-                board[selectedPieceCell.dataset.row][selectedPieceCell.dataset.col] = '';
-
-                renderBoard();
-    
-                // Limpa a célula selecionada e a variável de controle
-                selectedPieceCell.classList.remove('selected');
-                selectedPieceCell = null;
-    
-                // Troque o jogador atual
-                if (currentPlayer === '1') {
-                    currentPlayer = '2';
-                } else {
-                    currentPlayer = '1';
-                }
-                currentPlayerDisplay.textContent = currentPlayer;
-            } else {
-                alert('Movimento inválido');
-            }
-        }
     });
 
 
