@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameResultDisplay = document.querySelector('#game-result');
 
     let boardSize = boardSizeSelect;
-    let currentPlayer = 'Branco';
+    let currentPlayer = '1';
     let board = [];
     let isGameActive = false;
     let putPhase = true;
@@ -62,18 +62,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (putPhase) {
             // Verifique se o jogador ainda tem peças disponíveis
-            if (currentPlayer === 'Branco' && playerBpieces > 0) {
+            if (currentPlayer === '1' && playerBpieces > 0) {
                 if (possible) {
-                    const playerClass = 'playerB';
+                    const playerClass = '2';
                     board[row][col] = playerClass;
                     renderBoard();
                     playerBpieces--;
                 } else {
                     alert('Jogada Inválida');
                 }
-            } else if (currentPlayer === 'Preto' && playerWpieces > 0) {
+            } else if (currentPlayer === '2' && playerWpieces > 0) {
                 if (possible) {
-                    const playerClass = 'playerW';
+                    const playerClass = '1';
                     board[row][col] = playerClass;
                     renderBoard();
                     playerWpieces--;
@@ -88,7 +88,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             if (playerBpieces === 0 && playerWpieces === 0) {
                 putPhase = false;
-                currentPlayer = 'Branco'; // ou 'Preto', dependendo de quem deve começar após a fase de colocação
+                currentPlayer = '1'; // ou 'Preto', dependendo de quem deve começar após a fase de colocação
                 currentPlayerDisplay.textContent = currentPlayer;
             }
         } else {
@@ -96,10 +96,10 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         // Troca o jogador atual
-        if (currentPlayer === 'Branco') {
-            currentPlayer = 'Preto';
+        if (currentPlayer === '1') {
+            currentPlayer = '2';
         } else {
-            currentPlayer = 'Branco';
+            currentPlayer = '1';
         }
         currentPlayerDisplay.textContent = currentPlayer;
     }
@@ -115,9 +115,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.textContent = '';
     
                     // Verifica a classe da célula e define o background-image correspondente
-                    if (board[row][col] === 'playerW') {
+                    if (board[row][col] === '1') {
                         cell.style.backgroundImage = 'url(/assets/"white.png")'; // Substitua o caminho correto da imagem
-                    } else if (board[row][col] === 'playerB') {
+                    } else if (board[row][col] === '2') {
                         cell.style.backgroundImage = 'url("/assets/black.png")'; // Substitua o caminho correto da imagem
                     } else {
                         cell.style.backgroundImage = 'none'; // Limpa o background-image se não houver jogador na célula
@@ -134,9 +134,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.textContent = '';
     
                     // Verifica a classe da célula e define o background-image correspondente
-                    if (board[row][col] === 'playerW') {
+                    if (board[row][col] === '1') {
                         cell.style.backgroundImage = 'url("/assets/white.png")'; // Substitua o caminho correto da imagem
-                    } else if (board[row][col] === 'playerB') {
+                    } else if (board[row][col] === '2') {
                         cell.style.backgroundImage = 'url("/assets/black.png")'; // Substitua o caminho correto da imagem
                     } else {
                         cell.style.backgroundImage = 'none'; // Limpa o background-image se não houver jogador na célula
@@ -211,7 +211,7 @@ document.addEventListener('DOMContentLoaded', () => {
         boardSize = parseInt(boardSizeSelect.value);
         gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
         generateBoard();
-        currentPlayer = 'Branco';
+        currentPlayer = '1';
         currentPlayerDisplay.textContent = currentPlayer;
         gameResultDisplay.textContent = '';
         isGameActive = true;
