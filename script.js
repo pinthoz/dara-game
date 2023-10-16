@@ -62,9 +62,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         if (putPhase) {
             // Verifique se o jogador ainda tem peças disponíveis
+            //########## POR IF POSSIBLE FORA #################//
             if (currentPlayer === '1' && playerBpieces > 0) {
                 if (possible) {
-                    const playerClass = '2';
+                    const playerClass = '1';
                     board[row][col] = playerClass;
                     renderBoard();
                     playerBpieces--;
@@ -73,7 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             } else if (currentPlayer === '2' && playerWpieces > 0) {
                 if (possible) {
-                    const playerClass = '1';
+                    const playerClass = '2';
                     board[row][col] = playerClass;
                     renderBoard();
                     playerWpieces--;
@@ -95,13 +96,17 @@ document.addEventListener('DOMContentLoaded', () => {
             alert('Jogada Inválida');
         }
 
+        console.log('aqui');
         // Troca o jogador atual
-        if (currentPlayer === '1') {
-            currentPlayer = '2';
-        } else {
-            currentPlayer = '1';
+        if (possible){
+            if (currentPlayer === '1') {
+                currentPlayer = '2';
+            } else {
+                currentPlayer = '1';
+            }
+            currentPlayerDisplay.textContent = currentPlayer;
         }
-        currentPlayerDisplay.textContent = currentPlayer;
+
     }
 
 
@@ -170,7 +175,7 @@ document.addEventListener('DOMContentLoaded', () => {
             board[i][k + 1] === board[i][k + 2] &&
             board[i][k + 2] === board[i][k + 3]
         ) {
-            board[i][j] = 0;
+            board[i][j] = '';
             if (!putPhase) {
                 board[rowSelected][colSelected] = currentPlayer;
             }
@@ -189,7 +194,7 @@ document.addEventListener('DOMContentLoaded', () => {
             board[k + 1][j] === board[k + 2][j] &&
             board[k + 2][j] === board[k + 3][j]
         ) {
-            board[i][j] = 0;
+            board[i][j] = '';
             if (!putPhase) {
                 board[rowSelected][colSelected] = currentPlayer;
             }
