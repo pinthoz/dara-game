@@ -60,6 +60,10 @@ label{
     align-items: center;
 }
 
+.selected-cell {
+    border: 2px solid yellow; /* Estilo de destaque da célula selecionada */
+}
+
 .playerB, .playerW {
     background-size: 100% 100%; /* Isso fará com que a imagem ocupe 100% da largura e altura do tile */
 }
