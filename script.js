@@ -171,9 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let k = min; k <= max; k++) {
             if (
             currentPlayer === board[i][k] &&
-            board[i][k] === board[i][k + 1] &&
-            board[i][k + 1] === board[i][k + 2] &&
-            board[i][k + 2] === board[i][k + 3]
+            currentPlayer === board[i][k + 1] &&
+            currentPlayer === board[i][k + 2] &&
+            currentPlayer === board[i][k + 3]
         ) {
             board[i][j] = '';
             if (!putPhase) {
@@ -190,9 +190,9 @@ document.addEventListener('DOMContentLoaded', () => {
         for (let k = min; k <= max; k++) {
             if (
             currentPlayer === board[k][j] &&
-            board[k][j] === board[k + 1][j] &&
-            board[k + 1][j] === board[k + 2][j] &&
-            board[k + 2][j] === board[k + 3][j]
+            currentPlayer === board[k + 1][j] &&
+            currentPlayer === board[k + 2][j] &&
+            currentPlayer === board[k + 3][j]
         ) {
             board[i][j] = '';
             if (!putPhase) {
