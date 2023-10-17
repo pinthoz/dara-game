@@ -69,7 +69,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     // Função para lidar com o clique em uma célula
-
     function handleCellClick(row, col) {
         if (!isGameActive) return;
     
@@ -79,11 +78,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!pieceSelected) {
                 handlePieceSelection(row, col);
             } else {
-                handlePieceMovement(row, col);
+                if(!possible_remove(row,col,currentPlayer)){
+                    handlePieceMovement(row, col);
+                }
+                else{
+                    handleRemovePiece(row, col, currentPlayer);
+                }
+                
             }
         }
     }
     
+    // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
         let canPlacePiece = possible_play(row, col, currentPlayer);
     
@@ -112,6 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+    // Função para lidar com a seleção de peças
     function handlePieceSelection(row, col) {
         if (possible_click(row, col, currentPlayer)) {
             rowSelected = row;
@@ -131,7 +138,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    
+    // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
         if (row == rowSelected && col == colSelected) {
             pieceSelected = false;
@@ -154,11 +161,48 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log('Não é possível mover a peça para essa posição');
             }
         }
-    } 
+    }
+
+    function handleRemovePiece(row, col, currentPlayer) {
+        if (possible_remove(row, col, currentPlayer)) {
+            board[row][col] = 0;
+
+            // Remova a classe que torna a peça visível
+            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
+            const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
+            selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
+            currentPlayer = '3' - currentPlayer;
+            currentPlayerDisplay.textContent = currentPlayer;
+            pieceSelected = false;
+            renderBoard();
+        }
+    }
+
+
+    function possible_remove(row,col,currentPlayer){
     
+        //Check Horizontal
+        let min = Math.max(0,col-2)
+        let max = Math.min(2,col)
+        
+        for (let i=min;i<=max;i++){
+            if (currentPlayer == board[row][i] && board[row][i] == board[row][i+1] && board[row][i+1] == board[row][i+2]){
+                return true
+            }
+        }
+            
+        // Check Vertical
+        min = Math.max(0,row-2)
+        max = Math.min(3,row)
     
-    
-    
+        for (let i=min;i<=max;i++){
+            if (currentPlayer == board[i][col] && board[i][col] == board[i+1][col] && board[i+1][col] == board[i+2][col]){
+                console.log("É possível remover uma peça")
+                return true
+            }
+        }
+        return false
+    }
     
     
 
