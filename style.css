@@ -60,8 +60,11 @@ label{
     align-items: center;
 }
 
-.selected-cell {
+.selected-cell-white {
     border: 2px solid yellow; /* Estilo de destaque da célula selecionada */
+}
+.selected-cell-black {
+    border: 2px solid red; 
 }
 
 .playerB, .playerW {
