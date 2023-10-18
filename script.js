@@ -117,51 +117,51 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Função para lidar com a seleção de peças
-// Função para lidar com a seleção de peças
-function handlePieceSelection(row, col) {
+    function handlePieceSelection(row, col) {
 
-    if (possible_click(row, col, currentPlayer)) {
-      rowSelected = row;
-      colSelected = col;
-      pieceSelected = true;
-  
-      // Adicione uma classe de seleção visual
-      const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
-      const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
-      selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
-  
-      // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
-      const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-      if (currentPlayer === '1') {
-        selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")'; // Imagem da peça branca selecionada
-      } else {
-        selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")'; // Imagem da peça preta selecionada
-      }
-  
-      // Adicione um evento click à célula selecionada
-      selectedCell.addEventListener('click', () => {
-        // Verifique se a peça selecionada é a mesma peça que foi clicada
-        if (rowSelected === row && colSelected === col) {
-          // Remova a classe de seleção da célula
+        if (possible_click(row, col, currentPlayer)) {
+            rowSelected = row;
+            colSelected = col;
+            pieceSelected = true;
+    
+            // Adicione uma classe de seleção visual
+            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
+            const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
+    
+            // Remova a classe de seleção da célula não selecionada
+            for (let i = 0; i < selectedCells.length; i++) {
+                if (selectedCells[i].dataset.row !== row || selectedCells[i].dataset.col !== col) {
+                    selectedCells[i].classList.remove(selectedCellsClass);
+                }
+            }
+    
+            // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
+            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("/assets/white.png")'; // Imagem da peça branca selecionada
+                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")'; // Imagem da peça branca selecionada
+            } else {
+                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")'; // Imagem da peça preta selecionada
             }
-            else{
-                selectedCell.style.backgroundImage = 'url("/assets/black.png")'; // Imagem da peça preta selecionada
+    
+            // Adiciona um evento click à célula selecionada
+            selectedCell.addEventListener('click', () => {
+                // Verifique se a peça selecionada é a mesma peça que foi clicada
+                if (rowSelected === row && colSelected === col) {
+                // Remova a classe de seleção da célula
+                if (currentPlayer === '1') {
+                    selectedCell.style.backgroundImage = 'url("/assets/white.png")'; // Imagem da peça branca selecionada
+                }
+                else{
+                    selectedCell.style.backgroundImage = 'url("/assets/black.png")'; // Imagem da peça preta selecionada
+                }
+    
+    
             }
-
-          // Reinicie as variáveis de seleção de peças
-          rowSelected = null;
-          colSelected = null;
-          pieceSelected = false;
+        });
+        } else {
+            console.log('Peça não pode ser selecionada');
         }
-      });
-    } else {
-      console.log('Peça não pode ser selecionada');
     }
-  }
-    
-    
     
     
     
