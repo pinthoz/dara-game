@@ -22,14 +22,16 @@
         <select id="opponent">
             <option value="human">Humano</option>
             <option value="computer">Computador</option>
+
+
         </select>
         <label for="first-play">Primeiro a jogar:</label>
-        <select id="first-play">
+        <select class='first-player' id="first-play">
             <option value="branco">Branco</option>
             <option value="preto">Preto</option>
         </select>
-        <label for="level">Nível do jogo:</label>  <!-- meter invisivel se o jogo for contra um humano-->
-        <select id="level">
+        <label class='level-label' id="level-label" for="level">Nível do jogo:</label>  
+        <select class='level' id="level">
             <option value="easy">Fácil</option>
             <option value="medium">Médio</option>
             <option value="hard">Difícil</option>

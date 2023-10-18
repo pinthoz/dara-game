@@ -79,3 +79,13 @@ label{
 .game-info.active {
     display: block;
 }
+
+.level-label {
+    display: none;
+}
+
+.level {
+    display: none;
+    margin: auto; 
+    text-align: center; 
+}

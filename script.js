@@ -4,9 +4,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameContainer = document.querySelector('.game-container');
     const currentPlayerDisplay = document.querySelector('#current-player');
     const gameResultDisplay = document.querySelector('#game-result');
+    const firstPlayerSelect = document.querySelector('#first-play');
+
+    let player1;
+    // Branco ou Preto a começar
 
     let boardSize = boardSizeSelect;
-    let currentPlayer = '1';
+    let currentPlayer = player1;
     let board = [];
     let isGameActive = false;
     let putPhase = true;
@@ -77,6 +81,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 handlePieceSelection(row, col);
             } else {
                 if(!possible_remove(row,col,currentPlayer)){
+                    console.log(possible_remove(row,col,currentPlayer));
                     handlePieceMovement(row, col);
                 }
                 else{
@@ -196,7 +201,7 @@ document.addEventListener('DOMContentLoaded', () => {
             board[row][col] = 0;
 
             // Remova a classe que torna a peça visível
-            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
+            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-black' : 'selected-cell-white';
             const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
             selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
             currentPlayer = '3' - currentPlayer;
@@ -207,28 +212,28 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-    function possible_remove(row,col,currentPlayer){
-        
+    function possible_remove(row, col, currentPlayer) {
+
         // Verifica Vertical
-        let toplim = Math.max(0,row-2)
-        let bottomlim = Math.min(3,row)
+        let toplim = Math.max(0, row - 2)
+        let bottomlim = Math.min(3, row)
     
-        for (let i=toplim;i<=bottomlim;i++){
-            if (currentPlayer == board[i][col] && board[i][col] == board[i+1][col] && board[i+1][col] == board[i+2][col]){
-                console.log("É possível remover uma peça")
+        for (let i = toplim; i <= bottomlim; i++) {
+            if (currentPlayer == board[i][col] && board[i][col] == board[i + 1][col] && board[i + 1][col] == board[i + 2][col]) {
                 return true
-            }
+        }
         }
 
         //Verifica Horizontal
-        let leftlim = Math.max(0,col-2)
-        let rightlim = Math.min(2,col)
-        
-        for (let i=leftlim;i<=rightlim;i++){
-            if (currentPlayer == board[row][i] && board[row][i] == board[row][i+1] && board[row][i+1] == board[row][i+2]){
+        let leftlim = Math.max(0, col - 2)
+        let rightlim = Math.min(2, col)
+
+        for (let i = leftlim; i <= rightlim; i++) {
+            if (currentPlayer == board[row][i] && board[row][i] == board[row][i + 1] && board[row][i + 1] == board[row][i + 2]) {
                 return true
-            }
         }
+    }
+    
         return false
     }
     
@@ -384,7 +389,12 @@ function possiblePlays(currentPlayer) {
         boardSize = parseInt(boardSizeSelect.value);
         gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
         generateBoard();
-        currentPlayer = '1';
+        if (firstPlayerSelect.value === 'branco') {
+            player1 = '1';
+        } else {
+            player1 = '2';
+        }
+        currentPlayer = player1;
         currentPlayerDisplay.textContent = currentPlayer;
         gameResultDisplay.textContent = '';
         isGameActive = true;
@@ -393,6 +403,29 @@ function possiblePlays(currentPlayer) {
         const gameInfoElement = document.querySelector('.game-info');
         gameInfoElement.classList.add('active');
 
+        // Altera o texto do botão "Iniciar Jogo" para "Desistir"
+        const start_button = document.getElementById('start-game');
+        start_button.textContent = 'Desistir';
+
+
+    });
+
+    const opponentSelect = document.querySelector('#opponent');
+    const levelLabel = document.getElementById('level-label');
+    const levelSelect = document.getElementById('level');
+
+    // Adicione um ouvinte de evento à seleção do oponente
+    opponentSelect.addEventListener('change', () => {
+        const selectedOption = opponentSelect.value;
+
+        // Verifique se a opção selecionada é 'computer' para mostrar ou ocultar a label de nível e o campo de seleção de nível
+        if (selectedOption === 'computer') {
+            levelLabel.style.display = 'block'; // Mostrar a label de nível
+            levelSelect.style.display = 'block'; // Mostrar o campo de seleção de nível
+        } else {
+            levelLabel.style.display = 'none'; // Ocultar a label de nível
+            levelSelect.style.display = 'none'; // Ocultar o campo de seleção de nível
+        }
     });
 
 
