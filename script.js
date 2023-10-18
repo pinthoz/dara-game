@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let past_moves = [-1,-1,-1,-1,-1,-1,-1,-1];
 
 
-
     function tupleToString(tuple) {
         return JSON.stringify(tuple);
     }
@@ -31,39 +30,38 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
-        if (boardSize === 6){
-        gameContainer.innerHTML = '';
-        board = new Array(boardSize).fill(0).map(() => new Array(boardSize).fill(0));
-        for (let row = 0; row < boardSize; row++) {
-            for (let col = 0; col < boardSize; col++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.row = row;
-                cell.dataset.col = col;
-                cell.addEventListener('click', () => handleCellClick(row, col));
-                gameContainer.appendChild(cell);
+        if (boardSize === 6) {
+            gameContainer.innerHTML = '';
+            board = new Array(boardSize).fill(0).map(() => new Array(boardSize).fill(0));
+            for (let row = 0; row < boardSize; row++) {
+                for (let col = 0; col < boardSize; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    gameContainer.appendChild(cell);
+                }
+            }
+        } else {
+            let numRows = 6; // Defina o número de linhas
+            let numCols = 5; // Defina o número de colunas
+    
+            gameContainer.innerHTML = '';
+            board = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
+    
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
+                    const cell = document.createElement('div');
+                    cell.classList.add('cell');
+                    cell.dataset.row = row;
+                    cell.dataset.col = col;
+                    cell.addEventListener('click', () => handleCellClick(row, col));
+                    gameContainer.appendChild(cell);
+                }
             }
         }
-    }else{
-        const numRows = 6; // Defina o número de linhas
-        const numCols = 5; // Defina o número de colunas
-
-        gameContainer.innerHTML = '';
-        board = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
-
-        for (let row = 0; row < numRows; row++) {
-            for (let col = 0; col < numCols; col++) {
-                const cell = document.createElement('div');
-                cell.classList.add('cell');
-                cell.dataset.row = row;
-                cell.dataset.col = col;
-                cell.addEventListener('click', () => handleCellClick(row, col));
-                gameContainer.appendChild(cell);
-        }
     }
-    
-    }
-}
 
         
 
@@ -181,23 +179,24 @@ document.addEventListener('DOMContentLoaded', () => {
 
     function possible_remove(row,col,currentPlayer){
     
-        //Check Horizontal
-        let min = Math.max(0,col-2)
-        let max = Math.min(2,col)
         
-        for (let i=min;i<=max;i++){
-            if (currentPlayer == board[row][i] && board[row][i] == board[row][i+1] && board[row][i+1] == board[row][i+2]){
+        // Verifica Vertical
+        let toplim = Math.max(0,row-2)
+        let bottomlim = Math.min(3,row)
+    
+        for (let i=toplim;i<=bottomlim;i++){
+            if (currentPlayer == board[i][col] && board[i][col] == board[i+1][col] && board[i+1][col] == board[i+2][col]){
+                console.log("É possível remover uma peça")
                 return true
             }
         }
-            
-        // Check Vertical
-        min = Math.max(0,row-2)
-        max = Math.min(3,row)
-    
-        for (let i=min;i<=max;i++){
-            if (currentPlayer == board[i][col] && board[i][col] == board[i+1][col] && board[i+1][col] == board[i+2][col]){
-                console.log("É possível remover uma peça")
+
+        //Verifica Horizontal
+        let leftlim = Math.max(0,col-2)
+        let rightlim = Math.min(2,col)
+        
+        for (let i=leftlim;i<=rightlim;i++){
+            if (currentPlayer == board[row][i] && board[row][i] == board[row][i+1] && board[row][i+1] == board[row][i+2]){
                 return true
             }
         }
@@ -208,7 +207,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
+/*
 function possiblePlays(currentPlayer) {
     for (let i = 0; i < boardSize; i++) {
         for (let j = 0; j < boardSize; j++) {
@@ -220,7 +219,7 @@ function possiblePlays(currentPlayer) {
             }
         }
     }
-}
+}*/
 
 
 
@@ -233,23 +232,29 @@ function possiblePlays(currentPlayer) {
         return false;
     }
 
-function possible_move(i,j, rowSelected, colSelected){
-    if (i === rowSelected && Math.abs(j -colSelected) === 1) {
-        return true;
-    }else if(j === colSelected && Math.abs(i - rowSelected) === 1){
-        return true;    
-    }else{
-        return false;
+    function possible_move(i,j, rowSelected, colSelected){
+        if (i === rowSelected && Math.abs(j -colSelected) === 1) {
+            return true;
+        }else if(j === colSelected && Math.abs(i - rowSelected) === 1){
+            return true;    
+        }else{
+            return false;
+        }
     }
-}
 
-function repeat(lastmove,r,c,rselected,cselected,currPlayer){
-    return lastmove[(currPlayer-1)*4]==rselected && lastmove[(currPlayer-1)*4+1]==cselected && lastmove[(currPlayer-1)*4+2]==r && lastmove[(currPlayer-1)*4+3]==c;
-}
+    function repeat(lastmove,r,c,rselected,cselected,currPlayer){
+        return lastmove[(currPlayer-1)*4]==rselected && lastmove[(currPlayer-1)*4+1]==cselected && lastmove[(currPlayer-1)*4+2]==r && lastmove[(currPlayer-1)*4+3]==c;
+    }
 
 
     function possible_play(i, j, currentPlayer) {
-        // Check is Empty
+        // Check if the cell is out of bounds
+        if (i < 0 || i >= board.length || j < 0 || j >= board[i].length) {
+            console.log('false - Cell is out of bounds');
+            return false;
+        }
+    
+        // Check if the cell is not empty
         if (board[i][j] !== 0) {
             console.log('false - Cell is not empty');
             return false;
@@ -263,45 +268,44 @@ function repeat(lastmove,r,c,rselected,cselected,currPlayer){
     
         // Check Horizontal
         let leftlim = Math.max(0, j - 3);
-        let rightlim = Math.min(boardSize - 1, j);
-
-        console.log("leftlim " + leftlim + " rightlim " + rightlim);
-
-        for (let k = leftlim; k <= rightlim; k++) {
-            console.log("|" + currentPlayer + "|" + board[i][k] + "|" + board[i][k + 1] + "|" +  board[i][k + 2] + "|" + board[i][k + 3]) + "|";
+        let rightlim = Math.min(board[i].length - 1, j + 3);
+    
+        for (let k = leftlim; k <= rightlim - 3; k++) {
             if (
-            currentPlayer === board[i][k] &&
-            currentPlayer === board[i][k + 1] &&
-            currentPlayer === board[i][k + 2] &&
-            currentPlayer === board[i][k + 3]
-        ) {
-            board[i][j] = 0;
-            return false;
-        }
+                currentPlayer === (board[i][k] || 0) &&
+                currentPlayer === (board[i][k + 1] || 0) &&
+                currentPlayer === (board[i][k + 2] || 0) &&
+                currentPlayer === (board[i][k + 3] || 0)
+            ) {
+                board[i][j] = 0;  // Set it back to an empty cell
+                return false;
+            }
         }
     
         // Check Vertical
-        leftlim = Math.max(0, i - 3);
-        rightlim = Math.min(boardSize - 1, i);
+        let toplim = Math.max(0, i - 3);
+        let bottomlim = Math.min(board.length - 1, i + 3);
     
-        for (let k = leftlim; k <= rightlim; k++) {
+        for (let k = toplim; k <= bottomlim - 3; k++) {
             if (
-            currentPlayer === board[k][j] &&
-            currentPlayer === board[k + 1][j] &&
-            currentPlayer === board[k + 2][j] &&
-            currentPlayer === board[k + 3][j]
-        ) {
-            board[i][j] = '';
-            return false;
+                currentPlayer === (board[k][j] || 0) &&
+                currentPlayer === (board[k + 1][j] || 0) &&
+                currentPlayer === (board[k + 2][j] || 0) &&
+                currentPlayer === (board[k + 3][j] || 0)
+            ) {
+                board[i][j] = 0;  // Set it back to an empty cell
+                return false;
+            }
         }
-        }
-        
+    
         if (!putPhase) {
             board[rowSelected][colSelected] = currentPlayer;
         }
         console.log('true - Move is possible');
         return true;
     }
+    
+    
     
 
 
@@ -315,14 +319,12 @@ function repeat(lastmove,r,c,rselected,cselected,currPlayer){
                 for (let col = 0; col < boardSize; col++) {
                     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                     cell.textContent = '';
-    
-                    // Verifica a classe da célula e define o background-image correspondente
                     if (board[row][col] === '1') {
-                        cell.style.backgroundImage = 'url(/assets/"white.png")'; // Substitua o caleftlimho correto da imagem
+                        cell.style.backgroundImage = 'url("/assets/white.png")';
                     } else if (board[row][col] === '2') {
-                        cell.style.backgroundImage = 'url("/assets/black.png")'; // Substitua o caleftlimho correto da imagem
+                        cell.style.backgroundImage = 'url("/assets/black.png")';
                     } else {
-                        cell.style.backgroundImage = 'none'; // Limpa o background-image se não houver jogador na célula
+                        cell.style.backgroundImage = 'none';
                     }
                 }
             }
@@ -334,14 +336,12 @@ function repeat(lastmove,r,c,rselected,cselected,currPlayer){
                 for (let col = 0; col < numCols; col++) {
                     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                     cell.textContent = '';
-    
-                    // Verifica a classe da célula e define o background-image correspondente
                     if (board[row][col] === '1') {
-                        cell.style.backgroundImage = 'url("/assets/white.png")'; // Substitua o caleftlimho correto da imagem
+                        cell.style.backgroundImage = 'url("/assets/white.png")';
                     } else if (board[row][col] === '2') {
-                        cell.style.backgroundImage = 'url("/assets/black.png")'; // Substitua o caleftlimho correto da imagem
+                        cell.style.backgroundImage = 'url("/assets/black.png")';
                     } else {
-                        cell.style.backgroundImage = 'none'; // Limpa o background-image se não houver jogador na célula
+                        cell.style.backgroundImage = 'none';
                     }
                 }
             }
