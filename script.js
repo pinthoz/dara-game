@@ -117,24 +117,54 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     
     // Função para lidar com a seleção de peças
-    function handlePieceSelection(row, col) {
-        if (possible_click(row, col, currentPlayer)) {
-            rowSelected = row;
-            colSelected = col;
-            pieceSelected = true;
-    
-            // Adiciona uma classe de seleção visual
-            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
-            const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
-            selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
-    
-            // Adiciona a classe de seleção à célula atual
-            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-            selectedCell.classList.add(selectedCellsClass);
-        } else {
-            console.log('Peça não pode ser selecionada');
+// Função para lidar com a seleção de peças
+function handlePieceSelection(row, col) {
+
+    if (possible_click(row, col, currentPlayer)) {
+      rowSelected = row;
+      colSelected = col;
+      pieceSelected = true;
+  
+      // Adicione uma classe de seleção visual
+      const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
+      const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
+      selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
+  
+      // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
+      const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+      if (currentPlayer === '1') {
+        selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")'; // Imagem da peça branca selecionada
+      } else {
+        selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")'; // Imagem da peça preta selecionada
+      }
+  
+      // Adicione um evento click à célula selecionada
+      selectedCell.addEventListener('click', () => {
+        // Verifique se a peça selecionada é a mesma peça que foi clicada
+        if (rowSelected === row && colSelected === col) {
+          // Remova a classe de seleção da célula
+            if (currentPlayer === '1') {
+                selectedCell.style.backgroundImage = 'url("/assets/white.png")'; // Imagem da peça branca selecionada
+            }
+            else{
+                selectedCell.style.backgroundImage = 'url("/assets/black.png")'; // Imagem da peça preta selecionada
+            }
+
+          // Reinicie as variáveis de seleção de peças
+          rowSelected = null;
+          colSelected = null;
+          pieceSelected = false;
         }
+      });
+    } else {
+      console.log('Peça não pode ser selecionada');
     }
+  }
+    
+    
+    
+    
+    
     
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
@@ -178,7 +208,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
     function possible_remove(row,col,currentPlayer){
-    
         
         // Verifica Vertical
         let toplim = Math.max(0,row-2)
