@@ -6,9 +6,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameResultDisplay = document.querySelector('#game-result');
     const firstPlayerSelect = document.querySelector('#first-play');
 
+    //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
+    const playerNames = {
+        '1': 'Branco',
+        '2': 'Preto'
+    };
+    
     let player1;
-    // Branco ou Preto a começar
-
     let boardSize = boardSizeSelect;
     let currentPlayer = player1;
     let board = [];
@@ -106,7 +110,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
     
             currentPlayer = currentPlayer === '1' ? '2' : '1';
-            currentPlayerDisplay.textContent = currentPlayer;
+            currentPlayerDisplay.textContent = playerNames[currentPlayer];
         } else {
             console.log('Jogada Inválida');
         }
@@ -117,7 +121,7 @@ document.addEventListener('DOMContentLoaded', () => {
             putPhase = false;
             console.log('Você já colocou todas as peças permitidas durante a fase de colocação.');
             currentPlayer = '1'; // jogador branco
-            currentPlayerDisplay.textContent = currentPlayer;
+            currentPlayerDisplay.textContent = playerNames[currentPlayer];
         }
     }
     
@@ -189,7 +193,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 past_moves[(currentPlayer - 1) * 4 + 3] = col;
                 pieceSelected = false;
                 currentPlayer = currentPlayer === '1' ? '2' : '1';
-                currentPlayerDisplay.textContent = currentPlayer;
+                currentPlayerDisplay.textContent = playerNames[currentPlayer];
             } else {
                 console.log('Não é possível mover a peça para essa posição');
             }
@@ -205,7 +209,7 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
             selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
             currentPlayer = '3' - currentPlayer;
-            currentPlayerDisplay.textContent = currentPlayer;
+            currentPlayerDisplay.textContent = playerNames[currentPlayer];
             pieceSelected = false;
             renderBoard();
         }
@@ -395,7 +399,7 @@ function possiblePlays(currentPlayer) {
             player1 = '2';
         }
         currentPlayer = player1;
-        currentPlayerDisplay.textContent = currentPlayer;
+        currentPlayerDisplay.textContent = playerNames[currentPlayer];
         gameResultDisplay.textContent = '';
         isGameActive = true;
 
@@ -427,6 +431,8 @@ function possiblePlays(currentPlayer) {
             levelSelect.style.display = 'none'; // Ocultar o campo de seleção de nível
         }
     });
+
+
 
 
 
