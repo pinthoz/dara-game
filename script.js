@@ -80,12 +80,13 @@ document.addEventListener('DOMContentLoaded', () => {
     
         if (putPhase) {
             handlePlacementPhase(row, col);
+
         } else {
             if (!pieceSelected) {
                 handlePieceSelection(row, col);
             } else {
                 if(!possible_remove(row,col,currentPlayer)){
-                    console.log(possible_remove(row,col,currentPlayer));
+                    console.log("não podes remover a peça " + possible_remove(row,col,currentPlayer));
                     handlePieceMovement(row, col);
                 }
                 else{
@@ -132,7 +133,9 @@ document.addEventListener('DOMContentLoaded', () => {
             rowSelected = row;
             colSelected = col;
             pieceSelected = true;
-    
+            
+            console.log('Peça selecionada')
+            console.log('Peça selecionada - Linha:', rowSelected, 'Coluna:', colSelected)
             // Adicione uma classe de seleção visual
             const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
             const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
@@ -177,6 +180,8 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
+        console.log('Peça selecionada: HandlePieceMovement')
+            console.log('Peça selecionada - Linha:', rowSelected, 'Coluna:', colSelected)
         if (row == rowSelected && col == colSelected) {
             pieceSelected = false;
             const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
@@ -196,7 +201,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 currentPlayerDisplay.textContent = playerNames[currentPlayer];
             } else {
                 console.log('Não é possível mover a peça para essa posição');
+
+                
             }
+        }
+        for (let i = 0; i < 6; i++){
+            console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
+            
         }
     }
 
@@ -299,7 +310,9 @@ function possiblePlays(currentPlayer) {
         }
     
         if (!putPhase) {
-            board[rowSelected][colSelected] = 0;
+            //se nao voltou a clicar na mesma peça
+            //console.log( "!!!HOR!!!!" + i + " " + j + " " + rowSelected + " " + colSelected)
+            board[i][j] = 0;
         }
     
         board[i][j] = currentPlayer;
@@ -337,17 +350,16 @@ function possiblePlays(currentPlayer) {
         }
     
         if (!putPhase) {
-            board[rowSelected][colSelected] = currentPlayer;
+            //se nao voltou a clicar na mesma peça
+            //console.log( "!!!VER!!!!" +i + " " + j + " " + rowSelected + " " + colSelected)
+            board[i][j] = 0;
         }
+    
         console.log('true - Move is possible');
         return true;
     }
     
     
-    
-
-
-
 
 
     // Função para renderizar o tabuleiro atual
