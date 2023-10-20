@@ -1,8 +1,9 @@
 body {
     font-family: Arial, sans-serif;
     text-align: center;
-    background-color: rgb(164, 229, 169);
-
+    background-color: #5271FF;
+    margin: 0; /* Remova as margens padrão do corpo */
+    padding: 0; /* Remova o preenchimento padrão do corpo */
 }
 
 
@@ -88,4 +89,50 @@ label{
     display: none;
     margin: auto; 
     text-align: center; 
+}
+
+.header-bar {
+    background-color: #E6535F; /* Cor da barra superior */
+    height: 50px; /* Defina a altura desejada */
+}
+
+.img-dara {
+    width: 100px; /* Tamanho do logo */
+    display: block; /* Para centralizar o logo horizontalmente */
+    margin: 0 auto;
+    float: left; /* Define o logo à esquerda */
+    margin-left: 20px;
+    margin-top : 5px;
+
+}  
+
+.rules-button {
+    background-color: #E6535F; /* Cor de fundo do botão */
+    color: #5271FF; /* Cor do texto no botão */
+    border: 2px solid #E6535F; /* Borda do botão */
+    padding: 10px 20px; /* Espaçamento interno */
+    font-size: 16px; /* Tamanho da fonte */
+    cursor: pointer; /* Altera o cursor ao passar o mouse */
+    float: left; /* Define o botão à direita */
+    margin-top: 5px;
+    color: transparent; /* Torna o texto do botão transparente (invisível) */
+    background-image: url('assets/rules.png'); /* Substitua 'caminho-da-imagem.jpg' pelo caminho da sua imagem */
+    background-size: 80px; /* Tamanho da imagem */
+    background-position: center; /* Centraliza a imagem no botão */
+    background-repeat: no-repeat; /* Evita repetição da imagem */
+    margin-top: 8px;
+    margin-left: 25px; /* Desloca o botão 20px para a direita */
+
+}
+
+section{
+    background:#D0E2EE;
+    border-radius: 10px;
+    padding: 15px;
+    width: 500px;
+    margin: auto;
+    box-shadow:5px 5px 10px black;
+    margin-top: 15px;
+
+
 }

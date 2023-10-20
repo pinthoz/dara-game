@@ -5,13 +5,18 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
+    <link rel="shortcut icon" href="assets/short-logo.png" />
     <script src="script.js"></script>
-    <title>Jogo Dara</title>
+    <title>Dara</title>
 </head>
 <body>
-    <div class="header">
-        <h1>Jogo Dara</h1>
+    <div class="header-bar">
+        <img src="assets/logo.png"  alt="Jogo Dara" class="img-dara">
+        <button id="rules-button" class="rules-button">Regras</button>
     </div>
+    <div id="rules" class="rules-content">
+    </div>
+    <section>
     <div class="game-settings">
         <label for="board-size">Escolha o tamanho do tabuleiro:</label>
         <select id="board-size">
@@ -45,6 +50,7 @@
         <p>Vez do jogador: <span id="current-player">Branco</span></p>
         <p id="game-result"></p>
     </div>
+    </section>
     <div class="login-button">
         <button id="login">Login</button>
     </div>
