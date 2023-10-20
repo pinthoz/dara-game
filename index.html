@@ -13,10 +13,29 @@
     <div class="header-bar">
         <img src="assets/logo.png"  alt="Jogo Dara" class="img-dara">
         <button id="rules-button" class="rules-button">Regras</button>
+        <button id="leaderboard" class="leaderboard-button">Classificações</button>
+        <button id="login" class="login-button">Login</button>
+        
     </div>
     <div id="rules" class="rules-content">
     </div>
-    <section>
+    <section id="additional-section" class="hidden-section">
+        <h2>Regras</h2>
+        <p>1. Cada jogador posiciona uma peça de cada vez no tabuleiro até completar o
+            total das 24 peças.</p>
+        <p>2. O jogador da vez movimenta suas peças para um espaço vazio nos sentidos
+            para cima, para baixo ou para os lados, mas não nas diagonais. </p>
+        <p>3. Quando um jogador consegue posicionar três peças em uma linha, ele
+            elimina uma peça de seu adversário. Isso é conhecido como “comer” o inimigo. </p>
+        <p>4. Os jogadores não podem ter mais de três peças em uma linha a qualquer
+            momento. Uma linha feita no início do jogo, quando as peças estão sendo
+            posicionadas, não vale. Somente uma peça por vez pode ser removida do jogo,
+            mesmo que tenham sido feitas mais de uma linha com apenas um movimento. </p>
+        <p>5. Quando um jogador não pode mais fazer linhas, perde o jogo. </p>
+            
+        <button id="return-button" class="return-button">Voltar</button>
+    </section>
+    <section class="main-section" id="main-section">
     <div class="game-settings">
         <label for="board-size">Escolha o tamanho do tabuleiro:</label>
         <select id="board-size">
@@ -51,8 +70,6 @@
         <p id="game-result"></p>
     </div>
     </section>
-    <div class="login-button">
-        <button id="login">Login</button>
-    </div>
+
 </body>
 </html>

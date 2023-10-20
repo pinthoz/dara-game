@@ -590,4 +590,23 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         }
     });
 
+    const mainSection = document.getElementById('main-section');
+    const hiddenSection = document.getElementById('additional-section');
+    const rulesButton = document.getElementById('rules-button');
+    const returnButton = document.getElementById('return-button'); // Seleciona o botão de retorno
+    
+    // Adicione um evento de clique ao botão de regras
+    rulesButton.addEventListener('click', () => {
+        // Alternar a visibilidade da main-section e hidden-section
+        mainSection.style.display = 'none'; // Esconde a main-section
+        hiddenSection.style.display = 'block'; // Mostra a hidden-section
+    });
+    
+    // Adicione um evento de clique ao botão de retorno
+    returnButton.addEventListener('click', () => {
+        // Alternar a visibilidade da main-section e hidden-section
+        mainSection.style.display = 'block'; // Mostra a main-section
+        hiddenSection.style.display = 'none'; // Esconde a hidden-section
+    });
+
 });
