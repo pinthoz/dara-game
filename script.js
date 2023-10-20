@@ -24,6 +24,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let playerWpieces = 12;
     let pieceSelected = false;
     let past_moves = [-1,-1,-1,-1,-1,-1,-1,-1];
+    let canRemove = false;
+    let win = 0;
 
 
     function tupleToString(tuple) {
@@ -71,8 +73,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-        
-
 
     // Função para lidar com o clique em uma célula
     function handleCellClick(row, col) {
@@ -82,15 +82,23 @@ document.addEventListener('DOMContentLoaded', () => {
             handlePlacementPhase(row, col);
 
         } else {
+            playerBpieces = 12;
+            playerWpieces = 12;
             if (!pieceSelected) {
                 handlePieceSelection(row, col);
             } else {
-                if(!possible_remove(row,col,currentPlayer)){
-                    console.log("não podes remover a peça " + possible_remove(row,col,currentPlayer));
-                    handlePieceMovement(row, col);
+                if(canRemove){
+                    console.log('chegou aqui');
+                    handleRemovePiece(row, col, currentPlayer);
+                    possible_win();
                 }
                 else{
-                    handleRemovePiece(row, col, currentPlayer);
+                    if (possible_remove(row,col,currentPlayer)){
+                        canRemove = true;
+                        console.log("podes remover a peça");
+                    }else{
+                        handlePieceMovement(row, col);
+                    }
                 }
                 
             }
@@ -150,9 +158,9 @@ document.addEventListener('DOMContentLoaded', () => {
             // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
             const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")'; // Imagem da peça branca selecionada
+                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")'; 
             } else {
-                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")'; // Imagem da peça preta selecionada
+                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")'; 
             }
     
             // Adiciona um evento click à célula selecionada
@@ -161,12 +169,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (rowSelected === row && colSelected === col) {
                 // Remova a classe de seleção da célula
                 if (currentPlayer === '1') {
-                    selectedCell.style.backgroundImage = 'url("/assets/white.png")'; // Imagem da peça branca selecionada
+                    selectedCell.style.backgroundImage = 'url("/assets/white.png")';
                 }
                 else{
-                    selectedCell.style.backgroundImage = 'url("/assets/black.png")'; // Imagem da peça preta selecionada
+                    selectedCell.style.backgroundImage = 'url("/assets/black.png")';
                 }
-    
     
             }
         });
@@ -174,8 +181,6 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Peça não pode ser selecionada');
         }
     }
-    
-    
     
     
     // Função para lidar com o movimento de peças
@@ -212,64 +217,63 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function handleRemovePiece(row, col, currentPlayer) {
-        if (possible_remove(row, col, currentPlayer)) {
-            board[row][col] = 0;
-
+            if(board[row][col] === 3 - currentPlayer){
+                board[row][col] = 0;
+            
+            
             // Remova a classe que torna a peça visível
             const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-black' : 'selected-cell-white';
             const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
             selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
             currentPlayer = '3' - currentPlayer;
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
+            if(currentPlayer == 1){
+                playerBpieces--;
+            }else{
+                playerWpieces--;
+            }
             pieceSelected = false;
+            canRemove = false;
             renderBoard();
         }
     }
 
 
-    function possible_remove(row, col, currentPlayer) {
+    function possible_remove(i, j, currentPlayer) {
 
-        // Verifica Vertical
-        let toplim = Math.max(0, row - 2)
-        let bottomlim = Math.min(3, row)
+        // Check Horizontal
+        let leftlim = Math.max(0, j - 3);
+        let rightlim = Math.min(board[i].length - 1, j + 3);
     
-        for (let i = toplim; i <= bottomlim; i++) {
-            if (currentPlayer == board[i][col] && board[i][col] == board[i + 1][col] && board[i + 1][col] == board[i + 2][col]) {
-                return true
+        for (let k = leftlim; k <= rightlim - 3; k++) {
+            if (
+                currentPlayer === (board[i][k] || 0) &&
+                currentPlayer === (board[i][k + 1] || 0) &&
+                currentPlayer === (board[i][k + 2] || 0) &&
+                currentPlayer === (board[i][k + 3] || 0)
+            ) {
+                board[i][j] = 0;  // Set it back to an empty cell
+                return false;
+            }
         }
-        }
-
-        //Verifica Horizontal
-        let leftlim = Math.max(0, col - 2)
-        let rightlim = Math.min(2, col)
-
-        for (let i = leftlim; i <= rightlim; i++) {
-            if (currentPlayer == board[row][i] && board[row][i] == board[row][i + 1] && board[row][i + 1] == board[row][i + 2]) {
-                return true
-        }
-    }
     
-        return false
-    }
+        // Check Vertical
+        let toplim = Math.max(0, i - 3);
+        let bottomlim = Math.min(board.length - 1, i + 3);
     
-    
-
-
-
-/*
-function possiblePlays(currentPlayer) {
-    for (let i = 0; i < boardSize; i++) {
-        for (let j = 0; j < boardSize; j++) {
-            if (board[i][j] === currentPlayer) {
-                checkDirections(i, j, i + 1, j, currentPlayer);
-                checkDirections(i, j, i, j + 1, currentPlayer);
-                checkDirections(i, j, i - 1, j, currentPlayer);
-                checkDirections(i, j, i, j - 1, currentPlayer);
+        for (let k = toplim; k <= bottomlim - 3; k++) {
+            if (
+                currentPlayer === (board[k][j] || 0) &&
+                currentPlayer === (board[k + 1][j] || 0) &&
+                currentPlayer === (board[k + 2][j] || 0) &&
+                currentPlayer === (board[k + 3][j] || 0)
+            ) {
+                board[i][j] = 0;  // Set it back to an empty cell
+                return false;
             }
         }
     }
-}*/
-
+    
 
 
     function possible_click(i, j, currentPlayer) {
@@ -293,6 +297,34 @@ function possiblePlays(currentPlayer) {
 
     function repeat(lastmove,r,c,rselected,cselected,currPlayer){
         return lastmove[(currPlayer-1)*4]==rselected && lastmove[(currPlayer-1)*4+1]==cselected && lastmove[(currPlayer-1)*4+2]==r && lastmove[(currPlayer-1)*4+3]==c;
+    }
+
+    function moves_available(currentPlayer, lastmove, numRows, numCols){
+        for (let i = 0; i< numRows ; i++){
+            for (let j = 0; j< numCols ; j++){
+                if (board[i][j]==currentPlayer){
+                    if (i>0){
+                        if (possible_play(i+1,j,currentPlayer) && !repeat(lastmove,i+1,j,i,j,currentPlayer)){
+                            return true;
+                        }
+                    }if (i<numRows-1){
+                        if (possible_play(i-1,j,currentPlayer) && !repeat(lastmove,i-1,j,i,j,currentPlayer)){
+                            return true;
+                        }
+                    }if (j>0){
+                        if (possible_play(i,j+1,currentPlayer) && !repeat(lastmove,i,j+1,i,j,currentPlayer)){
+                            return true;
+                        }
+                    }
+                    if (j<numCols-1){
+                        if (possible_play(i,j-1,currentPlayer) && !repeat(lastmove,i,j-1,i,j,currentPlayer)){
+                            return true;
+                        }
+                    }
+        }
+    }
+    }
+    return false;
     }
 
 
@@ -357,10 +389,33 @@ function possiblePlays(currentPlayer) {
     
         console.log('true - Move is possible');
         return true;
-    }
-    
-    
+    }  
 
+    function possible_win(){
+        if (currentPlayer == 1){
+            if (playerBpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
+                winner = 2;
+                game_finished(winner);
+            }
+            return;
+        }
+        if (currentPlayer == 2){
+            if (playerWpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
+                winner = 1;
+                game_finished(winner);
+            }
+            return;
+        }
+    }    
+
+    function game_finished(winner) {
+        let win = document.getElementById("winner");
+        if (winner==1) {
+            win.innerText = "Red Wins";             
+        } else {
+            win.innerText = "Yellow Wins";
+        }
+    }
 
     // Função para renderizar o tabuleiro atual
     function renderBoard() {
@@ -397,7 +452,6 @@ function possiblePlays(currentPlayer) {
             }
         }
     }
-
 
 
     // Event listener para o botão "Iniciar Jogo"
@@ -443,9 +497,5 @@ function possiblePlays(currentPlayer) {
             levelSelect.style.display = 'none'; // Ocultar o campo de seleção de nível
         }
     });
-
-
-
-
 
 });
