@@ -182,7 +182,43 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
+  
     
+const LastPlay1 = {
+    row: -1,
+    col: -1,
+    rowSelected: -1,
+    colSelected: -1,
+};
+
+const LastPlay2 = {
+    row: -1,
+    col: -1,
+    rowSelected: -1,
+    colSelected: -1,
+};
+
+
+
+
+
+function go_back(row,col,rowSelected,colSelected,currentPlayer){
+    if (currentPlayer == 1){
+        if (row == LastPlay1.row && 
+            col == LastPlay1.col && 
+            rowSelected == LastPlay1.rowSelected 
+            && colSelected == LastPlay1.colSelected)
+            return false;
+    }else{
+        if (row == LastPlay2.row && 
+            col == LastPlay2.col && 
+            rowSelected == LastPlay2.rowSelected 
+            && colSelected == LastPlay2.colSelected)
+            return false;	
+    }
+    return true;
+
+}
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
         console.log('Peça selecionada: HandlePieceMovement')
@@ -193,14 +229,32 @@ document.addEventListener('DOMContentLoaded', () => {
             const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             selectedCell.classList.remove(selectedCellsClass);
         } else {
-            if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && !repeat(past_moves, row, col, rowSelected, colSelected, currentPlayer)) {
+            if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row,col,rowSelected,colSelected,currentPlayer) ) { // && !repeat(past_moves, row, col, rowSelected, colSelected, currentPlayer)
                 board[row][col] = currentPlayer;
                 board[rowSelected][colSelected] = 0;
+
+                if (currentPlayer == 1){
+                    LastPlay1.row = rowSelected;
+                    LastPlay1.col = colSelected;
+                    LastPlay1.rowSelected = row;
+                    LastPlay1.colSelected = col;
+                    console.log("LastPlay1: " + LastPlay1.row + " " + LastPlay1.col + " " + LastPlay1.rowSelected + " " + LastPlay1.colSelected);
+                }
+                else{
+                    LastPlay2.row = rowSelected;
+                    LastPlay2.col = colSelected;
+                    LastPlay2.rowSelected = row;
+                    LastPlay2.colSelected = col;
+                    console.log("LastPlay2: " + LastPlay2.row + " " + LastPlay2.col + " " + LastPlay2.rowSelected + " " + LastPlay2.colSelected);
+                }
+
                 renderBoard();
+                /*
                 past_moves[(currentPlayer - 1) * 4] = rowSelected;
                 past_moves[(currentPlayer - 1) * 4 + 1] = colSelected;
                 past_moves[(currentPlayer - 1) * 4 + 2] = row;
                 past_moves[(currentPlayer - 1) * 4 + 3] = col;
+                */
                 pieceSelected = false;
                 currentPlayer = currentPlayer === '1' ? '2' : '1';
                 currentPlayerDisplay.textContent = playerNames[currentPlayer];
@@ -237,6 +291,10 @@ document.addEventListener('DOMContentLoaded', () => {
             renderBoard();
         }
     }
+
+
+    //________________________________________________________
+
 
 
     function possible_remove(i, j, currentPlayer) {
@@ -341,19 +399,16 @@ document.addEventListener('DOMContentLoaded', () => {
             return false;
         }
     
-        if (!putPhase) {
-            //se nao voltou a clicar na mesma peça
-            //console.log( "!!!HOR!!!!" + i + " " + j + " " + rowSelected + " " + colSelected)
-            board[i][j] = 0;
-        }
-    
         board[i][j] = currentPlayer;
     
         // Check Horizontal
         let leftlim = Math.max(0, j - 3);
         let rightlim = Math.min(board[i].length - 1, j + 3);
-    
+        
+        //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
+        
         for (let k = leftlim; k <= rightlim - 3; k++) {
+            //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
             if (
                 currentPlayer === (board[i][k] || 0) &&
                 currentPlayer === (board[i][k + 1] || 0) &&
@@ -368,8 +423,10 @@ document.addEventListener('DOMContentLoaded', () => {
         // Check Vertical
         let toplim = Math.max(0, i - 3);
         let bottomlim = Math.min(board.length - 1, i + 3);
-    
+        
+        //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
         for (let k = toplim; k <= bottomlim - 3; k++) {
+            //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
             if (
                 currentPlayer === (board[k][j] || 0) &&
                 currentPlayer === (board[k + 1][j] || 0) &&
