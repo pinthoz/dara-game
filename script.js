@@ -74,6 +74,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    
     // Função para lidar com o clique em uma célula
     function handleCellClick(row, col) {
         if (!isGameActive) return;
@@ -229,6 +230,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             selectedCell.classList.remove(selectedCellsClass);
         } else {
+            console.log("possible_play "  + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row,col,rowSelected,colSelected,currentPlayer));
             if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row,col,rowSelected,colSelected,currentPlayer) ) { // && !repeat(past_moves, row, col, rowSelected, colSelected, currentPlayer)
                 board[row][col] = currentPlayer;
                 board[rowSelected][colSelected] = 0;
@@ -281,7 +283,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
             currentPlayer = '3' - currentPlayer;
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
-            if(currentPlayer == 1){
+            if(currentPlayer === 1){
                 playerBpieces--;
             }else{
                 playerWpieces--;
@@ -297,40 +299,69 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-    function possible_remove(i, j, currentPlayer) {
+    function possible_remove(i,j,currentPlayer) {
+
 
         // Check Horizontal
         let leftlim = Math.max(0, j - 3);
         let rightlim = Math.min(board[i].length - 1, j + 3);
-    
-        for (let k = leftlim; k <= rightlim - 3; k++) {
+        
+        //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
+        
+        for (let k = leftlim; k <= rightlim - 2; k++) {
+            //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2]);
             if (
                 currentPlayer === (board[i][k] || 0) &&
                 currentPlayer === (board[i][k + 1] || 0) &&
-                currentPlayer === (board[i][k + 2] || 0) &&
-                currentPlayer === (board[i][k + 3] || 0)
+                currentPlayer === (board[i][k + 2] || 0)
             ) {
-                board[i][j] = 0;  // Set it back to an empty cell
-                return false;
+                return true;
             }
         }
     
         // Check Vertical
         let toplim = Math.max(0, i - 3);
         let bottomlim = Math.min(board.length - 1, i + 3);
-    
-        for (let k = toplim; k <= bottomlim - 3; k++) {
+        
+        //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+        for (let k = toplim; k <= bottomlim - 2; k++) {
+            //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j])
             if (
                 currentPlayer === (board[k][j] || 0) &&
                 currentPlayer === (board[k + 1][j] || 0) &&
-                currentPlayer === (board[k + 2][j] || 0) &&
-                currentPlayer === (board[k + 3][j] || 0)
+                currentPlayer === (board[k + 2][j] || 0)
             ) {
-                board[i][j] = 0;  // Set it back to an empty cell
-                return false;
+                return true;
             }
         }
+        return false;
     }
+        /*// Verificar horizontal
+        for (let i = 0; i < board.length; i++){
+            for (let j = 0; j <= board[0].length-3; j++){
+                if (currentPlayer === board[i][j] && 
+                    currentPlayer === board[i][j+1] && 
+                    currentPlayer === board[i][j+2]){
+                    console.log("existe linha 3 horizontal");
+                    return true;
+                }
+            }
+        }
+        
+        // Verificar vertical
+        for (let i = 0; i <= board.length-3; i++){
+            for (let j = 0; j < board[0].length; j++){
+                if (currentPlayer === board[i][j] && 
+                    currentPlayer === board[i+1][j] && 
+                    currentPlayer === board[i+2][j]){
+                    console.log("existe linha 3 vertical");
+                    return true;
+                }
+            }
+        }
+            return false;
+        */
+    
     
 
 
@@ -400,7 +431,11 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         }
     
         board[i][j] = currentPlayer;
-    
+        
+        if (!putPhase) {
+            board[i][j] = 0;
+        }
+
         // Check Horizontal
         let leftlim = Math.max(0, j - 3);
         let rightlim = Math.min(board[i].length - 1, j + 3);
@@ -408,14 +443,15 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
         
         for (let k = leftlim; k <= rightlim - 3; k++) {
-            //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
+            console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
             if (
-                currentPlayer === (board[i][k] || 0) &&
-                currentPlayer === (board[i][k + 1] || 0) &&
-                currentPlayer === (board[i][k + 2] || 0) &&
-                currentPlayer === (board[i][k + 3] || 0)
+                currentPlayer === (board[i][k] || 0 ) &&
+                currentPlayer === (board[i][k + 1] || 0 ) &&
+                currentPlayer === (board[i][k + 2] || 0 ) &&
+                currentPlayer === (board[i][k + 3] || 0 )
             ) {
                 board[i][j] = 0;  // Set it back to an empty cell
+                console.log('false - Cell is 4 in line horizontal');
                 return false;
             }
         }
@@ -426,7 +462,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         
         //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
         for (let k = toplim; k <= bottomlim - 3; k++) {
-            //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
+            console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
             if (
                 currentPlayer === (board[k][j] || 0) &&
                 currentPlayer === (board[k + 1][j] || 0) &&
@@ -434,13 +470,12 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 currentPlayer === (board[k + 3][j] || 0)
             ) {
                 board[i][j] = 0;  // Set it back to an empty cell
+                console.log('false - Cell is 4 in line vertical');
                 return false;
             }
         }
     
         if (!putPhase) {
-            //se nao voltou a clicar na mesma peça
-            //console.log( "!!!VER!!!!" +i + " " + j + " " + rowSelected + " " + colSelected)
             board[i][j] = 0;
         }
     
