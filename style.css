@@ -18,8 +18,30 @@ label{
     margin-top: 10px;
 }
 
-.start-button {
-    margin-top: 20px;
+.start-button, .return-button {
+    margin-top: 10px ;
+    display: inline-block;
+    padding: 15px 25px;
+    font-size: 20px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    background-color: #E6535F;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #999;
+}
+
+.start-button:hover, .return-button:hover {
+    background-color: #E6535F
+}
+
+.start-button:active, .return-button:active {
+    background-color: #E6535F;
+    box-shadow: 0 5px #666;
+    transform: translateY(4px);
 }
 
 
@@ -173,8 +195,10 @@ label{
     margin: auto;
     box-shadow:5px 5px 10px black;
     margin-top: 15px;
+
 }
 
-
-
+.rules-img {
+    width: 30%
+}
 
