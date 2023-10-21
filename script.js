@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
     }
-    
+    // Esta função já não tem o bug de não aparecer a peça selecionada, mas tem outros bugs....
     // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
         let canPlacePiece = possible_play(row, col, currentPlayer);
@@ -130,12 +130,54 @@ document.addEventListener('DOMContentLoaded', () => {
         if (playerBpieces === 0 && playerWpieces === 0) {
             putPhase = false;
             console.log('Você já colocou todas as peças permitidas durante a fase de colocação.');
+            if (player1 === '2'){
+                currentPlayer = '2'; // jogador preto
+            }else{
             currentPlayer = '1'; // jogador branco
+            }
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
         }
     }
     
     // Função para lidar com a seleção de peças
+    // Function to handle piece selection
+    function handlePieceSelection(row, col) {
+        if (possible_click(row, col, currentPlayer)) {
+            rowSelected = row;
+            colSelected = col;
+            pieceSelected = true;
+            // Atualize a classe da imagem da peça selecionada
+            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+            if (currentPlayer === '1') {
+                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")';
+            } else {
+                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")';
+            }
+            // Atualize o estado da peça no tabuleiro
+            board[row][col] = currentPlayer;
+    
+            console.log('Piece selected');
+            console.log('Piece selected - Row:', rowSelected, 'Column:', colSelected);
+            
+            selectedCell.addEventListener('click', function handlePieceDeselection(event) {
+                pieceSelected = false;
+    
+                // Restore the default background image
+                if (currentPlayer === '1') {
+                    selectedCell.style.backgroundImage = 'url("/assets/white.png")';
+                } else {
+                    selectedCell.style.backgroundImage = 'url("/assets/black.png")';
+                }
+    
+                // Remove the deselection click event
+                selectedCell.removeEventListener('click', handlePieceDeselection);
+            });
+        } else {
+            console.log('Piece cannot be selected');
+        }
+    }
+
+/*
     function handlePieceSelection(row, col) {
 
         if (possible_click(row, col, currentPlayer)) {
@@ -182,8 +224,7 @@ document.addEventListener('DOMContentLoaded', () => {
             console.log('Peça não pode ser selecionada');
         }
     }
-    
-  
+*/
     
 const LastPlay1 = {
     row: -1,
@@ -222,53 +263,44 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 }
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
-        console.log('Peça selecionada: HandlePieceMovement')
-            console.log('Peça selecionada - Linha:', rowSelected, 'Coluna:', colSelected)
-        if (row == rowSelected && col == colSelected) {
+        if (row === rowSelected && col === colSelected) {
             pieceSelected = false;
-            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
-            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-            selectedCell.classList.remove(selectedCellsClass);
         } else {
-            console.log("possible_play "  + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row,col,rowSelected,colSelected,currentPlayer));
-            if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row,col,rowSelected,colSelected,currentPlayer) ) { // && !repeat(past_moves, row, col, rowSelected, colSelected, currentPlayer)
-                board[row][col] = currentPlayer;
-                board[rowSelected][colSelected] = 0;
-
-                if (currentPlayer == 1){
+            console.log("possible_play " + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
+            if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
+                if (board[row][col] === 0) {
+                    board[row][col] = currentPlayer;
+                }
+    
+                if (currentPlayer == 1) {
                     LastPlay1.row = rowSelected;
                     LastPlay1.col = colSelected;
                     LastPlay1.rowSelected = row;
                     LastPlay1.colSelected = col;
                     console.log("LastPlay1: " + LastPlay1.row + " " + LastPlay1.col + " " + LastPlay1.rowSelected + " " + LastPlay1.colSelected);
-                }
-                else{
+                } else {
                     LastPlay2.row = rowSelected;
                     LastPlay2.col = colSelected;
                     LastPlay2.rowSelected = row;
                     LastPlay2.colSelected = col;
                     console.log("LastPlay2: " + LastPlay2.row + " " + LastPlay2.col + " " + LastPlay2.rowSelected + " " + LastPlay2.colSelected);
                 }
+    
+                if (rowSelected !== row || colSelected !== col) {
+                    board[rowSelected][colSelected] = 0;
+                }
 
                 renderBoard();
-                /*
-                past_moves[(currentPlayer - 1) * 4] = rowSelected;
-                past_moves[(currentPlayer - 1) * 4 + 1] = colSelected;
-                past_moves[(currentPlayer - 1) * 4 + 2] = row;
-                past_moves[(currentPlayer - 1) * 4 + 3] = col;
-                */
                 pieceSelected = false;
                 currentPlayer = currentPlayer === '1' ? '2' : '1';
                 currentPlayerDisplay.textContent = playerNames[currentPlayer];
             } else {
                 console.log('Não é possível mover a peça para essa posição');
-
-                
             }
         }
-        for (let i = 0; i < 6; i++){
+    
+        for (let i = 0; i < 6; i++) {
             console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
-            
         }
     }
 
