@@ -241,12 +241,13 @@ let currentPlayer_copy = -1;
                 selectedCell.style.backgroundImage = 'url("/assets/black.png")';
             }
         } else {
+
+            board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
             console.log("possible_play " + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
             if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
-                if (board[row][col] === 0) {
-                    board[row][col] = currentPlayer;
-                }
-    
+   
+                board[row][col] = currentPlayer;
+
                 if (currentPlayer == 1) {
                     LastPlay1.row = rowSelected;
                     LastPlay1.col = colSelected;
@@ -261,9 +262,7 @@ let currentPlayer_copy = -1;
                     console.log("LastPlay2: " + LastPlay2.row + " " + LastPlay2.col + " " + LastPlay2.rowSelected + " " + LastPlay2.colSelected);
                 }
     
-                if (rowSelected !== row || colSelected !== col) {
-                    board[rowSelected][colSelected] = 0;
-                }
+                
 
                 renderBoard();
                 /*pieceSelected = false;*/
@@ -272,6 +271,7 @@ let currentPlayer_copy = -1;
                 //currentPlayerDisplay.textContent = playerNames[currentPlayer];
                 moved_piece = true;
             } else {
+                board[rowSelected][colSelected] = currentPlayer; // restaurar se n houver movimento
                 console.log('Não é possível mover a peça para essa posição');
             }
         }
@@ -302,11 +302,7 @@ let currentPlayer_copy = -1;
                 for (let i = 0; i < 6; i++) {
                     console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
                 }
-            
-            // Remova a classe que torna a peça visível
-            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-black' : 'selected-cell-white';
-            const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
-            selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
+        
 
             if(currentPlayer === 1){
                 playerBpieces--;
@@ -314,7 +310,7 @@ let currentPlayer_copy = -1;
                 playerWpieces--;
             }
 
-            //currentPlayer = currentPlayer === '1' ? '2' : '1';
+            currentPlayer = currentPlayer === '1' ? '2' : '1';
             
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
             moved_piece = false;
@@ -425,10 +421,6 @@ let currentPlayer_copy = -1;
 
 
     function possible_play(i, j, currentPlayer) {
-
-        for (let i = 0; i < 6; i++) {
-            console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
-        }
         // Check if the cell is out of bounds
         if (i < 0 || i >= board.length || j < 0 || j >= board[i].length) {
             console.log('false - Cell is out of bounds');
@@ -448,7 +440,7 @@ let currentPlayer_copy = -1;
         let leftlim = Math.max(0, j - 3);
         let rightlim = Math.min(board[i].length - 1, j + 3);
         
-        console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
+        //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
         
         for (let k = leftlim; k <= rightlim - 3; k++) {
             console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
@@ -468,9 +460,9 @@ let currentPlayer_copy = -1;
         let toplim = Math.max(0, i - 3);
         let bottomlim = Math.min(board.length - 1, i + 3);
         
-        console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+        //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
         for (let k = toplim; k <= bottomlim - 3; k++) {
-            console.log("ver col: "  + j + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
+            console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
             if (
                 currentPlayer === (board[k][j] || 0) &&
                 currentPlayer === (board[k + 1][j] || 0) &&
