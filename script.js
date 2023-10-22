@@ -4,6 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameContainer = document.querySelector('.game-container');
     const currentPlayerDisplay = document.querySelector('#current-player');
     const gameResultDisplay = document.querySelector('#game-result');
+    //const removeDisplay = document.querySelector('#remove-piece');
     const firstPlayerSelect = document.querySelector('#first-play');
 
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
@@ -22,6 +23,8 @@ document.addEventListener('DOMContentLoaded', () => {
     let colSelected = 0;
     let playerBpieces = 12;
     let playerWpieces = 12;
+    let finalWpieces = 12;
+    let finalBpieces = 12;
     let pieceSelected = false;
     let past_moves = [-1,-1,-1,-1,-1,-1,-1,-1];
     let canRemove = false;
@@ -85,8 +88,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (putPhase) {
             handlePlacementPhase(row, col);
         } else {
-            playerBpieces = 12;
-            playerWpieces = 12;
             
             console.log("boas")
             if (!pieceSelected) {
@@ -104,17 +105,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 console.log("ola")
 
                 if (canRemove) {
-
                     console.log("You can remove a piece");
+                    //removeDisplay.textContent = "Pode remover peça";
                     handleRemovePiece(row, col, currentPlayer_copy);
-                    //possible_win();
-                    
+                    possible_win();
+                    //removeDisplay.textContent = '';
                 }
 
                 else {
                     if (possible_remove(row, col, currentPlayer_copy)) {
-                    console.log("o possible_remove retornou true");
-                    canRemove = true;
+                        console.log("o possible_remove retornou true");
+                        canRemove = true;
                     
                     } else {
                     //currentPlayer = currentPlayer === '1' ? '2' : '1';
@@ -123,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     moved_piece = false;
                     pieceSelected = false;
                     canRemove = false;
+                    possible_win();
                     console.log("You cannot remove a piece");
                     }
                 
@@ -241,12 +243,13 @@ let currentPlayer_copy = -1;
                 selectedCell.style.backgroundImage = 'url("/assets/black.png")';
             }
         } else {
+
+            board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
             console.log("possible_play " + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
             if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
-                if (board[row][col] === 0) {
-                    board[row][col] = currentPlayer;
-                }
-    
+   
+                board[row][col] = currentPlayer;
+
                 if (currentPlayer == 1) {
                     LastPlay1.row = rowSelected;
                     LastPlay1.col = colSelected;
@@ -261,9 +264,7 @@ let currentPlayer_copy = -1;
                     console.log("LastPlay2: " + LastPlay2.row + " " + LastPlay2.col + " " + LastPlay2.rowSelected + " " + LastPlay2.colSelected);
                 }
     
-                if (rowSelected !== row || colSelected !== col) {
-                    board[rowSelected][colSelected] = 0;
-                }
+                
 
                 renderBoard();
                 /*pieceSelected = false;*/
@@ -272,6 +273,7 @@ let currentPlayer_copy = -1;
                 //currentPlayerDisplay.textContent = playerNames[currentPlayer];
                 moved_piece = true;
             } else {
+                board[rowSelected][colSelected] = currentPlayer; // restaurar se n houver movimento
                 console.log('Não é possível mover a peça para essa posição');
             }
         }
@@ -282,7 +284,7 @@ let currentPlayer_copy = -1;
     }
 
     function handleRemovePiece(row, col, currentPlayer) {
-
+    
             let correct_choice = false;
 
             if (currentPlayer === '1') {
@@ -305,9 +307,9 @@ let currentPlayer_copy = -1;
         
 
             if(currentPlayer === 1){
-                playerBpieces--;
+                finalBpieces--;
             }else{
-                playerWpieces--;
+                finalWpieces--;
             }
 
             currentPlayer = currentPlayer === '1' ? '2' : '1';
@@ -435,9 +437,6 @@ let currentPlayer_copy = -1;
     
         board[i][j] = currentPlayer;
         
-        if (!putPhase) {
-            board[i][j] = 0;
-        }
 
         // Check Horizontal
         let leftlim = Math.max(0, j - 3);
@@ -487,15 +486,17 @@ let currentPlayer_copy = -1;
     }  
 
     function possible_win(){
+    console.log("POSSIBLE WINNNNNNN");
+            console.log("playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
         if (currentPlayer == 1){
-            if (playerBpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
+            if (finalBpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
                 winner = 2;
                 game_finished(winner);
             }
             return;
         }
         if (currentPlayer == 2){
-            if (playerWpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
+            if (finalWpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
                 winner = 1;
                 game_finished(winner);
             }
@@ -504,11 +505,11 @@ let currentPlayer_copy = -1;
     }    
 
     function game_finished(winner) {
-        let win = document.getElementById("winner");
+        let win = document.getElementById("game-result");
         if (winner==1) {
-            win.innerText = "Red Wins";             
+            win.innerText = "Ganhou o Branco";             
         } else {
-            win.innerText = "Yellow Wins";
+            win.innerText = "Ganhou o Preto";
         }
     }
 
