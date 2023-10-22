@@ -26,6 +26,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let past_moves = [-1,-1,-1,-1,-1,-1,-1,-1];
     let canRemove = false;
     let win = 0;
+    let moved_piece = false;
 
 
     function tupleToString(tuple) {
@@ -77,34 +78,59 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Função para lidar com o clique em uma célula
     function handleCellClick(row, col) {
+        console.log("pieceSelected: " + pieceSelected + " moved_piece: " + moved_piece + " canRemove: " + canRemove);
+        console.log(" jogador " + currentPlayer);
         if (!isGameActive) return;
     
         if (putPhase) {
             handlePlacementPhase(row, col);
-
         } else {
             playerBpieces = 12;
             playerWpieces = 12;
+            
+            console.log("boas")
             if (!pieceSelected) {
+                console.log("seleciono a peça")
                 handlePieceSelection(row, col);
+
             } else {
-                if(canRemove){
-                    console.log('chegou aqui');
-                    handleRemovePiece(row, col, currentPlayer);
-                    possible_win();
+                if (!moved_piece) {
+                    console.log("movo a peça")
+                    handlePieceMovement(row, col);
                 }
-                else{
-                    if (possible_remove(row,col,currentPlayer)){
-                        canRemove = true;
-                        console.log("podes remover a peça");
-                    }else{
-                        handlePieceMovement(row, col);
+            }
+            // já moveu a peça, ver se consegue remover agora
+            if (moved_piece) {
+                console.log("ola")
+
+                if (canRemove) {
+
+                    console.log("You can remove a piece");
+                    handleRemovePiece(row, col, currentPlayer_copy);
+                    //possible_win();
+                    
+                }
+
+                else {
+                    if (possible_remove(row, col, currentPlayer_copy)) {
+                    console.log("o possible_remove retornou true");
+                    canRemove = true;
+                    
+                    } else {
+                    //currentPlayer = currentPlayer === '1' ? '2' : '1';
+                    //console.log("############ JOGADOR ATIVO: " + currentPlayer + " #############")
+                    currentPlayerDisplay.textContent = playerNames[currentPlayer];
+                    moved_piece = false;
+                    pieceSelected = false;
+                    canRemove = false;
+                    console.log("You cannot remove a piece");
                     }
-                }
                 
+                }
             }
         }
     }
+    
     // Esta função já não tem o bug de não aparecer a peça selecionada, mas tem outros bugs....
     // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
@@ -141,28 +167,30 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
     function handlePieceSelection(row, col) {
-
         if (possible_click(row, col, currentPlayer)) {
+            if (canRemove) {
+                console.log("You cannot select a new piece after removing one.");
+                return;
+            }
+    
             rowSelected = row;
             colSelected = col;
             pieceSelected = true;
-            
-            console.log('Peça selecionada')
-            console.log('Peça selecionada - Linha:', rowSelected, 'Coluna:', colSelected)
+    
+            console.log('Peça selecionada');
+            console.log('Peça selecionada - Linha:', rowSelected, 'Coluna:', colSelected);
     
             // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
             const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")'; 
+                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")';
             } else {
-                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")'; 
+                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")';
             }
-    
         } else {
             console.log('Peça não pode ser selecionada');
         }
     }
-
     
 const LastPlay1 = {
     row: -1,
@@ -199,6 +227,8 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     return true;
 
 }
+
+let currentPlayer_copy = -1;
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
         if (row === rowSelected && col === colSelected) {
@@ -236,9 +266,11 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 }
 
                 renderBoard();
-                pieceSelected = false;
+                /*pieceSelected = false;*/
+                currentPlayer_copy = currentPlayer;
                 currentPlayer = currentPlayer === '1' ? '2' : '1';
-                currentPlayerDisplay.textContent = playerNames[currentPlayer];
+                //currentPlayerDisplay.textContent = playerNames[currentPlayer];
+                moved_piece = true;
             } else {
                 console.log('Não é possível mover a peça para essa posição');
             }
@@ -250,24 +282,43 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     }
 
     function handleRemovePiece(row, col, currentPlayer) {
-            if(board[row][col] === 3 - currentPlayer){
+
+            let correct_choice = false;
+
+            if (currentPlayer === '1') {
+                if (board[row][col] === '2') {
+                    correct_choice = true;
+                }
+            } else {
+                if (board[row][col] === '1') {
+                    correct_choice = true;
+                }
+            }
+
+            if(correct_choice){
+                console.log("You can remove the piece dentro de handleremovepiece");
                 board[row][col] = 0;
             
-            
-            // Remova a classe que torna a peça visível
-            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-black' : 'selected-cell-white';
-            const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
-            selectedCells.forEach(cell => cell.classList.remove(selectedCellsClass));
-            currentPlayer = '3' - currentPlayer;
-            currentPlayerDisplay.textContent = playerNames[currentPlayer];
+                for (let i = 0; i < 6; i++) {
+                    console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
+                }
+        
+
             if(currentPlayer === 1){
                 playerBpieces--;
             }else{
                 playerWpieces--;
             }
+
+            currentPlayer = currentPlayer === '1' ? '2' : '1';
+            
+            currentPlayerDisplay.textContent = playerNames[currentPlayer];
+            moved_piece = false;
             pieceSelected = false;
             canRemove = false;
+            console.log("You cannot remove a piece - joagdor ativo" + currentPlayer );
             renderBoard();
+            
         }
     }
 
@@ -313,32 +364,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         }
         return false;
     }
-        /*// Verificar horizontal
-        for (let i = 0; i < board.length; i++){
-            for (let j = 0; j <= board[0].length-3; j++){
-                if (currentPlayer === board[i][j] && 
-                    currentPlayer === board[i][j+1] && 
-                    currentPlayer === board[i][j+2]){
-                    console.log("existe linha 3 horizontal");
-                    return true;
-                }
-            }
-        }
-        
-        // Verificar vertical
-        for (let i = 0; i <= board.length-3; i++){
-            for (let j = 0; j < board[0].length; j++){
-                if (currentPlayer === board[i][j] && 
-                    currentPlayer === board[i+1][j] && 
-                    currentPlayer === board[i+2][j]){
-                    console.log("existe linha 3 vertical");
-                    return true;
-                }
-            }
-        }
-            return false;
-        */
-    
+
     
 
 
