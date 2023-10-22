@@ -139,45 +139,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Função para lidar com a seleção de peças
-    // Function to handle piece selection
-    function handlePieceSelection(row, col) {
-        if (possible_click(row, col, currentPlayer)) {
-            rowSelected = row;
-            colSelected = col;
-            pieceSelected = true;
-            // Atualize a classe da imagem da peça selecionada
-            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-            if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")';
-            } else {
-                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")';
-            }
-            // Atualize o estado da peça no tabuleiro
-            board[row][col] = currentPlayer;
-    
-            console.log('Piece selected');
-            console.log('Piece selected - Row:', rowSelected, 'Column:', colSelected);
-            
-            selectedCell.addEventListener('click', function handlePieceDeselection(event) {
-                pieceSelected = false;
-    
-                // Restore the default background image
-                if (currentPlayer === '1') {
-                    selectedCell.style.backgroundImage = 'url("/assets/white.png")';
-                } else {
-                    selectedCell.style.backgroundImage = 'url("/assets/black.png")';
-                }
-    
-                // Remove the deselection click event
-                selectedCell.removeEventListener('click', handlePieceDeselection);
-            });
-        } else {
-            console.log('Piece cannot be selected');
-        }
-    }
 
-/*
     function handlePieceSelection(row, col) {
 
         if (possible_click(row, col, currentPlayer)) {
@@ -187,16 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
             
             console.log('Peça selecionada')
             console.log('Peça selecionada - Linha:', rowSelected, 'Coluna:', colSelected)
-            // Adicione uma classe de seleção visual
-            const selectedCellsClass = currentPlayer === '1' ? 'selected-cell-white' : 'selected-cell-black';
-            const selectedCells = document.querySelectorAll(`.${selectedCellsClass}`);
-    
-            // Remova a classe de seleção da célula não selecionada
-            for (let i = 0; i < selectedCells.length; i++) {
-                if (selectedCells[i].dataset.row !== row || selectedCells[i].dataset.col !== col) {
-                    selectedCells[i].classList.remove(selectedCellsClass);
-                }
-            }
     
             // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
             const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
@@ -206,25 +158,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")'; 
             }
     
-            // Adiciona um evento click à célula selecionada
-            selectedCell.addEventListener('click', () => {
-                // Verifique se a peça selecionada é a mesma peça que foi clicada
-                if (rowSelected === row && colSelected === col) {
-                // Remova a classe de seleção da célula
-                if (currentPlayer === '1') {
-                    selectedCell.style.backgroundImage = 'url("/assets/white.png")';
-                }
-                else{
-                    selectedCell.style.backgroundImage = 'url("/assets/black.png")';
-                }
-    
-            }
-        });
         } else {
             console.log('Peça não pode ser selecionada');
         }
     }
-*/
+
     
 const LastPlay1 = {
     row: -1,
@@ -264,7 +202,14 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
         if (row === rowSelected && col === colSelected) {
+            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             pieceSelected = false;
+            if (currentPlayer === '1') {
+                selectedCell.style.backgroundImage = 'url("/assets/white.png")';
+            }
+            else{
+                selectedCell.style.backgroundImage = 'url("/assets/black.png")';
+            }
         } else {
             console.log("possible_play " + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
             if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
@@ -541,6 +486,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         }
     }
 
+
     // Função para renderizar o tabuleiro atual
     function renderBoard() {
         if (boardSize === 6) {
@@ -550,9 +496,11 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                     cell.textContent = '';
                     if (board[row][col] === '1') {
                         cell.style.backgroundImage = 'url("/assets/white.png")';
-                    } else if (board[row][col] === '2') {
+                    }
+                    if (board[row][col] === '2') {
                         cell.style.backgroundImage = 'url("/assets/black.png")';
-                    } else {
+                    } 
+                    if (board[row][col] === '0'){
                         cell.style.backgroundImage = 'none';
                     }
                 }
