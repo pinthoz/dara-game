@@ -4,7 +4,7 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameContainer = document.querySelector('.game-container');
     const currentPlayerDisplay = document.querySelector('#current-player');
     const gameResultDisplay = document.querySelector('#game-result');
-    //const removeDisplay = document.querySelector('#remove-piece');
+    const removeDisplay = document.querySelector('#remove-display');
     const firstPlayerSelect = document.querySelector('#first-play');
 
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
@@ -26,7 +26,6 @@ document.addEventListener('DOMContentLoaded', () => {
     let finalWpieces = 12;
     let finalBpieces = 12;
     let pieceSelected = false;
-    let past_moves = [-1,-1,-1,-1,-1,-1,-1,-1];
     let canRemove = false;
     let win = 0;
     let moved_piece = false;
@@ -45,6 +44,8 @@ document.addEventListener('DOMContentLoaded', () => {
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
         if (boardSize === 6) {
+            playerBpieces = 12;
+            playerWpieces = 12;
             gameContainer.innerHTML = '';
             board = new Array(boardSize).fill(0).map(() => new Array(boardSize).fill(0));
             for (let row = 0; row < boardSize; row++) {
@@ -58,6 +59,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         } else {
+            playerBpieces = 12;
+            playerWpieces = 12;
             let numRows = 6; // Defina o número de linhas
             let numCols = 5; // Defina o número de colunas
     
@@ -81,40 +84,44 @@ document.addEventListener('DOMContentLoaded', () => {
     
     // Função para lidar com o clique em uma célula
     function handleCellClick(row, col) {
-        console.log("pieceSelected: " + pieceSelected + " moved_piece: " + moved_piece + " canRemove: " + canRemove);
-        console.log(" jogador " + currentPlayer);
+        //console.log("pieceSelected: " + pieceSelected + " moved_piece: " + moved_piece + " canRemove: " + canRemove);
+        //console.log(" jogador " + currentPlayer);
+        
         if (!isGameActive) return;
     
         if (putPhase) {
             handlePlacementPhase(row, col);
         } else {
             
-            console.log("boas")
+            //console.log("boas")
             if (!pieceSelected) {
-                console.log("seleciono a peça")
+                //console.log("seleciono a peça")
                 handlePieceSelection(row, col);
 
             } else {
                 if (!moved_piece) {
-                    console.log("movo a peça")
+                    //console.log("movo a peça")
                     handlePieceMovement(row, col);
+                    removeDisplay.style.display = 'none';
                 }
+                //moves_available(currentPlayer_copy);
             }
             // já moveu a peça, ver se consegue remover agora
             if (moved_piece) {
-                console.log("ola")
+
+                //console.log("ola")
 
                 if (canRemove) {
-                    console.log("You can remove a piece");
+                    //console.log("You can remove a piece");
                     //removeDisplay.textContent = "Pode remover peça";
                     handleRemovePiece(row, col, currentPlayer_copy);
-                    possible_win();
+                    //possible_win();
                     //removeDisplay.textContent = '';
                 }
 
                 else {
                     if (possible_remove(row, col, currentPlayer_copy)) {
-                        console.log("o possible_remove retornou true");
+                        //console.log("o possible_remove retornou true");
                         canRemove = true;
                     
                     } else {
@@ -124,8 +131,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     moved_piece = false;
                     pieceSelected = false;
                     canRemove = false;
-                    possible_win();
-                    console.log("You cannot remove a piece");
+                    //possible_win();
+                    //console.log("You cannot remove a piece");
                     }
                 
                 }
@@ -230,7 +237,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 }
 
-let currentPlayer_copy = -1;
+    let currentPlayer_copy = -1;
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
         if (row === rowSelected && col === colSelected) {
@@ -244,11 +251,12 @@ let currentPlayer_copy = -1;
             }
         } else {
 
-            board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
+            
             console.log("possible_play " + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
             if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
    
                 board[row][col] = currentPlayer;
+                board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
 
                 if (currentPlayer == 1) {
                     LastPlay1.row = rowSelected;
@@ -272,15 +280,15 @@ let currentPlayer_copy = -1;
                 currentPlayer = currentPlayer === '1' ? '2' : '1';
                 //currentPlayerDisplay.textContent = playerNames[currentPlayer];
                 moved_piece = true;
-            } else {
-                board[rowSelected][colSelected] = currentPlayer; // restaurar se n houver movimento
-                console.log('Não é possível mover a peça para essa posição');
             }
-        }
-    
+        
+            
         for (let i = 0; i < 6; i++) {
             console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
         }
+
+        }
+    
     }
 
     function handleRemovePiece(row, col, currentPlayer) {
@@ -298,7 +306,7 @@ let currentPlayer_copy = -1;
             }
 
             if(correct_choice){
-                console.log("You can remove the piece dentro de handleremovepiece");
+                //console.log("You can remove the piece dentro de handleremovepiece");
                 board[row][col] = 0;
             
                 for (let i = 0; i < 6; i++) {
@@ -318,7 +326,7 @@ let currentPlayer_copy = -1;
             moved_piece = false;
             pieceSelected = false;
             canRemove = false;
-            console.log("You cannot remove a piece - joagdor ativo" + currentPlayer );
+            //console.log("You cannot remove a piece - joagdor ativo" + currentPlayer );
             renderBoard();
             
         }
@@ -367,15 +375,18 @@ let currentPlayer_copy = -1;
         return false;
     }
 
-    
+
+
+
+    //________________________________________________________
 
 
     function possible_click(i, j, currentPlayer) {
         if (board[i][j] === currentPlayer) {
-            console.log('true - Cell is yours');
+            //console.log('true - Cell is yours');
             return true;
         }
-        console.log('false - Cell is not yours');
+        //console.log('false - Cell is not yours');
         return false;
     }
 
@@ -389,37 +400,8 @@ let currentPlayer_copy = -1;
         }
     }
 
-    function repeat(lastmove,r,c,rselected,cselected,currPlayer){
-        return lastmove[(currPlayer-1)*4]==rselected && lastmove[(currPlayer-1)*4+1]==cselected && lastmove[(currPlayer-1)*4+2]==r && lastmove[(currPlayer-1)*4+3]==c;
-    }
 
-    function moves_available(currentPlayer, lastmove, numRows, numCols){
-        for (let i = 0; i< numRows ; i++){
-            for (let j = 0; j< numCols ; j++){
-                if (board[i][j]==currentPlayer){
-                    if (i>0){
-                        if (possible_play(i+1,j,currentPlayer) && !repeat(lastmove,i+1,j,i,j,currentPlayer)){
-                            return true;
-                        }
-                    }if (i<numRows-1){
-                        if (possible_play(i-1,j,currentPlayer) && !repeat(lastmove,i-1,j,i,j,currentPlayer)){
-                            return true;
-                        }
-                    }if (j>0){
-                        if (possible_play(i,j+1,currentPlayer) && !repeat(lastmove,i,j+1,i,j,currentPlayer)){
-                            return true;
-                        }
-                    }
-                    if (j<numCols-1){
-                        if (possible_play(i,j-1,currentPlayer) && !repeat(lastmove,i,j-1,i,j,currentPlayer)){
-                            return true;
-                        }
-                    }
-        }
-    }
-    }
-    return false;
-    }
+
 
 
     function possible_play(i, j, currentPlayer) {
@@ -431,11 +413,16 @@ let currentPlayer_copy = -1;
     
         // Check if the cell is not empty
         if (board[i][j] !== 0) {
-            console.log('false - Cell is not empty');
+            //console.log('false - Cell is not empty');
             return false;
         }
     
         board[i][j] = currentPlayer;
+
+        if (!putPhase) {
+            console.log( "rowSelected: " + rowSelected + " colSelected: " + colSelected) + " na possible_play";
+            board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
+        }
         
 
         // Check Horizontal
@@ -445,7 +432,7 @@ let currentPlayer_copy = -1;
         //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
         
         for (let k = leftlim; k <= rightlim - 3; k++) {
-            console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
+            //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
             if (
                 currentPlayer === (board[i][k] || 0 ) &&
                 currentPlayer === (board[i][k + 1] || 0 ) &&
@@ -453,6 +440,9 @@ let currentPlayer_copy = -1;
                 currentPlayer === (board[i][k + 3] || 0 )
             ) {
                 board[i][j] = 0;  // Set it back to an empty cell
+                if (!putPhase) {
+                    board[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
+                }
                 console.log('false - Cell is 4 in line horizontal');
                 return false;
             }
@@ -464,7 +454,7 @@ let currentPlayer_copy = -1;
         
         //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
         for (let k = toplim; k <= bottomlim - 3; k++) {
-            console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
+            //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
             if (
                 currentPlayer === (board[k][j] || 0) &&
                 currentPlayer === (board[k + 1][j] || 0) &&
@@ -472,6 +462,9 @@ let currentPlayer_copy = -1;
                 currentPlayer === (board[k + 3][j] || 0)
             ) {
                 board[i][j] = 0;  // Set it back to an empty cell
+                if (!putPhase) {
+                    board[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
+                }
                 console.log('false - Cell is 4 in line vertical');
                 return false;
             }
@@ -479,30 +472,78 @@ let currentPlayer_copy = -1;
     
         if (!putPhase) {
             board[i][j] = 0;
+            board[rowSelected][colSelected] = currentPlayer;
         }
     
-        console.log('true - Move is possible');
+        //console.log('true - Move is possible');
         return true;
     }  
+
+
+
+
+    let moves_available_1 = [];
+    let moves_available_2 = [];
+
+    function moves_available(currentPlayer){
+        let moves_available = [];
+        if (currentPlayer == 1){
+            moves_available = moves_available_1;
+        }else{
+            moves_available = moves_available_2;
+        }
+        for (let i = 0; i< board.length ; i++){
+            for (let j = 0; j< board[0].length ; j++){
+                if (board[i][j]==currentPlayer){
+                    if (i>0){
+                        if (possible_play(i-1,j, currentPlayer) && possible_move(i-1, j, i, j) && go_back(i-1, j, i, j, currentPlayer)){
+                            moves_available.push([i,j,i-1,j]);
+                        }
+                    }if (i<board.length-1){
+                        if (possible_play(i+1,j,currentPlayer) && possible_move(i+1, j, i, j) && go_back(i+1, j, i, j, currentPlayer)){
+                            moves_available.push([i,j,i+1,j]);
+                        }
+                    }if (j>0){
+                        if (possible_play(i,j-1,currentPlayer) && possible_move(i, j-1, i, j) && go_back(i, j-1, i, j, currentPlayer)){
+                            moves_available.push([i,j,i,j-1]);
+                        }
+                    }
+                    if (j<board[0].length-1){
+                        if (possible_play(i,j+1,currentPlayer) && possible_move(i, j+1, i, j) && go_back(i, j+1, i, j, currentPlayer)){
+                            moves_available.push([i,j,i,j+1]);
+                        }
+                    }
+                }
+            }
+        }
+        
+        console.log("moves_available for player " + currentPlayer + ": " + moves_available );
+        if (currentPlayer == 1){
+            moves_available_1 = moves_available;
+        }else{
+            moves_available_2 = moves_available;
+        }
+
+        if (moves_available.length === 0) return false;
+        return true;
+    }
+
 
     function possible_win(){
     console.log("POSSIBLE WINNNNNNN");
             console.log("playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
-        if (currentPlayer == 1){
-            if (finalBpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
-                winner = 2;
-                game_finished(winner);
-            }
+        if (finalBpieces <= 2 || !moves_available(2)){
+            winner = 2;
+            game_finished(winner);
             return;
         }
-        if (currentPlayer == 2){
-            if (finalWpieces <= 2 || !moves_available(1,past_moves,board.length,board[0].length)){
-                winner = 1;
-                game_finished(winner);
-            }
+        else if (finalWpieces <= 2 || !moves_available(1)){
+            winner = 1;
+            game_finished(winner);
             return;
         }
-    }    
+
+        } 
 
     function game_finished(winner) {
         let win = document.getElementById("game-result");
@@ -512,6 +553,12 @@ let currentPlayer_copy = -1;
             win.innerText = "Ganhou o Preto";
         }
     }
+
+
+
+
+
+
 
 
     // Função para renderizar o tabuleiro atual

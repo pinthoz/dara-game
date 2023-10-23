@@ -18,7 +18,7 @@ label{
     margin-top: 10px;
 }
 
-.start-button, .return-button {
+.start-button, .return-button, .quit-game {
     margin-top: 10px ;
     display: inline-block;
     padding: 15px 25px;
@@ -34,11 +34,11 @@ label{
     box-shadow: 0 9px #999;
 }
 
-.start-button:hover, .return-button:hover {
+.start-button:hover, .return-button:hover, .quit-game:hover {
     background-color: #E6535F
 }
 
-.start-button:active, .return-button:active {
+.start-button:active, .return-button:active, .quit-game:active {
     background-color: #E6535F;
     box-shadow: 0 5px #666;
     transform: translateY(4px);
@@ -193,4 +193,12 @@ label{
 
 .rules-img {
     width: 30%
+}
+
+#remove-display {
+    display: none;
+}
+
+.quit-game {
+    display: none;
 }
