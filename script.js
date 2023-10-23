@@ -124,6 +124,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     //console.log("You can remove a piece");
                     handleRemovePiece(row, col, currentPlayer_copy);
                     removeDisplay.style.display = 'none';
+                    moveDisplay.style.display = 'block';
                     possible_win();
 
                 }
