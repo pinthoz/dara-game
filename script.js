@@ -577,11 +577,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-
-
-
-
-
     // Função para renderizar o tabuleiro atual
     function renderBoard() {
         if (boardSize === 6) {
@@ -654,6 +649,8 @@ quit_button.addEventListener('click', () => {
     // Oculta a classe "active" do elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
     gameInfoElement.classList.remove('active');
+    moveDisplay.style.display = 'none';
+    removeDisplay.style.display = 'none';
 
     // Mostra o botão "Iniciar Jogo" e oculta o botão "Desistir"
     start_button.style.display = 'block';
