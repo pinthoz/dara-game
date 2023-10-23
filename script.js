@@ -58,8 +58,8 @@ document.addEventListener('DOMContentLoaded', () => {
                     gameContainer.appendChild(cell);
                 }
             }
-        } else {
-            playerBpieces = 12;
+        } else {           
+             playerBpieces = 12;
             playerWpieces = 12;
             let numRows = 6; // Defina o número de linhas
             let numCols = 5; // Defina o número de colunas
@@ -102,9 +102,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (!moved_piece) {
                     //console.log("movo a peça")
                     handlePieceMovement(row, col);
-                    removeDisplay.style.display = 'none';
+                    
                 }
-                //moves_available(currentPlayer_copy);
+                moves_available(currentPlayer_copy);
             }
             // já moveu a peça, ver se consegue remover agora
             if (moved_piece) {
@@ -113,10 +113,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (canRemove) {
                     //console.log("You can remove a piece");
-                    //removeDisplay.textContent = "Pode remover peça";
                     handleRemovePiece(row, col, currentPlayer_copy);
+                    removeDisplay.style.display = 'none';
                     //possible_win();
-                    //removeDisplay.textContent = '';
+
                 }
 
                 else {
@@ -143,7 +143,7 @@ document.addEventListener('DOMContentLoaded', () => {
     // Esta função já não tem o bug de não aparecer a peça selecionada, mas tem outros bugs....
     // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
-        let canPlacePiece = possible_play(row, col, currentPlayer);
+        let canPlacePiece = possible_play(row, col, currentPlayer,board);
     
         if (canPlacePiece) {
             if (currentPlayer === '1' && playerBpieces > 0) {
@@ -252,8 +252,8 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         } else {
 
             
-            console.log("possible_play " + possible_play(row, col, currentPlayer) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
-            if (possible_play(row, col, currentPlayer) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
+            console.log("possible_play " + possible_play(row, col, currentPlayer,board) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
+            if (possible_play(row, col, currentPlayer,board) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
    
                 board[row][col] = currentPlayer;
                 board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
@@ -353,6 +353,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 currentPlayer === (board[i][k + 1] || 0) &&
                 currentPlayer === (board[i][k + 2] || 0)
             ) {
+                removeDisplay.style.display = 'block';
                 return true;
             }
         }
@@ -369,6 +370,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 currentPlayer === (board[k + 1][j] || 0) &&
                 currentPlayer === (board[k + 2][j] || 0)
             ) {
+                removeDisplay.style.display = 'block';
                 return true;
             }
         }
@@ -404,44 +406,44 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-    function possible_play(i, j, currentPlayer) {
+    function possible_play(i, j, currentPlayer,board_layout) {
         // Check if the cell is out of bounds
-        if (i < 0 || i >= board.length || j < 0 || j >= board[i].length) {
+        if (i < 0 || i >= board_layout.length || j < 0 || j >= board_layout[i].length) {
             console.log('false - Cell is out of bounds');
             return false;
         }
     
         // Check if the cell is not empty
-        if (board[i][j] !== 0) {
+        if (board_layout[i][j] !== 0) {
             //console.log('false - Cell is not empty');
             return false;
         }
     
-        board[i][j] = currentPlayer;
+        board_layout[i][j] = currentPlayer;
 
         if (!putPhase) {
             console.log( "rowSelected: " + rowSelected + " colSelected: " + colSelected) + " na possible_play";
-            board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
+            board_layout[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
         }
         
 
         // Check Horizontal
         let leftlim = Math.max(0, j - 3);
-        let rightlim = Math.min(board[i].length - 1, j + 3);
+        let rightlim = Math.min(board_layout[i].length - 1, j + 3);
         
         //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
         
         for (let k = leftlim; k <= rightlim - 3; k++) {
             //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
             if (
-                currentPlayer === (board[i][k] || 0 ) &&
-                currentPlayer === (board[i][k + 1] || 0 ) &&
-                currentPlayer === (board[i][k + 2] || 0 ) &&
-                currentPlayer === (board[i][k + 3] || 0 )
+                currentPlayer === (board_layout[i][k] || 0 ) &&
+                currentPlayer === (board_layout[i][k + 1] || 0 ) &&
+                currentPlayer === (board_layout[i][k + 2] || 0 ) &&
+                currentPlayer === (board_layout[i][k + 3] || 0 )
             ) {
-                board[i][j] = 0;  // Set it back to an empty cell
+                board_layout[i][j] = 0;  // Set it back to an empty cell
                 if (!putPhase) {
-                    board[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
+                    board_layout[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
                 }
                 console.log('false - Cell is 4 in line horizontal');
                 return false;
@@ -450,20 +452,20 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     
         // Check Vertical
         let toplim = Math.max(0, i - 3);
-        let bottomlim = Math.min(board.length - 1, i + 3);
+        let bottomlim = Math.min(board_layout.length - 1, i + 3);
         
         //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
         for (let k = toplim; k <= bottomlim - 3; k++) {
             //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
             if (
-                currentPlayer === (board[k][j] || 0) &&
-                currentPlayer === (board[k + 1][j] || 0) &&
-                currentPlayer === (board[k + 2][j] || 0) &&
-                currentPlayer === (board[k + 3][j] || 0)
+                currentPlayer === (board_layout[k][j] || 0) &&
+                currentPlayer === (board_layout[k + 1][j] || 0) &&
+                currentPlayer === (board_layout[k + 2][j] || 0) &&
+                currentPlayer === (board_layout[k + 3][j] || 0)
             ) {
-                board[i][j] = 0;  // Set it back to an empty cell
+                board_layout[i][j] = 0;  // Set it back to an empty cell
                 if (!putPhase) {
-                    board[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
+                    board_layout[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
                 }
                 console.log('false - Cell is 4 in line vertical');
                 return false;
@@ -471,8 +473,8 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         }
     
         if (!putPhase) {
-            board[i][j] = 0;
-            board[rowSelected][colSelected] = currentPlayer;
+            board_layout[i][j] = 0;
+            board_layout[rowSelected][colSelected] = currentPlayer;
         }
     
         //console.log('true - Move is possible');
@@ -485,8 +487,11 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     let moves_available_1 = [];
     let moves_available_2 = [];
 
+
     function moves_available(currentPlayer){
         let moves_available = [];
+        let board_copy = JSON.parse(JSON.stringify(board));
+
         if (currentPlayer == 1){
             moves_available = moves_available_1;
         }else{
@@ -496,20 +501,20 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             for (let j = 0; j< board[0].length ; j++){
                 if (board[i][j]==currentPlayer){
                     if (i>0){
-                        if (possible_play(i-1,j, currentPlayer) && possible_move(i-1, j, i, j) && go_back(i-1, j, i, j, currentPlayer)){
+                        if (possible_play(i-1,j, currentPlayer,board_copy) && possible_move(i-1, j, i, j) && go_back(i-1, j, i, j, currentPlayer)){
                             moves_available.push([i,j,i-1,j]);
                         }
                     }if (i<board.length-1){
-                        if (possible_play(i+1,j,currentPlayer) && possible_move(i+1, j, i, j) && go_back(i+1, j, i, j, currentPlayer)){
+                        if (possible_play(i+1,j,currentPlayer,board_copy) && possible_move(i+1, j, i, j) && go_back(i+1, j, i, j, currentPlayer)){
                             moves_available.push([i,j,i+1,j]);
                         }
                     }if (j>0){
-                        if (possible_play(i,j-1,currentPlayer) && possible_move(i, j-1, i, j) && go_back(i, j-1, i, j, currentPlayer)){
+                        if (possible_play(i,j-1,currentPlayer,board_copy) && possible_move(i, j-1, i, j) && go_back(i, j-1, i, j, currentPlayer)){
                             moves_available.push([i,j,i,j-1]);
                         }
                     }
                     if (j<board[0].length-1){
-                        if (possible_play(i,j+1,currentPlayer) && possible_move(i, j+1, i, j) && go_back(i, j+1, i, j, currentPlayer)){
+                        if (possible_play(i,j+1,currentPlayer,board_copy) && possible_move(i, j+1, i, j) && go_back(i, j+1, i, j, currentPlayer)){
                             moves_available.push([i,j,i,j+1]);
                         }
                     }
