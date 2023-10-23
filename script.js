@@ -43,6 +43,8 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
+        isGameActive = true;
+        board = [];
         if (boardSize === 6) {
             playerBpieces = 12;
             playerWpieces = 12;
@@ -115,7 +117,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     //console.log("You can remove a piece");
                     handleRemovePiece(row, col, currentPlayer_copy);
                     removeDisplay.style.display = 'none';
-                    //possible_win();
+                    possible_win();
 
                 }
 
@@ -537,26 +539,29 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     function possible_win(){
     console.log("POSSIBLE WINNNNNNN");
             console.log("playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
-        if (finalBpieces <= 2 || !moves_available(2)){
+        if (finalBpieces <= 2 || !moves_available(1)){
             winner = 2;
             game_finished(winner);
             return;
         }
-        else if (finalWpieces <= 2 || !moves_available(1)){
+        else if (finalWpieces <= 2 || !moves_available(2)){
             winner = 1;
             game_finished(winner);
             return;
         }
 
-        } 
+    } 
+
 
     function game_finished(winner) {
-        let win = document.getElementById("game-result");
+        let win_text = document.getElementById("game-result");
         if (winner==1) {
-            win.innerText = "Ganhou o Branco";             
+            win_text.innerText = "Ganhou o Branco";             
         } else {
-            win.innerText = "Ganhou o Preto";
+            isGameActive = false;
+            win_text.innerText = "Ganhou o Preto";
         }
+        isGameActive = false;
     }
 
 
