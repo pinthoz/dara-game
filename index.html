@@ -36,7 +36,7 @@
         <button id="return-button" class="return-button">Voltar</button>
     </section>
     <section class="main-section" id="main-section">
-    <div class="game-settings">
+    <div class="game-settings" id="game-settings">
         <label for="board-size">Escolha o tamanho do tabuleiro:</label>
         <select id="board-size">
             <option value="5">6x5</option>
@@ -60,17 +60,19 @@
             <option value="medium">Médio</option>
             <option value="hard">Difícil</option>
         </select>
-        <br>
-        <button id="start-game" class="start-button">Iniciar Jogo</button>
-        <button class="quit-game">Desistir</button>
     </div>
-    <div class="game-container">
+        <button id="start-game" class="start-button">Iniciar Jogo</button>
     </div>
     <div class="game-info">
         <p>Vez do jogador: <span id="current-player">Branco</span></p>
+        <p id="place-piece-display">Podes colocar uma peça</p>
         <p id="remove-display">Podes remover uma peça adversária</p>
+        <p id="move-piece-display">Podes mover uma peça</p>
         <p id="game-result"></p>
     </div>
+    <div class="game-container">
+    </div>
+    <button id="quit-game" class="quit-game">Desistir</button>
     </section>
 
 </body>

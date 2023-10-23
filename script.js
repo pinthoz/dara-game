@@ -6,6 +6,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameResultDisplay = document.querySelector('#game-result');
     const removeDisplay = document.querySelector('#remove-display');
     const firstPlayerSelect = document.querySelector('#first-play');
+    const start_button = document.getElementById('start-game');
+    const quit_button = document.getElementById('quit-game');
+    const gameSettings = document.getElementById('game-settings');
+    const moveDisplay = document.getElementById("move-piece-display");
+    const putDisplay = document.getElementById("place-piece-display");
 
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
     const playerNames = {
@@ -45,6 +50,7 @@ document.addEventListener('DOMContentLoaded', () => {
     function generateBoard() {
         isGameActive = true;
         board = [];
+        putPhase = true;
         if (boardSize === 6) {
             playerBpieces = 12;
             playerWpieces = 12;
@@ -58,10 +64,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.dataset.col = col;
                     cell.addEventListener('click', () => handleCellClick(row, col));
                     gameContainer.appendChild(cell);
+                    putDisplay.style.display = 'block';
                 }
             }
         } else {           
-             playerBpieces = 12;
+            playerBpieces = 12;
             playerWpieces = 12;
             let numRows = 6; // Defina o número de linhas
             let numCols = 5; // Defina o número de colunas
@@ -77,6 +84,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     cell.dataset.col = col;
                     cell.addEventListener('click', () => handleCellClick(row, col));
                     gameContainer.appendChild(cell);
+                    putDisplay.style.display = 'block';
                 }
             }
         }
@@ -94,7 +102,6 @@ document.addEventListener('DOMContentLoaded', () => {
         if (putPhase) {
             handlePlacementPhase(row, col);
         } else {
-            
             //console.log("boas")
             if (!pieceSelected) {
                 //console.log("seleciono a peça")
@@ -142,7 +149,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-    // Esta função já não tem o bug de não aparecer a peça selecionada, mas tem outros bugs....
     // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
         let canPlacePiece = possible_play(row, col, currentPlayer,board);
@@ -173,6 +179,8 @@ document.addEventListener('DOMContentLoaded', () => {
             currentPlayer = '1'; // jogador branco
             }
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
+            putDisplay.style.display = 'none';
+            moveDisplay.style.display = 'block';
         }
     }
     
@@ -355,6 +363,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 currentPlayer === (board[i][k + 1] || 0) &&
                 currentPlayer === (board[i][k + 2] || 0)
             ) {
+                moveDisplay.style.display = 'none';
                 removeDisplay.style.display = 'block';
                 return true;
             }
@@ -372,6 +381,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 currentPlayer === (board[k + 1][j] || 0) &&
                 currentPlayer === (board[k + 2][j] || 0)
             ) {
+                moveDisplay.style.display = 'none';
                 removeDisplay.style.display = 'block';
                 return true;
             }
@@ -495,9 +505,9 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         let board_copy = JSON.parse(JSON.stringify(board));
 
         if (currentPlayer == 1){
-            moves_available = moves_available_1;
+            moves_available = JSON.parse(JSON.stringify(moves_available_1));
         }else{
-            moves_available = moves_available_2;
+            moves_available = JSON.parse(JSON.stringify(moves_available_2));
         }
         for (let i = 0; i< board.length ; i++){
             for (let j = 0; j< board[0].length ; j++){
@@ -526,9 +536,9 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         
         console.log("moves_available for player " + currentPlayer + ": " + moves_available );
         if (currentPlayer == 1){
-            moves_available_1 = moves_available;
+            moves_available_1 = JSON.parse(JSON.stringify(moves_available));
         }else{
-            moves_available_2 = moves_available;
+            moves_available_2 = JSON.parse(JSON.stringify(moves_available));
         }
 
         if (moves_available.length === 0) return false;
@@ -539,12 +549,12 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     function possible_win(){
     console.log("POSSIBLE WINNNNNNN");
             console.log("playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
-        if (finalBpieces <= 2 || !moves_available(1)){
+        if (finalBpieces <= 2 || !moves_available(2)){
             winner = 2;
             game_finished(winner);
             return;
         }
-        else if (finalWpieces <= 2 || !moves_available(2)){
+        else if (finalWpieces <= 2 || !moves_available(1)){
             winner = 1;
             game_finished(winner);
             return;
@@ -610,31 +620,46 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     }
 
 
-    // Event listener para o botão "Iniciar Jogo"
-    startGameButton.addEventListener('click', () => {
-        boardSize = parseInt(boardSizeSelect.value);
-        gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
-        generateBoard();
-        if (firstPlayerSelect.value === 'branco') {
-            player1 = '1';
-        } else {
-            player1 = '2';
-        }
-        currentPlayer = player1;
-        currentPlayerDisplay.textContent = playerNames[currentPlayer];
-        gameResultDisplay.textContent = '';
-        isGameActive = true;
+// Event listener para o botão "Iniciar Jogo"
+startGameButton.addEventListener('click', () => {
+    boardSize = parseInt(boardSizeSelect.value);
+    gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
+    generateBoard();
+    if (firstPlayerSelect.value === 'branco') {
+        player1 = '1';
+    } else {
+        player1 = '2';
+    }
+    currentPlayer = player1;
+    currentPlayerDisplay.textContent = playerNames[currentPlayer];
+    gameResultDisplay.textContent = '';
+    isGameActive = true;
 
-        // Adiciona a classe "active" ao elemento ".game-info"
-        const gameInfoElement = document.querySelector('.game-info');
-        gameInfoElement.classList.add('active');
-
-        // Altera o texto do botão "Iniciar Jogo" para "Desistir"
-        const start_button = document.getElementById('start-game');
-        start_button.textContent = 'Desistir';
+    // Adiciona a classe "active" ao elemento ".game-info"
+    const gameInfoElement = document.querySelector('.game-info');
+    gameInfoElement.classList.add('active');
 
 
-    });
+    start_button.style.display = 'none';
+    quit_button.style.display = 'block';
+    gameSettings.style.display = 'none';
+
+});
+
+quit_button.addEventListener('click', () => {
+    // Esconde o tabuleiro
+    gameContainer.innerHTML = '';
+
+    // Oculta a classe "active" do elemento ".game-info"
+    const gameInfoElement = document.querySelector('.game-info');
+    gameInfoElement.classList.remove('active');
+
+    // Mostra o botão "Iniciar Jogo" e oculta o botão "Desistir"
+    start_button.style.display = 'block';
+    quit_button.style.display = 'none';
+    gameSettings.style.display = 'block';
+
+});
 
     const opponentSelect = document.querySelector('#opponent');
     const levelLabel = document.getElementById('level-label');
@@ -671,6 +696,11 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         // Alternar a visibilidade da main-section e hidden-section
         mainSection.style.display = 'block'; // Mostra a main-section
         hiddenSection.style.display = 'none'; // Esconde a hidden-section
+    });
+
+    document.querySelector('.img-dara').addEventListener('click', () => {
+        // Recarrega a página
+        location.reload();
     });
 
 });

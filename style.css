@@ -18,9 +18,10 @@ label{
     margin-top: 10px;
 }
 
-.start-button, .return-button, .quit-game {
-    margin-top: 10px ;
-    display: inline-block;
+.start-button, .return-button {
+    margin: auto;
+    margin-top: 10px;
+    display: block;
     padding: 15px 25px;
     font-size: 20px;
     cursor: pointer;
@@ -35,11 +36,11 @@ label{
 }
 
 .start-button:hover, .return-button:hover, .quit-game:hover {
-    background-color: #E6535F
+    background-color: #ab4049
 }
 
 .start-button:active, .return-button:active, .quit-game:active {
-    background-color: #E6535F;
+    background-color: #ab4049;
     box-shadow: 0 5px #666;
     transform: translateY(4px);
 }
@@ -199,6 +200,31 @@ label{
     display: none;
 }
 
+#move-piece-display {
+    display: none;
+}
+
+#place-piece-display {
+    display: none;
+}
+
 .quit-game {
     display: none;
+    margin: auto;
+    margin-top: 10px ;
+    padding: 15px 25px;
+    font-size: 20px;
+    cursor: pointer;
+    text-align: center;
+    text-decoration: none;
+    outline: none;
+    color: #fff;
+    background-color: #E6535F;
+    border: none;
+    border-radius: 15px;
+    box-shadow: 0 9px #999;
+}
+
+.game-config {
+    display: block;
 }
