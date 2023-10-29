@@ -231,7 +231,7 @@ const LastPlay2 = {
 
 
 function go_back(row,col,rowSelected,colSelected,currentPlayer){
-    if (currentPlayer == 1){
+    if (currentPlayer == '1'){
         if (row == LastPlay1.row && 
             col == LastPlay1.col && 
             rowSelected == LastPlay1.rowSelected 
@@ -269,7 +269,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 board[row][col] = currentPlayer;
                 board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
 
-                if (currentPlayer == 1) {
+                if (currentPlayer == '1') {
                     LastPlay1.row = rowSelected;
                     LastPlay1.col = colSelected;
                     LastPlay1.rowSelected = row;
@@ -325,7 +325,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 }
         
 
-            if(currentPlayer === 1){
+            if(currentPlayer == '1'){
                 finalBpieces--;
             }else{
                 finalWpieces--;
@@ -501,62 +501,56 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     let moves_available_2 = [];
 
 
-    function moves_available(currentPlayer){
-        let moves_available = [];
-        let board_copy = JSON.parse(JSON.stringify(board));
-
-        if (currentPlayer == 1){
-            moves_available = JSON.parse(JSON.stringify(moves_available_1));
-        }else{
-            moves_available = JSON.parse(JSON.stringify(moves_available_2));
-        }
-        for (let i = 0; i< board.length ; i++){
-            for (let j = 0; j< board[0].length ; j++){
-                if (board[i][j]==currentPlayer){
-                    if (i>0){
-                        if (possible_play(i-1,j, currentPlayer,board_copy) && possible_move(i-1, j, i, j) && go_back(i-1, j, i, j, currentPlayer)){
-                            moves_available.push([i,j,i-1,j]);
-                        }
-                    }if (i<board.length-1){
-                        if (possible_play(i+1,j,currentPlayer,board_copy) && possible_move(i+1, j, i, j) && go_back(i+1, j, i, j, currentPlayer)){
-                            moves_available.push([i,j,i+1,j]);
-                        }
-                    }if (j>0){
-                        if (possible_play(i,j-1,currentPlayer,board_copy) && possible_move(i, j-1, i, j) && go_back(i, j-1, i, j, currentPlayer)){
-                            moves_available.push([i,j,i,j-1]);
+    function moves_available(currentPlayer) {
+        let movesAvailable = [];
+        let boardCopy = JSON.parse(JSON.stringify(board));
+    
+        for (let i = 0; i < board.length; i++) {
+            for (let j = 0; j < board[0].length; j++) {
+                if (board[i][j] === currentPlayer) {
+                    if (i > 0) {
+                        if (possible_play(i - 1, j, currentPlayer, boardCopy) && possible_move(i - 1, j, i, j) && go_back(i - 1, j, i, j, currentPlayer)) {
+                            movesAvailable.push([i, j, i - 1, j]);
                         }
                     }
-                    if (j<board[0].length-1){
-                        if (possible_play(i,j+1,currentPlayer,board_copy) && possible_move(i, j+1, i, j) && go_back(i, j+1, i, j, currentPlayer)){
-                            moves_available.push([i,j,i,j+1]);
+                    if (i < board.length - 1) {
+                        if (possible_play(i + 1, j, currentPlayer, boardCopy) && possible_move(i + 1, j, i, j) && go_back(i + 1, j, i, j, currentPlayer)) {
+                            movesAvailable.push([i, j, i + 1, j]);
+                        }
+                    }
+                    if (j > 0) {
+                        if (possible_play(i, j - 1, currentPlayer, boardCopy) && possible_move(i, j - 1, i, j) && go_back(i, j - 1, i, j, currentPlayer)) {
+                            movesAvailable.push([i, j, i, j - 1]);
+                        }
+                    }
+                    if (j < board[0].length - 1) {
+                        if (possible_play(i, j + 1, currentPlayer, boardCopy) && possible_move(i, j + 1, i, j) && go_back(i, j + 1, i, j, currentPlayer)) {
+                            movesAvailable.push([i, j, i, j + 1]);
                         }
                     }
                 }
             }
         }
-        
-        console.log("moves_available for player " + currentPlayer + ": " + moves_available );
-        if (currentPlayer == 1){
-            moves_available_1 = JSON.parse(JSON.stringify(moves_available));
-        }else{
-            moves_available_2 = JSON.parse(JSON.stringify(moves_available));
-        }
-
-        if (moves_available.length === 0) return false;
-        return true;
+        console.log("movesAvailable: " + movesAvailable);
+        return movesAvailable;
     }
+    
 
 
     function possible_win(){
     console.log("POSSIBLE WINNNNNNN");
             console.log("playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
-        if (finalBpieces <= 2 || !moves_available(2)){
-            winner = 2;
+            moves_available_1 = moves_available('1');
+            moves_available_2 = moves_available('2');
+            console.log("moves_available_1: " + moves_available_1);
+            console.log("moves_available_2: " + moves_available_2);
+        if (finalBpieces <= 2 || moves_available_1.length == 0){
+            winner = 1;
             game_finished(winner);
             return;
         }
-        else if (finalWpieces <= 2 || !moves_available(1)){
-            winner = 1;
+        else if (finalWpieces <= 2 || moves_available_2.length == 0){
+            winner = 2;
             game_finished(winner);
             return;
         }
