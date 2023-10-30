@@ -11,6 +11,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameSettings = document.getElementById('game-settings');
     const moveDisplay = document.getElementById("move-piece-display");
     const putDisplay = document.getElementById("place-piece-display");
+    const updateSideBoard1 = document.getElementById(".side-board-1");
+    const updateSideBoard2 = document.getElementById(".side-board-2");
 
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
     const playerNames = {
@@ -91,12 +93,35 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
+    function updateSideBoards() {
+        updateSideBoard(1, 'side_board_1');
+        updateSideBoard(2, 'side_board_2');
+    }
+    
+    // Function to update a specific side board
+    function updateSideBoard(player, sideBoardId) {
+        if (putPhase) {
+        const sideBoard = document.querySelector(`.${sideBoardId}`);
+        const piecesCount = player === 1 ? playerBpieces : playerWpieces;
+        
+        sideBoard.innerHTML = ''; // Clear the side board
+    
+        for (let i = 0; i < piecesCount; i++) {
+            const piece = document.createElement('div');
+            piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
+            sideBoard.appendChild(piece);
+        }
+    } else {
+
+    }
+    }
+
     
     // Função para lidar com o clique em uma célula
     function handleCellClick(row, col) {
         //console.log("pieceSelected: " + pieceSelected + " moved_piece: " + moved_piece + " canRemove: " + canRemove);
         //console.log(" jogador " + currentPlayer);
-        
+        updateSideBoards();
         if (!isGameActive) return;
     
         if (putPhase) {
@@ -158,9 +183,11 @@ document.addEventListener('DOMContentLoaded', () => {
             if (currentPlayer === '1' && playerBpieces > 0) {
                 renderBoard();
                 playerBpieces--;
+                updateSideBoards();
             } else if (currentPlayer === '2' && playerWpieces > 0) {
                 renderBoard();
                 playerWpieces--;
+                updateSideBoards();
             }
     
             currentPlayer = currentPlayer === '1' ? '2' : '1';
@@ -286,6 +313,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 
 
                 renderBoard();
+                updateSideBoards();
                 /*pieceSelected = false;*/
                 currentPlayer_copy = currentPlayer;
                 currentPlayer = currentPlayer === '1' ? '2' : '1';
@@ -339,6 +367,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             canRemove = false;
             //console.log("You cannot remove a piece - joagdor ativo" + currentPlayer );
             renderBoard();
+            updateSideBoards();
             
         }
     }
@@ -610,11 +639,14 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     }
 
 
+
+
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', () => {
     boardSize = parseInt(boardSizeSelect.value);
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
     generateBoard();
+    updateSideBoards();
     if (firstPlayerSelect.value === 'branco') {
         player1 = '1';
     } else {

@@ -50,13 +50,20 @@ label{
     margin-bottom: 20px;
 }
 
+.side_board {
+    display: grid;
+    gap: 5px;
+    justify-content: center;
+    margin-top: 20px;
+    grid-template-columns: repeat(6, 50px);
+}
+
 .game-container {
     display: grid;
     gap: 5px;
     justify-content: center;
     margin-top: 20px;
     grid-template-columns: repeat(6, 50px);
-
 }
 
 .cell {
@@ -171,7 +178,7 @@ label{
     background:#D0E2EE;
     border-radius: 10px;
     padding: 15px;
-    width: 500px;
+    width: 1000px;
     margin: auto;
     box-shadow:5px 5px 10px black;
     margin-top: 15px;
@@ -227,4 +234,43 @@ label{
 
 .game-config {
     display: block;
+}
+
+.side_board_1 {
+    display: grid;
+    grid-template-columns: repeat(4, 45px);
+    grid-gap: 1px;
+    text-align: center;
+    float : left;
+    margin-left: 50px;
+}
+
+.side_board_2 {
+    display: grid;
+    grid-template-columns: repeat(4, 45px);
+    grid-gap: 1px;
+    text-align: center;
+    float : right;
+    margin-right: 50px;
+}
+
+.side-boards {
+    display: flex;
+    justify-content: space-between; /* Espaço igual entre side_board_1 e side_board_2 */
+    align-items: flex-start; /* Alinha os elementos verticalmente ao topo */
+    margin-top: 20px;
+}
+
+
+.white-piece {
+    background-image : url('assets/white.png');
+    width: 50px;
+    height: 50px;
+
+}
+
+.black-piece {
+    background-image : url('assets/black.png');
+    width: 50px;
+    height: 50px;
 }
