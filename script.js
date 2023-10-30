@@ -11,8 +11,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const gameSettings = document.getElementById('game-settings');
     const moveDisplay = document.getElementById("move-piece-display");
     const putDisplay = document.getElementById("place-piece-display");
-    const updateSideBoard1 = document.getElementById(".side-board-1");
-    const updateSideBoard2 = document.getElementById(".side-board-2");
+    const sideBoard1 = document.querySelector('.side_board_1'); 
+    const sideBoard2 = document.querySelector('.side_board_2'); 
+
 
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
     const playerNames = {
@@ -56,10 +57,12 @@ document.addEventListener('DOMContentLoaded', () => {
         if (boardSize === 6) {
             playerBpieces = 12;
             playerWpieces = 12;
+            let numRows = 6; // Defina o número de linhas
+            let numCols = 6; // Defina o número de colunas
             gameContainer.innerHTML = '';
-            board = new Array(boardSize).fill(0).map(() => new Array(boardSize).fill(0));
-            for (let row = 0; row < boardSize; row++) {
-                for (let col = 0; col < boardSize; col++) {
+            board = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
                     const cell = document.createElement('div');
                     cell.classList.add('cell');
                     cell.dataset.row = row;
@@ -299,14 +302,10 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 selectedCell.style.backgroundImage = 'url("/assets/black.png")';
             }
         } else {
-
-            
-            console.log("possible_play " + possible_play(row, col, currentPlayer,board) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
-            if (possible_play(row, col, currentPlayer,board) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
-
+            if (possible_play(row, col, currentPlayer, board) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
                 board[row][col] = currentPlayer;
-                board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
-
+                board[rowSelected][colSelected] = 0; // Tirar a peça da posição anterior
+    
                 if (currentPlayer == '1') {
                     LastPlay1.row = rowSelected;
                     LastPlay1.col = colSelected;
@@ -321,24 +320,16 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                     console.log("LastPlay2: " + LastPlay2.row + " " + LastPlay2.col + " " + LastPlay2.rowSelected + " " + LastPlay2.colSelected);
                 }
     
-                
-
                 renderBoard();
                 updateSideBoards();
-                /*pieceSelected = false;*/
+                const selectedCell = document.querySelector(`[data-row="${rowSelected}"][data-col="${colSelected}"]`);
+                selectedCell.style.backgroundImage = 'none'; // Remova a imagem de fundo da célula de origem
+                pieceSelected = false;
                 currentPlayer_copy = currentPlayer;
                 currentPlayer = currentPlayer === '1' ? '2' : '1';
-                //currentPlayerDisplay.textContent = playerNames[currentPlayer];
                 moved_piece = true;
             }
-        
-            
-        for (let i = 0; i < 6; i++) {
-            console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
         }
-
-        }
-    
     }
 
     function handleRemovePiece(row, col, currentPlayer) {
@@ -616,14 +607,13 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 for (let col = 0; col < boardSize; col++) {
                     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                     cell.textContent = '';
+                    cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
+    
                     if (board[row][col] === '1') {
                         cell.style.backgroundImage = 'url("/assets/white.png")';
                     }
                     if (board[row][col] === '2') {
                         cell.style.backgroundImage = 'url("/assets/black.png")';
-                    } 
-                    if (board[row][col] === '0'){
-                        cell.style.backgroundImage = 'none';
                     }
                 }
             }
@@ -635,23 +625,26 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 for (let col = 0; col < numCols; col++) {
                     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                     cell.textContent = '';
+                    cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
+    
                     if (board[row][col] === '1') {
                         cell.style.backgroundImage = 'url("/assets/white.png")';
                     } else if (board[row][col] === '2') {
                         cell.style.backgroundImage = 'url("/assets/black.png")';
-                    } else {
-                        cell.style.backgroundImage = 'none';
                     }
                 }
             }
         }
     }
+    
 
 
 
 
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', () => {
+    sideBoard1.style.display = 'grid';
+    sideBoard2.style.display = 'grid';
     boardSize = parseInt(boardSizeSelect.value);
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
     generateBoard();
@@ -680,6 +673,8 @@ startGameButton.addEventListener('click', () => {
 quit_button.addEventListener('click', () => {
     // Esconde o tabuleiro
     gameContainer.innerHTML = '';
+    sideBoard1.style.display = 'none';
+    sideBoard2.style.display = 'none';
 
     // Oculta a classe "active" do elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
