@@ -18,7 +18,7 @@ label{
     margin-top: 10px;
 }
 
-.start-button, .return-button {
+.start-button, .return-button, .login-button {
     margin: auto;
     margin-top: 10px;
     display: block;
@@ -35,11 +35,11 @@ label{
     box-shadow: 0 9px #999;
 }
 
-.start-button:hover, .return-button:hover, .quit-game:hover {
+.start-button:hover, .return-button:hover, .quit-game:hover, .login-button:hover {
     background-color: #ab4049
 }
 
-.start-button:active, .return-button:active, .quit-game:active {
+.start-button:active, .return-button:active, .quit-game:active, .login-button:active {
     background-color: #ab4049;
     box-shadow: 0 5px #666;
     transform: translateY(4px);
@@ -157,7 +157,7 @@ label{
 
 }
 
-.login-button {
+.logout-button {
     background-color: #E6535F; /* Cor de fundo do botão */
     color: #5271FF; /* Cor do texto no botão */
     border: 0px solid #E6535F; /* Borda do botão */
@@ -167,14 +167,16 @@ label{
     float: right; /* Define o botão à direita */
     margin-top: 5px;
     color: transparent; /* Torna o texto do botão transparente (invisível) */
-    background-image: url('assets/login.png'); /* Substitua 'caminho-da-imagem.jpg' pelo caminho da sua imagem */
+    background-image: url('assets/logout.png'); /* Substitua 'caminho-da-imagem.jpg' pelo caminho da sua imagem */
     background-size: 90px; /* Tamanho da imagem */
     background-position: center; /* Centraliza a imagem no botão */
     background-repeat: no-repeat; /* Evita repetição da imagem */
     margin-top: 8px;
     margin-right: 10px; /* Desloca o botão 20px para a direita */
+    display : none;
 
 }
+
 
 
 .main-section{
@@ -185,13 +187,26 @@ label{
     margin: auto;
     box-shadow:5px 5px 10px black;
     margin-top: 15px;
-    display: block;
+    display: none;
 
 }
 
 .hidden-section {
     display: none; /* Oculta o elemento */
     z-index: 2; /* Defina um z-index maior para que fique por cima da main-section */
+    background:#D0E2EE;
+    border-radius: 10px;
+    padding: 15px;
+    width: 500px;
+    margin: auto;
+    box-shadow:5px 5px 10px black;
+    margin-top: 15px;
+
+}
+
+.login-section {
+    display: block;
+    z-index: 3; /* Defina um z-index maior para que fique por cima da main-section */
     background:#D0E2EE;
     border-radius: 10px;
     padding: 15px;

@@ -13,6 +13,8 @@ document.addEventListener('DOMContentLoaded', () => {
     const putDisplay = document.getElementById("place-piece-display");
     const sideBoard1 = document.querySelector('.side_board_1'); 
     const sideBoard2 = document.querySelector('.side_board_2'); 
+    const selectedOpponent = document.getElementById('.opponent');
+    const level = document.getElementById('level');
 
 
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
@@ -636,7 +638,24 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             }
         }
     }
+
+    ////////////////////////////////////////////////////////////////
+    //BOTTTTTT
+    ////////////////////////////////////////////////////////////////~
+/*
+ function botPlayRandomly() {
+    if (isGameActive && currentPlayer === '2') {
+        const availableMoves = moves_available_2; // Substitua pela função ou variável correta que lista os movimentos válidos para o bot
+        if (availableMoves.length > 0) {
+            const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
+                const [startRow, startCol, endRow, endCol] = randomMove;
+                handlePieceSelection(startRow, startCol);
+                handlePieceMovement(endRow, endCol);
+            }
+        }
+    }
     
+*/
 
 
 
@@ -710,13 +729,15 @@ quit_button.addEventListener('click', () => {
     const mainSection = document.getElementById('main-section');
     const hiddenSection = document.getElementById('additional-section');
     const rulesButton = document.getElementById('rules-button');
-    const returnButton = document.getElementById('return-button'); // Seleciona o botão de retorno
+    const returnButton = document.getElementById('return-button'); 
+
     
     // Adicione um evento de clique ao botão de regras
     rulesButton.addEventListener('click', () => {
         // Alternar a visibilidade da main-section e hidden-section
         mainSection.style.display = 'none'; // Esconde a main-section
         hiddenSection.style.display = 'block'; // Mostra a hidden-section
+        loginSection.style.display = 'none';
     });
     
     // Adicione um evento de clique ao botão de retorno
@@ -729,6 +750,36 @@ quit_button.addEventListener('click', () => {
     document.querySelector('.img-dara').addEventListener('click', () => {
         // Recarrega a página
         location.reload();
+    });
+
+    rulesButton.addEventListener('click', () => {
+        // Alternar a visibilidade da main-section e hidden-section
+        mainSection.style.display = 'none'; // Esconde a main-section
+        hiddenSection.style.display = 'block'; // Mostra a hidden-section
+    });
+
+    const loginSection = document.getElementById("login-section");
+    const loginForm = document.getElementById("login-form");
+    const logoutButton = document.getElementById("logout-button");
+
+    loginForm.addEventListener("submit", (event) => {
+        event.preventDefault(); // Isso impedirá o envio padrão do formulário que recarrega a página
+        // Coloque o código para lidar com o login aqui
+        // Por exemplo, você pode fazer uma solicitação AJAX para enviar os dados do formulário ao servidor
+        username = document.getElementById("username").value;
+        hiddenSection.style.display = 'none';
+        loginSection.style.display = 'none';
+        mainSection.style.display = 'block';
+        logoutButton.style.display = 'block';
+
+    });
+
+    logoutButton.addEventListener("click", () => {
+
+        hiddenSection.style.display = 'none';
+        loginSection.style.display = 'block';
+        mainSection.style.display = 'none';
+        logoutButton.style.display = 'none';
     });
 
 });
