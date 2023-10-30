@@ -575,11 +575,17 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             console.log("moves_available_2: " + moves_available_2);
         if (finalBpieces <= 2 || moves_available_1.length == 0){
             winner = 1;
+            if (moves_available_1.length== 0) {
+                winner = 2;
+            }
             game_finished(winner);
             return;
         }
         else if (finalWpieces <= 2 || moves_available_2.length == 0){
             winner = 2;
+            if (moves_available_2.length== 0) {
+                winner = 1;
+            }
             game_finished(winner);
             return;
         }
