@@ -18,7 +18,7 @@ label{
     margin-top: 10px;
 }
 
-.start-button, .return-button, .login-button {
+.start-button, .return-button, .login-button, .return-button-2 {
     margin: auto;
     margin-top: 10px;
     display: block;
@@ -35,11 +35,11 @@ label{
     box-shadow: 0 9px #999;
 }
 
-.start-button:hover, .return-button:hover, .quit-game:hover, .login-button:hover {
+.start-button:hover, .return-button:hover, .quit-game:hover, .login-button:hover, .return-button-2:hover{
     background-color: #ab4049
 }
 
-.start-button:active, .return-button:active, .quit-game:active, .login-button:active {
+.start-button:active, .return-button:active, .quit-game:active, .login-button:active, .return-button-2:active {
     background-color: #ab4049;
     box-shadow: 0 5px #666;
     transform: translateY(4px);
@@ -217,6 +217,23 @@ label{
 
 }
 
+.leaderboard-section {
+    display: none;
+    z-index: 3; /* Defina um z-index maior para que fique por cima da main-section */
+    background:#D0E2EE;
+    border-radius: 10px;
+    padding: 15px;
+    width: 500px;
+    margin: auto;
+    box-shadow:5px 5px 10px black;
+    margin-top: 15px;
+}
+
+#leaderboard-table {
+    text-align: center;
+    margin: auto;
+}
+
 .rules-img {
     width: 30%
 }
@@ -294,3 +311,4 @@ label{
     width: 50px;
     height: 50px;
 }
+

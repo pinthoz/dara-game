@@ -22,7 +22,8 @@ document.addEventListener('DOMContentLoaded', () => {
         '1': 'Branco',
         '2': 'Preto'
     };
-    
+
+    let username;
     let player1;
     let boardSize = boardSizeSelect;
     let currentPlayer = player1;
@@ -39,7 +40,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let canRemove = false;
     let win = 0;
     let moved_piece = false;
-
+    let userWins = 0;
 
     function tupleToString(tuple) {
         return JSON.stringify(tuple);
@@ -597,6 +598,14 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             isGameActive = false;
             win_text.innerText = "Ganhou o Preto";
         }
+        // Quando o jogo é concluído e o usuário ganha, você pode atualizar as estatísticas
+        const user = JSON.parse(localStorage.getItem("user"));
+        user.totalGames++; // Incrementa o número total de jogos
+        user.victories++; // Incrementa o número de vitórias
+
+        // Atualiza os dados do usuário no armazenamento local
+        localStorage.setItem("user", JSON.stringify(user));
+
         isGameActive = false;
     }
 
@@ -730,6 +739,7 @@ quit_button.addEventListener('click', () => {
     const hiddenSection = document.getElementById('additional-section');
     const rulesButton = document.getElementById('rules-button');
     const returnButton = document.getElementById('return-button'); 
+    const returnButton2 = document.getElementById('return-button-2'); 
 
     
     // Adicione um evento de clique ao botão de regras
@@ -745,6 +755,16 @@ quit_button.addEventListener('click', () => {
         // Alternar a visibilidade da main-section e hidden-section
         mainSection.style.display = 'block'; // Mostra a main-section
         hiddenSection.style.display = 'none'; // Esconde a hidden-section
+
+    });
+
+    returnButton2.addEventListener('click', () => {
+        // Alternar a visibilidade da main-section e hidden-section
+        mainSection.style.display = 'block'; // Mostra a main-section
+        hiddenSection.style.display = 'none'; // Esconde a hidden-section
+        leaderboardSection.style.display = 'none';
+        loginSection.style.display = 'none';
+
     });
 
     document.querySelector('.img-dara').addEventListener('click', () => {
@@ -756,23 +776,34 @@ quit_button.addEventListener('click', () => {
         // Alternar a visibilidade da main-section e hidden-section
         mainSection.style.display = 'none'; // Esconde a main-section
         hiddenSection.style.display = 'block'; // Mostra a hidden-section
+        leaderboardSection.style.display = 'none';
     });
+
+    
 
     const loginSection = document.getElementById("login-section");
     const loginForm = document.getElementById("login-form");
     const logoutButton = document.getElementById("logout-button");
+    const leaderboardButton = document.getElementById("leaderboard");
+    const leaderboardSection = document.getElementById("leaderboard-section");
+
 
     loginForm.addEventListener("submit", (event) => {
         event.preventDefault(); // Isso impedirá o envio padrão do formulário que recarrega a página
         // Coloque o código para lidar com o login aqui
         // Por exemplo, você pode fazer uma solicitação AJAX para enviar os dados do formulário ao servidor
         username = document.getElementById("username").value;
+        console.log(username);
         hiddenSection.style.display = 'none';
         loginSection.style.display = 'none';
         mainSection.style.display = 'block';
         logoutButton.style.display = 'block';
+        leaderboardSection.style.display = 'none';
 
+        
     });
+
+
 
     logoutButton.addEventListener("click", () => {
 
@@ -780,6 +811,17 @@ quit_button.addEventListener('click', () => {
         loginSection.style.display = 'block';
         mainSection.style.display = 'none';
         logoutButton.style.display = 'none';
+        leaderboardSection.style.display = 'none';
     });
+
+    leaderboardButton.addEventListener("click", () => {
+        hiddenSection.style.display = 'none';
+        loginSection.style.display = 'none';
+        mainSection.style.display = 'none';
+        leaderboardSection.style.display = 'block';
+
+    });
+
+    
 
 });
