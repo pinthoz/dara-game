@@ -573,19 +573,13 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             moves_available_2 = moves_available('2');
             console.log("moves_available_1: " + moves_available_1);
             console.log("moves_available_2: " + moves_available_2);
-        if (finalBpieces <= 2 || moves_available_1.length == 0){
+        if (finalBpieces <= 2 ||  moves_available_2.length == 0){
             winner = 1;
-            if (moves_available_1.length== 0) {
-                winner = 2;
-            }
             game_finished(winner);
             return;
         }
-        else if (finalWpieces <= 2 || moves_available_2.length == 0){
+        else if (finalWpieces <= 2 || moves_available_1.length == 0){
             winner = 2;
-            if (moves_available_2.length== 0) {
-                winner = 1;
-            }
             game_finished(winner);
             return;
         }
