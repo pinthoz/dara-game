@@ -135,7 +135,6 @@ document.addEventListener('DOMContentLoaded', () => {
     function handleCellClick(row, col) {
         //console.log("pieceSelected: " + pieceSelected + " moved_piece: " + moved_piece + " canRemove: " + canRemove);
         //console.log(" jogador " + currentPlayer);
-        updateSideBoards();
         if (!isGameActive) return;
     
         if (putPhase) {
