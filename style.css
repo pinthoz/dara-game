@@ -129,12 +129,12 @@ label{
     margin-top: 5px;
     color: transparent; /* Torna o texto do botão transparente (invisível) */
     background-image: url('assets/rules.png'); /* Substitua 'caminho-da-imagem.jpg' pelo caminho da sua imagem */
-    background-size: 160px; /* Tamanho da imagem */
+    background-size: 90px; /* Tamanho da imagem */
     background-position: center; /* Centraliza a imagem no botão */
     background-repeat: no-repeat; /* Evita repetição da imagem */
     margin-top: 8px;
     margin-left: 25px; /* Desloca o botão 20px para a direita */
-    background-size: 50% auto;
+
 
 }
 
