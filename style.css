@@ -105,6 +105,7 @@ label{
 .header-bar {
     background-color: #E6535F; /* Cor da barra superior */
     height: 60px; /* Defina a altura desejada */
+    
 }
 
 .img-dara {
@@ -133,6 +134,7 @@ label{
     background-repeat: no-repeat; /* Evita repetição da imagem */
     margin-top: 8px;
     margin-left: 25px; /* Desloca o botão 20px para a direita */
+    background-size: 50% auto;
 
 }
 
@@ -173,6 +175,7 @@ label{
     margin-right: 10px; /* Desloca o botão 20px para a direita */
 
 }
+
 
 .main-section{
     background:#D0E2EE;

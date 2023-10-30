@@ -112,7 +112,18 @@ document.addEventListener('DOMContentLoaded', () => {
             sideBoard.appendChild(piece);
         }
     } else {
-
+        const side = player === 1 ? 'side_board_2' : 'side_board_1';
+        const sideBoard = document.querySelector(`.${side}`);
+        const piecesCount = player === 1 ? finalBpieces : finalWpieces;
+        
+        sideBoard.innerHTML = ''; // Clear the side board
+        let npieces = 12 - piecesCount;
+    
+        for (let i = 0; i < npieces; i++) {
+            const piece = document.createElement('div');
+            piece.classList.add(player === 1 ? 'black-piece' : 'white-piece');
+            sideBoard.appendChild(piece);
+        }
     }
     }
 
@@ -292,7 +303,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             
             console.log("possible_play " + possible_play(row, col, currentPlayer,board) + " possible_move " + possible_move(row, col, rowSelected, colSelected) + " go_back " + go_back(row, col, rowSelected, colSelected, currentPlayer));
             if (possible_play(row, col, currentPlayer,board) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
-   
+
                 board[row][col] = currentPlayer;
                 board[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
 
@@ -358,6 +369,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             }else{
                 finalWpieces--;
             }
+            console.log("AAA playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
 
             currentPlayer = currentPlayer === '1' ? '2' : '1';
             
@@ -525,9 +537,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-
-    let moves_available_1 = [];
-    let moves_available_2 = [];
 
 
     function moves_available(currentPlayer) {
