@@ -527,7 +527,8 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     }  
 
 
-
+    let moves_available_1 = [];
+    let moves_available_2 = [];
 
 
     function moves_available(currentPlayer) {
