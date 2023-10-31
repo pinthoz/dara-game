@@ -23,7 +23,9 @@ document.addEventListener('DOMContentLoaded', () => {
         '2': 'Preto'
     };
 
-    let username;
+    // Variáveis globais
+    let username = '';
+    let user = null;
     let player1;
     let boardSize = boardSizeSelect;
     let currentPlayer = player1;
@@ -42,15 +44,29 @@ document.addEventListener('DOMContentLoaded', () => {
     let moved_piece = false;
     let userWins = 0;
 
-    function tupleToString(tuple) {
-        return JSON.stringify(tuple);
-    }
-    
-    // Function to convert a string back to a tuple
-    function stringToTuple(str) {
-        return JSON.parse(str);
-    }
 
+    const LastPlay1 = {
+        row: -1,
+        col: -1,
+        rowSelected: -1,
+        colSelected: -1,
+    };
+    
+    const LastPlay2 = {
+        row: -1,
+        col: -1,
+        rowSelected: -1,
+        colSelected: -1,
+    };
+    
+
+    class User {
+        constructor(username, totalGames, victories) {
+            this.username = username;
+            this.totalGames = totalGames;
+            this.victories = victories;
+        }
+    }
 
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
@@ -255,21 +271,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-const LastPlay1 = {
-    row: -1,
-    col: -1,
-    rowSelected: -1,
-    colSelected: -1,
-};
-
-const LastPlay2 = {
-    row: -1,
-    col: -1,
-    rowSelected: -1,
-    colSelected: -1,
-};
-
-
 
 
 
@@ -599,12 +600,8 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             win_text.innerText = "Ganhou o Preto";
         }
         // Quando o jogo é concluído e o usuário ganha, você pode atualizar as estatísticas
-        const user = JSON.parse(localStorage.getItem("user"));
         user.totalGames++; // Incrementa o número total de jogos
         user.victories++; // Incrementa o número de vitórias
-
-        // Atualiza os dados do usuário no armazenamento local
-        localStorage.setItem("user", JSON.stringify(user));
 
         isGameActive = false;
     }
@@ -682,10 +679,19 @@ startGameButton.addEventListener('click', () => {
     } else {
         player1 = '2';
     }
+
+    
     currentPlayer = player1;
     currentPlayerDisplay.textContent = playerNames[currentPlayer];
     gameResultDisplay.textContent = '';
     isGameActive = true;
+
+    //verifca se o outro jogador é o bot
+    if (opponentSelect.value === 'computer') {
+        
+    }
+
+    
 
     // Adiciona a classe "active" ao elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
@@ -788,21 +794,25 @@ quit_button.addEventListener('click', () => {
     const leaderboardSection = document.getElementById("leaderboard-section");
 
 
+   
+    
     loginForm.addEventListener("submit", (event) => {
         event.preventDefault(); // Isso impedirá o envio padrão do formulário que recarrega a página
         // Coloque o código para lidar com o login aqui
-        // Por exemplo, você pode fazer uma solicitação AJAX para enviar os dados do formulário ao servidor
+
         username = document.getElementById("username").value;
-        console.log(username);
+        //console.log("username: " + username);
         hiddenSection.style.display = 'none';
         loginSection.style.display = 'none';
         mainSection.style.display = 'block';
         logoutButton.style.display = 'block';
         leaderboardSection.style.display = 'none';
 
-        
-    });
+        // Cria um objeto de utilizador para armazenar os dados do utilizador
 
+        user = new User(username, 0, 0);
+
+    });
 
 
     logoutButton.addEventListener("click", () => {
