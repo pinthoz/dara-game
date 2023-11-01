@@ -83,6 +83,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (boardSize === 6) {
             playerBpieces = 12;
             playerWpieces = 12;
+
             numRows = 6; // Defina o número de linhas
             numCols = 6; // Defina o número de colunas
             gameContainer.innerHTML = '';
@@ -101,6 +102,7 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {           
             playerBpieces = 12;
             playerWpieces = 12;
+
             numRows = 6; // Defina o número de linhas
             numCols = 5; // Defina o número de colunas
     
@@ -454,6 +456,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             console.log("AAA playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
     
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
+            //console.log("You cannot remove a piece - joagdor ativo" + currentPlayer );
             moved_piece = false;
             pieceSelected = false;
             canRemove = false;
