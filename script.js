@@ -17,13 +17,16 @@ document.addEventListener('DOMContentLoaded', () => {
     const level = document.getElementById('level');
 
 
+
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
     const playerNames = {
         '1': 'Branco',
         '2': 'Preto'
     };
 
-    let username;
+    // Variáveis globais
+    let username = '';
+    let user = null;
     let player1;
     let boardSize = boardSizeSelect;
     let currentPlayer = player1;
@@ -41,16 +44,34 @@ document.addEventListener('DOMContentLoaded', () => {
     let win = 0;
     let moved_piece = false;
     let userWins = 0;
+    let moves_available_1 = [];
+    let moves_available_2 = [];
+    let currentPlayer_copy = -1;
+    let bot = false;
 
-    function tupleToString(tuple) {
-        return JSON.stringify(tuple);
-    }
+
+    const LastPlay1 = {
+        row: -1,
+        col: -1,
+        rowSelected: -1,
+        colSelected: -1,
+    };
     
-    // Function to convert a string back to a tuple
-    function stringToTuple(str) {
-        return JSON.parse(str);
-    }
+    const LastPlay2 = {
+        row: -1,
+        col: -1,
+        rowSelected: -1,
+        colSelected: -1,
+    };
+    
 
+    class User {
+        constructor(username, totalGames, victories) {
+            this.username = username;
+            this.totalGames = totalGames;
+            this.victories = victories;
+        }
+    }
 
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
@@ -133,63 +154,122 @@ document.addEventListener('DOMContentLoaded', () => {
     }
     }
 
+
     
     // Função para lidar com o clique em uma célula
     function handleCellClick(row, col) {
-        //console.log("pieceSelected: " + pieceSelected + " moved_piece: " + moved_piece + " canRemove: " + canRemove);
-        //console.log(" jogador " + currentPlayer);
         if (!isGameActive) return;
     
         if (putPhase) {
             handlePlacementPhase(row, col);
         } else {
-            //console.log("boas")
             if (!pieceSelected) {
-                //console.log("seleciono a peça")
                 handlePieceSelection(row, col);
-
             } else {
                 if (!moved_piece) {
-                    //console.log("movo a peça")
                     handlePieceMovement(row, col);
-                    
                 }
                 moves_available(currentPlayer_copy);
             }
-            // já moveu a peça, ver se consegue remover agora
+    
             if (moved_piece) {
-
-                //console.log("ola")
-
                 if (canRemove) {
-                    //console.log("You can remove a piece");
                     handleRemovePiece(row, col, currentPlayer_copy);
                     removeDisplay.style.display = 'none';
                     moveDisplay.style.display = 'block';
                     possible_win();
-
-                }
-
-                else {
+                } else {
                     if (possible_remove(row, col, currentPlayer_copy)) {
-                        //console.log("o possible_remove retornou true");
                         canRemove = true;
-                    
                     } else {
-                    //currentPlayer = currentPlayer === '1' ? '2' : '1';
-                    //console.log("############ JOGADOR ATIVO: " + currentPlayer + " #############")
-                    currentPlayerDisplay.textContent = playerNames[currentPlayer];
-                    moved_piece = false;
-                    pieceSelected = false;
-                    canRemove = false;
-                    //possible_win();
-                    //console.log("You cannot remove a piece");
+                        currentPlayerDisplay.textContent = playerNames[currentPlayer];
+                        moved_piece = false;
+                        pieceSelected = false;
+                        canRemove = false;
+
                     }
-                
                 }
             }
         }
+        if (currentPlayer === '2' && bot === true) {
+            makeBotMove(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
+        }
     }
+
+    function makeBotMove() {
+        if (putPhase) {
+            const availableCells = getAvailableCells(); // Função para obter células disponíveis
+            if (availableCells.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableCells.length);
+                const randomCell = availableCells[randomIndex];
+                // Simula o clique na célula escolhida pelo bot
+                handlePlacementPhase(randomCell.row, randomCell.col);
+            }
+        }else{
+            const botCells = getBotCells();
+            const availableAdjacentCells = getAvailableAdjacentCells(botCells);
+            const randomIndex = Math.floor(Math.random() * availableAdjacentCells.length);
+            const randomCell = availableAdjacentCells[randomIndex];
+            handlePieceSelection(randomCell.row, randomCell.col);
+            const availableCells = getAvailableCells();
+            if (availableCells.length > 0) {
+                const randomIndex = Math.floor(Math.random() * availableCells.length);
+                const randomCell = availableCells[randomIndex];
+                handlePieceMovement(randomCell.row, randomCell.col);
+            }
+        }
+    }
+
+    function getBotCells() {
+        // colocar depois se o bot é o primeiro a jogar ou nao
+        const cellsInBoard = [];
+        for (let row = 0; row < 6; row++) {
+            for (let col = 0; col < 5; col++) {
+                if (board[row][col] === '2') {
+                    cellsInBoard.push({ row, col });
+                }
+            }
+        }
+        return cellsInBoard;
+    }
+
+    
+    function getAvailableCells() {
+        const availableCells = [];
+        for (let row = 0; row < 6; row++) {
+            for (let col = 0; col < 5; col++) {
+                if (board[row][col] === 0) {
+                    availableCells.push({ row, col });
+                }
+            }
+        }
+        return availableCells;
+    }
+
+    function getAvailableAdjacentCells(cells) {
+        const availableAdjacentCells = [];
+        for (const cell of cells) {
+            const { row, col } = cell;
+    
+            // Verifique se há células vazias adjacentes (acima, abaixo, esquerda, direita)
+            if (row > 0 && board[row - 1][col] === 0) {
+                availableAdjacentCells.push({ row: row - 1, col });
+            }
+            if (row < 5 && board[row + 1][col] === 0) {
+                availableAdjacentCells.push({ row: row + 1, col });
+            }
+            if (col > 0 && board[row][col - 1] === 0) {
+                availableAdjacentCells.push({ row, col: col - 1 });
+            }
+            if (col < 4 && board[row][col + 1] === 0) {
+                availableAdjacentCells.push({ row, col: col + 1 });
+            }
+        }
+        return availableAdjacentCells;
+    }
+
+    
+
     
     // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
@@ -255,21 +335,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     
-const LastPlay1 = {
-    row: -1,
-    col: -1,
-    rowSelected: -1,
-    colSelected: -1,
-};
-
-const LastPlay2 = {
-    row: -1,
-    col: -1,
-    rowSelected: -1,
-    colSelected: -1,
-};
-
-
 
 
 
@@ -291,7 +356,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 }
 
-    let currentPlayer_copy = -1;
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
         if (row === rowSelected && col === colSelected) {
@@ -451,8 +515,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-
-
     function possible_play(i, j, currentPlayer,board_layout) {
         // Check if the cell is out of bounds
         if (i < 0 || i >= board_layout.length || j < 0 || j >= board_layout[i].length) {
@@ -529,9 +591,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     }  
 
 
-    let moves_available_1 = [];
-    let moves_available_2 = [];
-
 
     function moves_available(currentPlayer) {
         let movesAvailable = [];
@@ -586,7 +645,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             game_finished(winner);
             return;
         }
-
     } 
 
 
@@ -599,12 +657,8 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             win_text.innerText = "Ganhou o Preto";
         }
         // Quando o jogo é concluído e o usuário ganha, você pode atualizar as estatísticas
-        const user = JSON.parse(localStorage.getItem("user"));
         user.totalGames++; // Incrementa o número total de jogos
         user.victories++; // Incrementa o número de vitórias
-
-        // Atualiza os dados do usuário no armazenamento local
-        localStorage.setItem("user", JSON.stringify(user));
 
         isGameActive = false;
     }
@@ -648,25 +702,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         }
     }
 
-    ////////////////////////////////////////////////////////////////
-    //BOTTTTTT
-    ////////////////////////////////////////////////////////////////~
-/*
- function botPlayRandomly() {
-    if (isGameActive && currentPlayer === '2') {
-        const availableMoves = moves_available_2; // Substitua pela função ou variável correta que lista os movimentos válidos para o bot
-        if (availableMoves.length > 0) {
-            const randomMove = availableMoves[Math.floor(Math.random() * availableMoves.length)];
-                const [startRow, startCol, endRow, endCol] = randomMove;
-                handlePieceSelection(startRow, startCol);
-                handlePieceMovement(endRow, endCol);
-            }
-        }
-    }
-    
-*/
-
-
 
 
 // Event listener para o botão "Iniciar Jogo"
@@ -682,10 +717,21 @@ startGameButton.addEventListener('click', () => {
     } else {
         player1 = '2';
     }
+
+    
     currentPlayer = player1;
     currentPlayerDisplay.textContent = playerNames[currentPlayer];
     gameResultDisplay.textContent = '';
     isGameActive = true;
+
+    //verifca se o outro jogador é o bot
+    if (opponentSelect.value === 'computer') {
+        bot = true;
+    }else{
+        bot = false;
+    }
+
+    
 
     // Adiciona a classe "active" ao elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
@@ -787,22 +833,24 @@ quit_button.addEventListener('click', () => {
     const leaderboardButton = document.getElementById("leaderboard");
     const leaderboardSection = document.getElementById("leaderboard-section");
 
-
+    
     loginForm.addEventListener("submit", (event) => {
         event.preventDefault(); // Isso impedirá o envio padrão do formulário que recarrega a página
         // Coloque o código para lidar com o login aqui
-        // Por exemplo, você pode fazer uma solicitação AJAX para enviar os dados do formulário ao servidor
+
         username = document.getElementById("username").value;
-        console.log(username);
+        //console.log("username: " + username);
         hiddenSection.style.display = 'none';
         loginSection.style.display = 'none';
         mainSection.style.display = 'block';
         logoutButton.style.display = 'block';
         leaderboardSection.style.display = 'none';
 
-        
-    });
+        // Cria um objeto de utilizador para armazenar os dados do utilizador
 
+        user = new User(username, 0, 0);
+
+    });
 
 
     logoutButton.addEventListener("click", () => {
