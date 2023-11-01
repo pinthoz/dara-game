@@ -174,8 +174,9 @@ let bot_can_play = false;
             handlePlacementPhase(row, col);
             if (currentPlayer === '2' && bot === true) {
                 console.log("BOT MOVE");
-                makeBotMove();
+                makeBotMove(); 
             }
+
 
         } else {
             if (!pieceSelected) {
@@ -271,6 +272,113 @@ let bot_can_play = false;
 
         }
     }
+
+    /*
+
+    function heuristic(currentPlayer, board, putPhase) {
+        if (putPhase) {
+            let pontos = 0;
+            let player_tmp = currentPlayer;
+            for (let row = 0; row < numRows; row++) {
+                for (let col = 0; col < numCols; col++) {
+                    if (board[row][col] === 0) {
+                        currentPlayer = '1';
+                        if (possible_play(row, col, currentPlayer, board)) {
+                            board[row][col] = '1';
+                            if (possible_remove(row, col, board)) pontos--;
+                            board[row][col] = 0;
+                        }
+                        currentPlayer = '2';
+                        if (possible_play(row, col, currentPlayer, board)) {
+                            board[row][col] = '2';
+                            if (possible_remove(row, col, board)) pontos++;
+                            board[row][col] = 0;
+                        }
+                    }
+                }
+            }
+            currentPlayer = player_tmp;
+            return pontos;
+        } else {
+            // Modifique esta parte com sua lógica para a fase de movimento
+            return (playerBpieces - playerWpieces);
+        }
+    }
+    
+    function minimax(currentPlayer, board, depth, alpha, beta, putPhase) {
+
+        if (possible_win() == 1) return -1000;
+        if (possible_win() == 2) return 1000;
+        
+        if (depth === 0) return heuristic(currentPlayer, board, putPhase);
+        
+        if (currentPlayer === '1') {
+            let value = Infinity;
+            let availableMoves = moves_available('1');
+            
+            for (let move of availableMoves) {
+                let childBoard = simulateMove(move, currentPlayer, board);
+                let score = minimax('2', childBoard, depth - 1, alpha, beta, putPhase);
+                value = Math.min(value, score);
+                beta = Math.min(beta, value);
+                if (value <= alpha) break;
+            }
+            return value;
+        }
+        
+        if (currentPlayer === '2') {
+            let value = -Infinity;
+            let availableMoves = moves_available('2');
+            
+            for (let move of availableMoves) {
+                let childBoard = simulateMove(move, currentPlayer, board);
+                let score = minimax('1', childBoard, depth - 1, alpha, beta, putPhase);
+                value = Math.max(value, score);
+                alpha = Math.max(alpha, value);
+                if (value >= beta) break;
+            }
+            return value;
+        }
+    }
+    
+    function playMinimax(currentPlayer, board, depth, putPhase) {
+        let alpha = -Infinity;
+        let beta = Infinity;
+        let bestScore = -Infinity;
+        let bestMove = null;
+        let availableMoves = moves_available('2');
+        
+        for (let move of availableMoves) {
+            let childBoard = simulateMove(move, currentPlayer, board);
+            let score = minimax('2', childBoard, depth - 1, alpha, beta, putPhase);
+            
+            if (score > bestScore) {
+                bestScore = score;
+                bestMove = move;
+            }
+            alpha = Math.max(alpha, bestScore);
+        }
+        
+        // Aqui você pode usar `bestMove` para realizar a jogada
+        // Certifique-se de implementar a função `makeMove(move, currentPlayer, board)` que faz uma jogada no tabuleiro.
+        
+        return bestMove;
+    }
+
+    function simulateMove(move, currentPlayer, board) {
+        const [startRow, startCol, endRow, endCol] = move;
+    
+        // Faça uma cópia do tabuleiro para evitar modificar o tabuleiro original
+        const newBoard = JSON.parse(JSON.stringify(board));
+    
+        // Realize a movimentação das peças no novo tabuleiro
+        newBoard[endRow][endCol] = currentPlayer;
+        newBoard[startRow][startCol] = 0;
+    
+        return newBoard;
+    }
+
+*/
 
     function getPlayerCells(player) {
         // colocar depois se o bot é o primeiro a jogar ou nao
@@ -670,12 +778,15 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         if (finalBpieces <= 2 ||  moves_available_2.length == 0){
             winner = 1;
             game_finished(winner);
-            return;
+            return winner;
         }
         else if (finalWpieces <= 2 || moves_available_1.length == 0){
             winner = 2;
             game_finished(winner);
-            return;
+            return winner;
+        }
+        else{
+            return 0;
         }
     } 
 
@@ -759,11 +870,24 @@ startGameButton.addEventListener('click', () => {
     //verifca se o outro jogador é o bot
     if (opponentSelect.value === 'computer') {
         bot = true;
-    }else{
-        bot = false;
-    }
+        if (level.value === 'easy') {
+            if (player1 === '2') {
+                // Se é o bot a começar ele jogo logo
+                makeBotMove(); 
+                // tá bug quando o bot começa, na nossa primeira jogada depois da put phase
+                // se selecionarmos uma peça temos de a descelecionar e jogar num sitio que nao faça 3 em linha
+                // se não o bot não joga e fica muito bugado
+                // mas se jogarmos para um sitio onde nao faz 3 em linha o bot joga bem no resto do jogo
+            }
+    }else if (level.value === 'medium') {
 
-    
+    }else{
+
+    }
+       
+        }else{
+            bot = false;
+        }
 
     // Adiciona a classe "active" ao elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
