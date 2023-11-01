@@ -207,9 +207,8 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }else{
             const botCells = getBotCells();
-            const availableAdjacentCells = getAvailableAdjacentCells(botCells);
-            const randomIndex = Math.floor(Math.random() * availableAdjacentCells.length);
-            const randomCell = availableAdjacentCells[randomIndex];
+            const randomIndex = Math.floor(Math.random() * botCells.length);
+            const randomCell = botCells[randomIndex];
             handlePieceSelection(randomCell.row, randomCell.col);
             const availableCells = getAvailableCells();
             if (availableCells.length > 0) {
