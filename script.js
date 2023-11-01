@@ -83,6 +83,8 @@ document.addEventListener('DOMContentLoaded', () => {
         if (boardSize === 6) {
             playerBpieces = 12;
             playerWpieces = 12;
+            finalWpieces = 12;
+            finalBpieces = 12;
 
             numRows = 6; // Defina o número de linhas
             numCols = 6; // Defina o número de colunas
@@ -102,6 +104,8 @@ document.addEventListener('DOMContentLoaded', () => {
         } else {           
             playerBpieces = 12;
             playerWpieces = 12;
+            finalWpieces = 12;
+            finalBpieces = 12;
 
             numRows = 6; // Defina o número de linhas
             numCols = 5; // Defina o número de colunas
