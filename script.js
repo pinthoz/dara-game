@@ -448,6 +448,9 @@ let bot_can_play = false;
             currentPlayer = '1'; // jogador branco
             }
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
+            if (bot === true && currentPlayer === '2') {
+                currentPlayerDisplay.textContent = playerNames[1];
+            }
             putDisplay.style.display = 'none';
             moveDisplay.style.display = 'block';
         }
@@ -879,15 +882,15 @@ startGameButton.addEventListener('click', () => {
                 // se não o bot não joga e fica muito bugado
                 // mas se jogarmos para um sitio onde nao faz 3 em linha o bot joga bem no resto do jogo
             }
-    }else if (level.value === 'medium') {
+        }else if (level.value === 'medium') {
 
-    }else{
-
-    }
-       
         }else{
-            bot = false;
+
         }
+        
+    }else{
+        bot = false;
+    }
 
     // Adiciona a classe "active" ao elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
