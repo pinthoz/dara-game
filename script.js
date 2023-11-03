@@ -18,6 +18,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
     const playerNames = {
         '1': 'Branco',
@@ -30,7 +31,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let player1;
     let boardSize = boardSizeSelect;
     let currentPlayer = player1;
-    let board = [];
+    let board;
     let isGameActive = false;
     let putPhase = true;
     let rowSelected = 0;
@@ -52,19 +53,7 @@ document.addEventListener('DOMContentLoaded', () => {
     let numCols = 6; // Defina o número de colunas
 
 
-    const LastPlay1 = {
-        row: -1,
-        col: -1,
-        rowSelected: -1,
-        colSelected: -1,
-    };
     
-    const LastPlay2 = {
-        row: -1,
-        col: -1,
-        rowSelected: -1,
-        colSelected: -1,
-    };
     
 
     class User {
@@ -75,10 +64,73 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+
+    class Board{
+        constructor(numRows, numCols){
+            this.numRows = numRows;
+            this.numCols = numCols;
+            this.board = this.createBoard(this.numRows, this.numCols);
+            this.playerBpieces = 12;
+            this.playerWpieces = 12;
+            this.finalWpieces = 12;
+            this.finalBpieces = 12;
+            this.LastPlay1 = {
+                row: -1,
+                col: -1,
+                rowSelected: -1,
+                colSelected: -1,
+            };
+            
+            this.LastPlay2 = {
+                row: -1,
+                col: -1,
+                rowSelected: -1,
+                colSelected: -1,
+            };
+
+        }
+        createBoard(rows, cols){
+            let board = new Array(rows).fill(0).map(() => new Array(cols).fill(0));
+            return board;
+        }
+        renderBoard() {
+            if (boardSize === 6) {
+                for (let row = 0; row < this.numRows;   row++) {
+                    for (let col = 0; col < this.numCols; col++) {
+                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                        cell.textContent = '';
+                        cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
+        
+                        if (this.board[row][col] === '1') {
+                            cell.style.backgroundImage = 'url("/assets/white.png")';
+                        }
+                        if (this.board[row][col] === '2') {
+                            cell.style.backgroundImage = 'url("/assets/black.png")';
+                        }
+                    }
+                }
+            } else {
+                for (let row = 0; row <  this.numRows; row++) {
+                    for (let col = 0; col < this.numCols; col++) {
+                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                        cell.textContent = '';
+                        cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
+        
+                        if (this.board[row][col] === '1') {
+                            cell.style.backgroundImage = 'url("/assets/white.png")';
+                        } else if (this.board[row][col] === '2') {
+                            cell.style.backgroundImage = 'url("/assets/black.png")';
+                        }
+                    }
+                }
+            }
+        }
+
+    }
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
         isGameActive = true;
-        board = [];
+        //board = [];
         putPhase = true;
         if (boardSize === 6) {
             playerBpieces = 12;
@@ -89,7 +141,7 @@ document.addEventListener('DOMContentLoaded', () => {
             numRows = 6; // Defina o número de linhas
             numCols = 6; // Defina o número de colunas
             gameContainer.innerHTML = '';
-            board = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
+            board = new Board(numRows, numCols);
             for (let row = 0; row < numRows; row++) {
                 for (let col = 0; col < numCols; col++) {
                     const cell = document.createElement('div');
@@ -111,7 +163,7 @@ document.addEventListener('DOMContentLoaded', () => {
             numCols = 5; // Defina o número de colunas
     
             gameContainer.innerHTML = '';
-            board = new Array(numRows).fill(0).map(() => new Array(numCols).fill(0));
+            board = new Board(numRows, numCols);
     
             for (let row = 0; row < numRows; row++) {
                 for (let col = 0; col < numCols; col++) {
@@ -171,19 +223,28 @@ let bot_can_play = false;
         if (!isGameActive) return;
     
         if (putPhase) {
+
             handlePlacementPhase(row, col);
-            if (currentPlayer === '2' && bot === true  && level.value === 'easy') {
-                console.log("BOT MOVE");
-                makeBotMove(); 
+
+            if (currentPlayer === '2' && bot === true && putPhase === true && level.value === 'easy') {
+                console.log("BOT MOVE 1111");
+                makeBotMove();
             }
-            if (currentPlayer === '2' && bot === true  && level.value === 'medium') {
-                console.log("MINIMAX MOVE");
+            
+            if (currentPlayer === '2' && bot === true && putPhase === true && level.value === 'medium') {
+                console.log("MEDIUM MOVE");
                 makeBotMoveM();
                 
             }
-
-
-        } else {
+            if (putPhase === false && player1 == '2') {
+                console.log("AQUUDSADUUADUAD " + currentPlayer)
+                performBotMove();
+            }
+        
+        console.log(bot_can_play);
+        } else{
+            console.log("ACABOU A PUT PHASE E JOGA O " + currentPlayer)
+            possible_win();
             if (!pieceSelected) {
                 handlePieceSelection(row, col);
             } else {
@@ -192,7 +253,7 @@ let bot_can_play = false;
                 }
                 console.log("currentPlayer: " + currentPlayer)
                 console.log("currentPlayerCopy: " + currentPlayer_copy)
-                moves_available(currentPlayer_copy);
+                //moves_available(currentPlayer_copy);
             }
     
             if (moved_piece) {
@@ -211,20 +272,23 @@ let bot_can_play = false;
                         moved_piece = false;
                         pieceSelected = false;
                         canRemove = false;
-                        bot_can_play = true;   
+                        bot_can_play = true;
+                        possible_win();   
                         
 
                     }
                 }
             }
             if (currentPlayer === '2' && bot === true && bot_can_play === true && level.value === 'easy') {
-                console.log("BOT MOVE");
+                console.log("BOT MOVE AAAAA");
                 makeBotMove(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
                 moved_piece = false;
                 pieceSelected = false;
                 canRemove = false;
                 bot_can_play = false;
                 currentPlayerDisplay.textContent = playerNames[1];
+                console.log("bot_can_play" + bot_can_play);
+                possible_win();
             }
             if (currentPlayer === '2' && bot === true && bot_can_play === true && level.value === 'medium') {
                 console.log("MINIMAX MOVE");
@@ -234,9 +298,22 @@ let bot_can_play = false;
                 canRemove = false;
                 bot_can_play = false;
                 currentPlayerDisplay.textContent = playerNames[1];
-
+                possible_win();
             }
         }
+    } 
+    
+
+    // Função para simular um clique para o bot
+    function performBotMove() {
+        console.log("BOT MOVE AUTOMÁTICO NA PRIMEIRA JOGADA");
+        // Defina as coordenadas da célula para o primeiro movimento do bot
+        const botRow = 1;
+        const botCol = 1;
+        // Dispare o evento de clique na célula desejada
+        const targetCell = document.querySelector(`[data-row="${botRow}"][data-col="${botCol}"]`);
+        targetCell.dispatchEvent(clickEvent);
+        isFirstBotMove = false; // Marque que o primeiro movimento do bot já ocorreu
         
     }
 
@@ -254,10 +331,11 @@ let bot_can_play = false;
                 handlePlacementPhase(randomCell.row, randomCell.col);
             }
         }else{
+            console.log("BOT MOVE 2222")
             const movesBot = moves_available('2');
             console.log("movesBot: " + movesBot);
             for (let i = 0; i < 6; i++) {
-                console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
+                console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
             }
             if (movesBot.length > 0) {
                 const randomIndex = Math.floor(Math.random() * movesBot.length);
@@ -267,9 +345,9 @@ let bot_can_play = false;
                 console.log("Selecionou a peça");
                 handlePieceMovement(randomMove[2], randomMove[3]);
                 console.log("Moveu a peça");
-                for (let i = 0; i < 6; i++) {
-                    console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
-                }
+                //for (let i = 0; i < 6; i++) {
+                    //console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
+                //}
                 
                 if (possible_remove(randomMove[2], randomMove[3], '2')){
                     const piecesToRemove = getPlayerCells('1');
@@ -284,12 +362,12 @@ let bot_can_play = false;
                     
             }
             
-        console.log("PLAYER AFTER MOVE: " + currentPlayer);
+        console.log("PLAYER AFTER MOVE DENTRO DO BOT: " + currentPlayer);
 
         }
     }
 
-
+ 
     function makeBotMoveM() {
         if (putPhase) {
             const availableCells = getAvailableCells(); // Função para obter células disponíveis
@@ -309,7 +387,7 @@ let bot_can_play = false;
             for (let i = 0; i < movesBot.length; i++) {
                 const [startRow, startCol, endRow, endCol] = movesBot[i];
                 // Faça uma cópia temporária do tabuleiro
-                const boardCopy = JSON.parse(JSON.stringify(board));
+                const boardCopy = JSON.parse(JSON.stringify(board.board));
     
                 // Simule a jogada do bot
                 boardCopy[endRow][endCol] = '2';
@@ -354,9 +432,9 @@ let bot_can_play = false;
     function getPlayerCells(player) {
         // colocar depois se o bot é o primeiro a jogar ou nao
         const cellsInBoard = [];
-        for (let row = 0; row < 6; row++) {
-            for (let col = 0; col < 5; col++) {
-                if (board[row][col] === player) {
+        for (let row = 0; row < board.numRows; row++) {
+            for (let col = 0; col < board.numCols; col++) {
+                if (board.board[row][col] === player) {
                     cellsInBoard.push({ row, col });
                 }
             }
@@ -367,10 +445,10 @@ let bot_can_play = false;
     
     function getAvailableCells() {
         const availableCells = [];
-        for (let row = 0; row < numRows; row++) {
-            for (let col = 0; col < numCols; col++) {
-                let boardCopy = JSON.parse(JSON.stringify(board));
-                if (possible_play(row, col, currentPlayer, boardCopy)) {
+        for (let row = 0; row < board.numRows; row++) {
+            for (let col = 0; col < board.numCols; col++) {
+                let boardCopy = JSON.parse(JSON.stringify(board.board));
+                if (possible_play(row, col, currentPlayer, boardCopy,0,0)) {
                     availableCells.push({ row, col });
                 }
             }
@@ -386,18 +464,18 @@ let bot_can_play = false;
     // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
         
-        for (let i = 0; i < 6; i++) {
-            console.log(board[i][0] + " " + board[i][1] + " " + board[i][2] + " " + board[i][3] + " " + board[i][4]);
-        }
-        let canPlacePiece = possible_play(row, col, currentPlayer,board);
+        //for (let i = 0; i < 6; i++) {
+            //console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
+        //}
+        let canPlacePiece = possible_play(row, col, currentPlayer,board.board,0,0);
         console.log("canPlacePiece: " + canPlacePiece)
         if (canPlacePiece) {
             if (currentPlayer === '1' && playerBpieces > 0) {
-                renderBoard();
+                board.renderBoard();
                 playerBpieces--;
                 updateSideBoards();
             } else if (currentPlayer === '2' && playerWpieces > 0) {
-                renderBoard();
+                board.renderBoard();
                 playerWpieces--;
                 updateSideBoards();
             }
@@ -459,16 +537,16 @@ let bot_can_play = false;
 
 function go_back(row,col,rowSelected,colSelected,currentPlayer){
     if (currentPlayer == '1'){
-        if (row == LastPlay1.row && 
-            col == LastPlay1.col && 
-            rowSelected == LastPlay1.rowSelected 
-            && colSelected == LastPlay1.colSelected)
+        if (row == board.LastPlay1.row && 
+            col == board.LastPlay1.col && 
+            rowSelected == board.LastPlay1.rowSelected 
+            && colSelected == board.LastPlay1.colSelected)
             return false;
     }else{
-        if (row == LastPlay2.row && 
-            col == LastPlay2.col && 
-            rowSelected == LastPlay2.rowSelected 
-            && colSelected == LastPlay2.colSelected)
+        if (row == board.LastPlay2.row && 
+            col == board.LastPlay2.col && 
+            rowSelected == board.LastPlay2.rowSelected 
+            && colSelected == board.LastPlay2.colSelected)
             return false;	
     }
     return true;
@@ -487,25 +565,25 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 selectedCell.style.backgroundImage = 'url("/assets/black.png")';
             }
         } else {
-            if (possible_play(row, col, currentPlayer, board) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
-                board[row][col] = currentPlayer;
-                board[rowSelected][colSelected] = 0; // Tirar a peça da posição anterior
+            if (possible_play(row, col, currentPlayer, board.board,rowSelected,colSelected) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
+                board.board[row][col] = currentPlayer;
+                board.board[rowSelected][colSelected] = 0; // Tirar a peça da posição anterior
     
                 if (currentPlayer == '1') {
-                    LastPlay1.row = rowSelected;
-                    LastPlay1.col = colSelected;
-                    LastPlay1.rowSelected = row;
-                    LastPlay1.colSelected = col;
-                    console.log("LastPlay1: " + LastPlay1.row + " " + LastPlay1.col + " " + LastPlay1.rowSelected + " " + LastPlay1.colSelected);
+                    board.LastPlay1.row = rowSelected;
+                    board.LastPlay1.col = colSelected;
+                    board.LastPlay1.rowSelected = row;
+                    board.LastPlay1.colSelected = col;
+                    console.log("board.LastPlay1: " + board.LastPlay1.row + " " + board.LastPlay1.col + " " + board.LastPlay1.rowSelected + " " + board.LastPlay1.colSelected);
                 } else {
-                    LastPlay2.row = rowSelected;
-                    LastPlay2.col = colSelected;
-                    LastPlay2.rowSelected = row;
-                    LastPlay2.colSelected = col;
-                    console.log("LastPlay2: " + LastPlay2.row + " " + LastPlay2.col + " " + LastPlay2.rowSelected + " " + LastPlay2.colSelected);
+                    board.LastPlay2.row = rowSelected;
+                    board.LastPlay2.col = colSelected;
+                    board.LastPlay2.rowSelected = row;
+                    board.LastPlay2.colSelected = col;
+                    console.log("board.LastPlay2: " + board.LastPlay2.row + " " + board.LastPlay2.col + " " + board.LastPlay2.rowSelected + " " + board.LastPlay2.colSelected);
                 }
     
-                renderBoard();
+                board.renderBoard();
                 updateSideBoards();
                 const selectedCell = document.querySelector(`[data-row="${rowSelected}"][data-col="${colSelected}"]`);
                 selectedCell.style.backgroundImage = 'none'; // Remova a imagem de fundo da célula de origem
@@ -521,17 +599,17 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         let correct_choice = false;
     
         if (Player === '1') {
-            if (board[row][col] === '2') {
+            if (board.board[row][col] === '2') {
                 correct_choice = true;
             }
         } else {
-            if (board[row][col] === '1') {
+            if (board.board[row][col] === '1') {
                 correct_choice = true;
             }
         }
     
         if (correct_choice) {
-            board[row][col] = 0;
+            board.board[row][col] = 0;
     
             if (Player == '1') {
                 finalBpieces--;
@@ -550,7 +628,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             // Defina bot_can_play como verdadeiro para permitir que o bot jogue
             bot_can_play = true;
     
-            renderBoard();
+            board.renderBoard();
             updateSideBoards();
         }
     }
@@ -565,16 +643,16 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
         // Check Horizontal
         let leftlim = Math.max(0, j - 3);
-        let rightlim = Math.min(board[i].length - 1, j + 3);
+        let rightlim = Math.min(board.board[i].length - 1, j + 3);
         
         //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
         
         for (let k = leftlim; k <= rightlim - 2; k++) {
-            //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2]);
+            //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2]);
             if (
-                currentPlayer === (board[i][k] || 0) &&
-                currentPlayer === (board[i][k + 1] || 0) &&
-                currentPlayer === (board[i][k + 2] || 0)
+                currentPlayer === (board.board[i][k] || 0) &&
+                currentPlayer === (board.board[i][k + 1] || 0) &&
+                currentPlayer === (board.board[i][k + 2] || 0)
             ) {
                 moveDisplay.style.display = 'none';
                 removeDisplay.style.display = 'block';
@@ -584,15 +662,15 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     
         // Check Vertical
         let toplim = Math.max(0, i - 3);
-        let bottomlim = Math.min(board.length - 1, i + 3);
+        let bottomlim = Math.min(board.board.length - 1, i + 3);
         
         //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
         for (let k = toplim; k <= bottomlim - 2; k++) {
-            //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j])
+            //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j])
             if (
-                currentPlayer === (board[k][j] || 0) &&
-                currentPlayer === (board[k + 1][j] || 0) &&
-                currentPlayer === (board[k + 2][j] || 0)
+                currentPlayer === (board.board[k][j] || 0) &&
+                currentPlayer === (board.board[k + 1][j] || 0) &&
+                currentPlayer === (board.board[k + 2][j] || 0)
             ) {
                 moveDisplay.style.display = 'none';
                 removeDisplay.style.display = 'block';
@@ -604,8 +682,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
     function possible_remove2(i,j,currentPlayer, board_i) {
 
-
-        // Check Horizontal
         let leftlim = Math.max(0, j - 3);
         let rightlim = Math.min(board_i[i].length - 1, j + 3);
         
@@ -623,7 +699,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             }
         }
     
-        // Check Vertical
         let toplim = Math.max(0, i - 3);
         let bottomlim = Math.min(board.length - 1, i + 3);
         
@@ -642,11 +717,13 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     }
 
 
+
+
     //________________________________________________________
 
 
     function possible_click(i, j, currentPlayer) {
-        if (board[i][j] === currentPlayer) {
+        if (board.board[i][j] === currentPlayer) {
             //console.log('true - Cell is yours');
             return true;
         }
@@ -666,7 +743,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-    function possible_play(i, j, currentPlayer,board_layout) {
+    function possible_play(i, j, currentPlayer,board_layout, rowSelected, colSelected) {
         // Check if the cell is out of bounds
         if (i < 0 || i >= board_layout.length || j < 0 || j >= board_layout[i].length) {
             //console.log('false - Cell is out of bounds');
@@ -694,7 +771,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
         
         for (let k = leftlim; k <= rightlim - 3; k++) {
-            //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2] + " " + board[i][k + 3]);
+            //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2] + " " + board.board[i][k + 3]);
             if (
                 currentPlayer === (board_layout[i][k] || 0 ) &&
                 currentPlayer === (board_layout[i][k + 1] || 0 ) &&
@@ -716,7 +793,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
         
         //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
         for (let k = toplim; k <= bottomlim - 3; k++) {
-            //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j] + " " + board[k + 3][j])
+            //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j] + " " + board.board[k + 3][j])
             if (
                 currentPlayer === (board_layout[k][j] || 0) &&
                 currentPlayer === (board_layout[k + 1][j] || 0) &&
@@ -743,37 +820,42 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-    function moves_available(currentPlayer) {
+    function moves_available(Player) {
         let movesAvailable = [];
-        let boardCopy = JSON.parse(JSON.stringify(board));
+        let boardCopy = JSON.parse(JSON.stringify(board.board));
+        //for (let i = 0; i < 6; i++) {
+            //console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
+        //}
     
-        for (let i = 0; i < board.length; i++) {
-            for (let j = 0; j < board[0].length; j++) {
-                if (board[i][j] === currentPlayer) {
+        for (let i = 0; i < boardCopy.length; i++) {
+            for (let j = 0; j < boardCopy[0].length; j++) {
+                if (boardCopy[i][j] === Player) {
+                    let new_colSelected = j;
+                    let new_rowSelected = i;
                     if (i > 0) {
-                        if (possible_play(i - 1, j, currentPlayer, boardCopy) && possible_move(i - 1, j, i, j) && go_back(i - 1, j, i, j, currentPlayer)) {
+                        if (possible_play(i - 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i - 1, j, i, j) && go_back(i - 1, j, i, j, Player)) {
                             movesAvailable.push([i, j, i - 1, j]);
                         }
                     }
-                    if (i < board.length - 1) {
-                        if (possible_play(i + 1, j, currentPlayer, boardCopy) && possible_move(i + 1, j, i, j) && go_back(i + 1, j, i, j, currentPlayer)) {
+                    if (i < boardCopy.length - 1) {
+                        if (possible_play(i + 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i + 1, j, i, j) && go_back(i + 1, j, i, j, Player)) {
                             movesAvailable.push([i, j, i + 1, j]);
                         }
                     }
                     if (j > 0) {
-                        if (possible_play(i, j - 1, currentPlayer, boardCopy) && possible_move(i, j - 1, i, j) && go_back(i, j - 1, i, j, currentPlayer)) {
+                        if (possible_play(i, j - 1, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i, j - 1, i, j) && go_back(i, j - 1, i, j, Player)) {
                             movesAvailable.push([i, j, i, j - 1]);
                         }
                     }
-                    if (j < board[0].length - 1) {
-                        if (possible_play(i, j + 1, currentPlayer, boardCopy) && possible_move(i, j + 1, i, j) && go_back(i, j + 1, i, j, currentPlayer)) {
+                    if (j < boardCopy[0].length - 1) {
+                        if (possible_play(i, j + 1, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i, j + 1, i, j) && go_back(i, j + 1, i, j, Player)) {
                             movesAvailable.push([i, j, i, j + 1]);
                         }
                     }
                 }
             }
         }
-        console.log("movesAvailable: " + movesAvailable + " currentPlayer: " + currentPlayer);
+        //console.log("movesAvailable for player " + Player + ": " + movesAvailable);
         return movesAvailable;
     }
     
@@ -820,41 +902,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
     // Função para renderizar o tabuleiro atual
-    function renderBoard() {
-        if (boardSize === 6) {
-            for (let row = 0; row < boardSize; row++) {
-                for (let col = 0; col < boardSize; col++) {
-                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                    cell.textContent = '';
-                    cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
-    
-                    if (board[row][col] === '1') {
-                        cell.style.backgroundImage = 'url("/assets/white.png")';
-                    }
-                    if (board[row][col] === '2') {
-                        cell.style.backgroundImage = 'url("/assets/black.png")';
-                    }
-                }
-            }
-        } else {
-            const numRows = 6;
-            const numCols = 5;
-    
-            for (let row = 0; row < numRows; row++) {
-                for (let col = 0; col < numCols; col++) {
-                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                    cell.textContent = '';
-                    cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
-    
-                    if (board[row][col] === '1') {
-                        cell.style.backgroundImage = 'url("/assets/white.png")';
-                    } else if (board[row][col] === '2') {
-                        cell.style.backgroundImage = 'url("/assets/black.png")';
-                    }
-                }
-            }
-        }
-    }
+
 
 
 
@@ -884,20 +932,17 @@ startGameButton.addEventListener('click', () => {
         if (level.value === 'easy') {
             if (player1 === '2') {
                 // Se é o bot a começar ele jogo logo
-                makeBotMove(); 
+                makeBotMove();
+                bot_can_play = true;
                 // tá bug quando o bot começa, na nossa primeira jogada depois da put phase
                 // se selecionarmos uma peça temos de a descelecionar e jogar num sitio que nao faça 3 em linha
-                // senão o bot não joga e fica muito bugado
+                // se não o bot não joga e fica muito bugado
                 // mas se jogarmos para um sitio onde nao faz 3 em linha o bot joga bem no resto do jogo
             }
         }else if (level.value === 'medium') {
             if (player1 === '2') {
-                // Se é o bot a começar ele jogo logo
-                makeBotMoveM(); 
-                // tá bug quando o bot começa, na nossa primeira jogada depois da put phase
-                // se selecionarmos uma peça temos de a descelecionar e jogar num sitio que nao faça 3 em linha
-                // senão o bot não joga e fica muito bugado
-                // mas se jogarmos para um sitio onde nao faz 3 em linha o bot joga bem no resto do jogo
+                makeBotMoveM();
+                bot_can_play = true; 
             }
         }else{
 
@@ -906,6 +951,9 @@ startGameButton.addEventListener('click', () => {
     }else{
         bot = false;
     }
+
+
+
 
     // Adiciona a classe "active" ao elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
@@ -1044,6 +1092,10 @@ quit_button.addEventListener('click', () => {
 
     });
 
-    
+    const clickEvent = new MouseEvent('click', {
+        bubbles: true,
+        cancelable: true,
+        view: window
+    });
 
 });
