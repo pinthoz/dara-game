@@ -102,10 +102,10 @@ document.addEventListener('DOMContentLoaded', () => {
                         cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
         
                         if (this.board[row][col] === '1') {
-                            cell.style.backgroundImage = 'url("/assets/white.png")';
+                            cell.style.backgroundImage = 'url("assets/white.png")';
                         }
                         if (this.board[row][col] === '2') {
-                            cell.style.backgroundImage = 'url("/assets/black.png")';
+                            cell.style.backgroundImage = 'url("assets/black.png")';
                         }
                     }
                 }
@@ -117,9 +117,9 @@ document.addEventListener('DOMContentLoaded', () => {
                         cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
         
                         if (this.board[row][col] === '1') {
-                            cell.style.backgroundImage = 'url("/assets/white.png")';
+                            cell.style.backgroundImage = 'url("assets/white.png")';
                         } else if (this.board[row][col] === '2') {
-                            cell.style.backgroundImage = 'url("/assets/black.png")';
+                            cell.style.backgroundImage = 'url("assets/black.png")';
                         }
                     }
                 }
@@ -658,9 +658,9 @@ let bot_can_play = false;
             // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
             const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("/assets/white-selected.png")';
+                selectedCell.style.backgroundImage = 'url("assets/white-selected.png")';
             } else {
-                selectedCell.style.backgroundImage = 'url("/assets/black-selected.png")';
+                selectedCell.style.backgroundImage = 'url("assets/black-selected.png")';
             }
         } else {
             console.log('Peça não pode ser selecionada');
@@ -694,10 +694,10 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
             pieceSelected = false;
             if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("/assets/white.png")';
+                selectedCell.style.backgroundImage = 'url("assets/white.png")';
             }
             else{
-                selectedCell.style.backgroundImage = 'url("/assets/black.png")';
+                selectedCell.style.backgroundImage = 'url("assets/black.png")';
             }
         } else {
             if (possible_play(row, col, currentPlayer, board.board,rowSelected,colSelected) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
