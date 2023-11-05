@@ -33,17 +33,17 @@
     </div>
     <section id="additional-section" class="hidden-section">
         <img src="assets/rules.png"  alt="rules" class="rules-img">
-        <p>1. Cada jogador posiciona uma peça de cada vez no tabuleiro até completar o
+        <p>1. Cada jogador coloca uma peça de cada vez no tabuleiro até completar o
             total das 24 peças.</p>
         <p>2. O jogador da vez movimenta suas peças para um espaço vazio nos sentidos
             para cima, para baixo ou para os lados, mas não nas diagonais. </p>
-        <p>3. Quando um jogador consegue posicionar três peças em uma linha, ele
-            elimina uma peça de seu adversário. Isso é conhecido como “comer” o inimigo. </p>
-        <p>4. Os jogadores não podem ter mais de três peças em uma linha a qualquer
-            momento. Uma linha feita no início do jogo, quando as peças estão sendo
-            posicionadas, não vale. Somente uma peça por vez pode ser removida do jogo,
-            mesmo que tenham sido feitas mais de uma linha com apenas um movimento. </p>
-        <p>5. Quando um jogador não pode mais fazer linhas, perde o jogo. </p>
+        <p>3. Após um movimento, se o jogador conseguir ter três peças numa linha, ele
+            captura uma peça do seu adversário, isto é, remove uma peça do adversário à sua escolha. </p>
+        <p>4. Os jogadores não podem ter mais de três peças numa linha a qualquer
+            momento. Uma linha feita no início do jogo, quando as peças estão a ser
+            posicionadas, não vale. Apenas uma peça por vez pode ser removida por jogada,
+            mesmo que tenham sido feitas mais do que uma linha com apenas um movimento. </p>
+        <p>5. Quando um jogador não pode mais fazer linhas ou fazer jogadas válidas, perde o jogo. </p>
             
         <button id="return-button" class="return-button">Voltar</button>
     </section>
@@ -59,7 +59,12 @@
             <option value="human">Humano</option>
             <option value="computer">Computador</option>
 
-
+        </select>
+        <label for="color-choice-set" id="color-choice-set" class="color-choice-set">Cor escolhida:</label>
+        <select class='color-choice' id="color-choice">
+            <option value="branco">Branco</option>
+            <option value="preto">Preto</option>
+        </select>
         </select>
         <label for="first-play">Primeiro a jogar:</label>
         <select class='first-player' id="first-play">

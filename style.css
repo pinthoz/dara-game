@@ -102,6 +102,15 @@ label{
     text-align: center; 
 }
 
+.color-choice-set {
+    display: none;
+}
+.color-choice{
+    display: none;
+    margin: auto; 
+    text-align: center
+}
+
 .header-bar {
     background-color: #E6535F; /* Cor da barra superior */
     height: 60px; /* Defina a altura desejada */

@@ -13,7 +13,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const putDisplay = document.getElementById("place-piece-display");
     const sideBoard1 = document.querySelector('.side_board_1'); 
     const sideBoard2 = document.querySelector('.side_board_2'); 
+    const selectedOpponent = document.getElementById('.opponent');
     const level = document.getElementById('level');
+
 
 
 
@@ -224,22 +226,22 @@ let bot_can_play = false;
 
             handlePlacementPhase(row, col);
 
-            if (currentPlayer === bot_piece && bot === true && putPhase === true && level.value === 'easy') {
+            if (currentPlayer === '2' && bot === true && putPhase === true && level.value === 'easy') {
                 console.log("BOT MOVE 1111");
                 makeBotMove();
             }
             
-            if (currentPlayer === bot_piece && bot === true && putPhase === true && level.value === 'medium') {
+            if (currentPlayer === '2' && bot === true && putPhase === true && level.value === 'medium') {
                 console.log("MEDIUM MOVE");
                 makeBotMoveM();
                 
             }
-            if (currentPlayer === bot_piece && bot === true && putPhase === true && level.value === 'hard') {
+            if (currentPlayer === '2' && bot === true && putPhase === true && level.value === 'hard') {
                 console.log("Hard MOVE");
                 makeBotMoveM();
                 
             }
-            if (putPhase === false && player1 == bot_piece) {
+            if (putPhase === false && player1 == '2') {
                 console.log("AQUUDSADUUADUAD " + currentPlayer)
                 performBotMove();
             }
@@ -282,35 +284,35 @@ let bot_can_play = false;
                     }
                 }
             }
-            if (currentPlayer === bot_piece && bot === true && bot_can_play === true && level.value === 'easy') {
+            if (currentPlayer === '2' && bot === true && bot_can_play === true && level.value === 'easy') {
                 console.log("BOT MOVE AAAAA");
                 makeBotMove(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
                 moved_piece = false;
                 pieceSelected = false;
                 canRemove = false;
                 bot_can_play = false;
-                currentPlayerDisplay.textContent = playerNames[player_piece];
+                currentPlayerDisplay.textContent = playerNames[1];
                 console.log("bot_can_play" + bot_can_play);
                 possible_win();
             }
-            if (currentPlayer === bot_piece && bot === true && bot_can_play === true && level.value === 'medium') {
+            if (currentPlayer === '2' && bot === true && bot_can_play === true && level.value === 'medium') {
                 console.log("Medium MOVE");
                 makeBotMoveM(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
                 moved_piece = false;
                 pieceSelected = false;
                 canRemove = false;
                 bot_can_play = false;
-                currentPlayerDisplay.textContent = playerNames[player_piece];
+                currentPlayerDisplay.textContent = playerNames[1];
                 possible_win();
             }
-            if (currentPlayer === bot_piece && bot === true && bot_can_play === true && level.value === 'hard') {
+            if (currentPlayer === '2' && bot === true && bot_can_play === true && level.value === 'hard') {
                 console.log("hard MOVE");
                 makeBotMoveH(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
                 moved_piece = false;
                 pieceSelected = false;
                 canRemove = false;
                 bot_can_play = false;
-                currentPlayerDisplay.textContent = playerNames[player_piece];
+                currentPlayerDisplay.textContent = playerNames[1];
                 possible_win();
             }
         }
@@ -345,7 +347,7 @@ let bot_can_play = false;
             }
         }else{
             console.log("BOT MOVE 2222")
-            const movesBot = moves_available(bot_piece);
+            const movesBot = moves_available('2');
             console.log("movesBot: " + movesBot);
             for (let i = 0; i < 6; i++) {
                 console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
@@ -362,11 +364,11 @@ let bot_can_play = false;
                     //console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
                 //}
                 
-                if (possible_remove(randomMove[2], randomMove[3], bot_piece)){
-                    const piecesToRemove = getPlayerCells(player_piece);
+                if (possible_remove(randomMove[2], randomMove[3], '2')){
+                    const piecesToRemove = getPlayerCells('1');
                     const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
                     const randomCell = piecesToRemove[randomIndex];
-                    handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
+                    handleRemovePiece(randomCell.row, randomCell.col, '2');
                     moveDisplay.style.display = 'block';
                     removeDisplay.style.display = 'none';
                     possible_win();
@@ -393,7 +395,7 @@ let bot_can_play = false;
                 handlePlacementPhase(randomCell.row, randomCell.col);
             }
         } else {
-            const movesBot = moves_available(bot_piece);
+            const movesBot = moves_available('2');
             const winningMoves = [];
             let randomMove; // Defina randomMove antes do uso
             
@@ -404,14 +406,14 @@ let bot_can_play = false;
                 const boardCopy = JSON.parse(JSON.stringify(board.board));
     
                 // Simule a jogada do bot
-                boardCopy[endRow][endCol] = bot_piece;
+                boardCopy[endRow][endCol] = '2';
                 boardCopy[startRow][startCol] = 0;
                 // imprime o tabuleiro
                 for (let i = 0; i < 6; i++) {
                     console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
                 }
                 // Verifique se essa jogada resulta em uma linha de 3 para o bot
-                if (possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
+                if (possible_remove2(endRow, endCol, '2', boardCopy)) {
                     winningMoves.push(movesBot[i]);
                     console.log("Move de 3 : " + winningMoves[i]);
                 }
@@ -434,11 +436,11 @@ let bot_can_play = false;
                 handlePieceMovement(randomMove[2], randomMove[3]);
             }
     
-            if (possible_remove(randomMove[2], randomMove[3], bot_piece)) {
-                const piecesToRemove = getPlayerCells(player_piece);
+            if (possible_remove(randomMove[2], randomMove[3], '2')) {
+                const piecesToRemove = getPlayerCells('1');
                 const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
                 const randomCell = piecesToRemove[randomIndex];
-                handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
+                handleRemovePiece(randomCell.row, randomCell.col, '2');
                 moveDisplay.style.display = 'block';
                 removeDisplay.style.display = 'none';
                 possible_win();
@@ -458,7 +460,7 @@ let bot_can_play = false;
                 handlePlacementPhase(randomCell.row, randomCell.col);
             }
         } else {
-            const movesBot = moves_available(bot_piece);
+            const movesBot = moves_available('2');
             const winningMoves = [];
             let randomMove; // Defina randomMove antes do uso
             
@@ -469,14 +471,14 @@ let bot_can_play = false;
                 const boardCopy = JSON.parse(JSON.stringify(board.board));
     
                 // Simule a jogada do bot
-                boardCopy[endRow][endCol] = bot_piece;
+                boardCopy[endRow][endCol] = '2';
                 boardCopy[startRow][startCol] = 0;
                 // imprime o tabuleiro
                 for (let i = 0; i < 6; i++) {
                     console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
                 }
                 // Verifique se essa jogada resulta em uma linha de 3 para o bot
-                if (possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
+                if (possible_remove2(endRow, endCol, '2', boardCopy)) {
                     winningMoves.push(movesBot[i]);
                     console.log("Move de 3 : " + winningMoves[i]);
                 }
@@ -498,22 +500,22 @@ let bot_can_play = false;
             }
     
             // Verifique se é possível remover uma peça
-            if (possible_remove(randomMove[2], randomMove[3], bot_piece)) {
+            if (possible_remove(randomMove[2], randomMove[3], '2')) {
                 // Encontre uma peça branca que pertença a uma linhaS de 2 e a remova
-                const piecesToRemove = removeLineof2(board.board, player_piece);
+                const piecesToRemove = removeLineof2(board.board, '1');
                 console.log("piecesToRemove: " + piecesToRemove.i + " " + piecesToRemove.j);
 
                 if (piecesToRemove !== -1) {
-                    handleRemovePiece(piecesToRemove.i, piecesToRemove.j, bot_piece);
+                    handleRemovePiece(piecesToRemove.i, piecesToRemove.j, '2');
                     moveDisplay.style.display = 'block';
                     removeDisplay.style.display = 'none';
                     possible_win();
                 }else{
                     // Se não houver peças brancas que pertençam a uma linha de 2, remova uma peça branca aleatória
-                    const piecesToRemove = getPlayerCells(player_piece);
+                    const piecesToRemove = getPlayerCells('1');
                     const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
                     const randomCell = piecesToRemove[randomIndex];
-                    handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
+                    handleRemovePiece(randomCell.row, randomCell.col, '2');
                     moveDisplay.style.display = 'block';
                     removeDisplay.style.display = 'none';
                     possible_win();
@@ -1034,12 +1036,6 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
 
 
-// mudar depois de sitio
-
-
-let bot_piece = '2'
-let player_piece = '1'
-
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', () => {
     sideBoard1.style.display = 'grid';
@@ -1048,25 +1044,13 @@ startGameButton.addEventListener('click', () => {
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
     generateBoard();
     updateSideBoards();
-    if (firstPlayerSelect.value === 'branco' && colorSelect.value === 'branco') {
+    if (firstPlayerSelect.value === 'branco') {
         player1 = '1';
-        bot_piece = '2';
-        player_piece = '1';
-
-    } else if (firstPlayerSelect.value === 'branco' && colorSelect.value === 'preto'){
-        player1 = '1';
-        bot_piece = '1';
-        player_piece = '2';
-    } else if ( firstPlayerSelect.value === 'preto' && colorSelect.value === 'branco'){
+    } else {
         player1 = '2';
-        bot_piece = '2';
-        player_piece = '1';
-    } else if ( firstPlayerSelect.value === 'preto' && colorSelect.value === 'preto'){
-        player1 = '2';
-        bot_piece = '1';
-        player_piece = '2';
     }
 
+    
     currentPlayer = player1;
     currentPlayerDisplay.textContent = playerNames[currentPlayer];
     gameResultDisplay.textContent = '';
@@ -1076,17 +1060,17 @@ startGameButton.addEventListener('click', () => {
     if (opponentSelect.value === 'computer') {
         bot = true;
         if (level.value === 'easy') {
-            if (player1 === bot_piece) {
+            if (player1 === '2') {
                 makeBotMove();
                 bot_can_play = true;
             }
         }else if (level.value === 'medium') {
-            if (player1 === bot_piece) {
+            if (player1 === '2') {
                 makeBotMoveM();
                 bot_can_play = true; 
             }
         }else{
-            if (player1 === bot_piece) {
+            if (player1 === '2') {
                 makeBotMoveH();
                 bot_can_play = true; 
             }
@@ -1127,30 +1111,21 @@ quit_button.addEventListener('click', () => {
 
 });
 
-    const colorSelect = document.querySelector('#color-choice');
     const opponentSelect = document.querySelector('#opponent');
     const levelLabel = document.getElementById('level-label');
     const levelSelect = document.getElementById('level');
-    const colorChoiceLabel = document.getElementById('color-choice-set');
-    const colorChoice= document.getElementById('color-choice');
-    
 
     // Adicione um ouvinte de evento à seleção do oponente
     opponentSelect.addEventListener('change', () => {
         const selectedOption = opponentSelect.value;
-        const colorChoiceLabel = document.getElementById('color-choice-set');
-    
+
         // Verifique se a opção selecionada é 'computer' para mostrar ou ocultar a label de nível e o campo de seleção de nível
         if (selectedOption === 'computer') {
             levelLabel.style.display = 'block'; // Mostrar a label de nível
             levelSelect.style.display = 'block'; // Mostrar o campo de seleção de nível
-            colorChoiceLabel.style.display = 'block';
-            colorChoice.style.display = 'block';
         } else {
             levelLabel.style.display = 'none'; // Ocultar a label de nível
             levelSelect.style.display = 'none'; // Ocultar o campo de seleção de nível
-            colorChoiceLabel.style.display = 'none'; // Ocultar a label de escolha de cor
-            colorChoice.style.display = 'none'; // Ocultar o campo de escolha de cor
         }
     });
 
