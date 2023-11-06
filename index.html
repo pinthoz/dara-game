@@ -5,7 +5,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="style.css">
-    <link rel="shortcut icon" href="assets/short-logo.png" />
+    <link rel="shortcut icon" href="assets/short-logo.png">
     <script src="script.js"></script>
     <title>Dara</title>
 </head>
@@ -31,7 +31,7 @@
     </section>
     <div id="rules" class="rules-content">
     </div>
-    <section id="additional-section" class="hidden-section">
+    <div id="additional-section" class="hidden-section">
         <img src="assets/rules.png"  alt="rules" class="rules-img">
         <p>1. Cada jogador coloca uma peça de cada vez no tabuleiro até completar o
             total das 24 peças.</p>
@@ -46,8 +46,8 @@
         <p>5. Quando um jogador não pode mais fazer linhas ou fazer jogadas válidas, perde o jogo. </p>
             
         <button id="return-button" class="return-button">Voltar</button>
-    </section>
-    <section class="main-section" id="main-section">
+        </div>
+    <div class="main-section" id="main-section">
     <div class="game-settings" id="game-settings">
         <label for="board-size">Escolha o tamanho do tabuleiro:</label>
         <select id="board-size">
@@ -60,11 +60,10 @@
             <option value="computer">Computador</option>
 
         </select>
-        <label for="color-choice-set" id="color-choice-set" class="color-choice-set">Cor escolhida:</label>
+        <label for="color-choice" id="color-choice-set" class="color-choice-set">Cor escolhida:</label>
         <select class='color-choice' id="color-choice">
             <option value="branco">Branco</option>
             <option value="preto">Preto</option>
-        </select>
         </select>
         <label for="first-play">Primeiro a jogar:</label>
         <select class='first-player' id="first-play">
@@ -79,7 +78,7 @@
         </select>
     </div>
         <button id="start-game" class="start-button">Iniciar Jogo</button>
-    </div>
+
     <div class="game-info">
         <p id="player-toplay">Vez do jogador: <span id="current-player">Branco</span></p>
         <p id="place-piece-display" class="place-piece-display">Podes colocar uma peça</p>
@@ -93,7 +92,7 @@
         <div class="side_board_2"></div>
     </div>
     <button id="quit-game" class="quit-game">Sair</button>
-    </section>
+</div>
     <section id="leaderboard-section" class="leaderboard-section">
         <h2>Classificações</h2>
         <table id="leaderboard-table">
