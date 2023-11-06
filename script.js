@@ -14,47 +14,10 @@ document.addEventListener('DOMContentLoaded', () => {
     const sideBoard1 = document.querySelector('.side_board_1'); 
     const sideBoard2 = document.querySelector('.side_board_2'); 
     const level = document.getElementById('level');
+    const playerput = document.getElementById("player-toplay");
 
 
-
-
-    //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
-    const playerNames = {
-        '1': 'Branco',
-        '2': 'Preto'
-    };
-
-    // Variáveis globais
-    let username = '';
-    let user = null;
-    let player1;
-    let boardSize = boardSizeSelect;
-    let currentPlayer = player1;
-    let board;
-    let isGameActive = false;
-    let putPhase = true;
-    let rowSelected = 0;
-    let colSelected = 0;
-    let playerBpieces = 12;
-    let playerWpieces = 12;
-    let finalWpieces = 12;
-    let finalBpieces = 12;
-    let pieceSelected = false;
-    let canRemove = false;
-    let win = 0;
-    let moved_piece = false;
-    let userWins = 0;
-    let moves_available_1 = [];
-    let moves_available_2 = [];
-    let currentPlayer_copy = -1;
-    let bot = false;
-    let numRows = 6; // Defina o número de linhas
-    let numCols = 6; // Defina o número de colunas
-
-
-    
-    
-
+//classe do utilizador
     class User {
         constructor(username, totalGames, victories, loses) {
             this.username = username;
@@ -65,7 +28,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-
+//classe do board
     class Board{
         constructor(numRows, numCols){
             this.numRows = numRows;
@@ -91,12 +54,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
         }
         createBoard(rows, cols){
+            // Cria um array 2D com o número de linhas e colunas especificadas
             let board = new Array(rows).fill(0).map(() => new Array(cols).fill(0));
             return board;
         }
         renderBoard() {
-            if (boardSize === 6) {
-                for (let row = 0; row < this.numRows;   row++) {
+            // Atualiza a visualização do tabuleiro
+            for (let row = 0; row < this.numRows;   row++) {
                     for (let col = 0; col < this.numCols; col++) {
                         const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
                         cell.textContent = '';
@@ -110,35 +74,17 @@ document.addEventListener('DOMContentLoaded', () => {
                         }
                     }
                 }
-            } else {
-                for (let row = 0; row <  this.numRows; row++) {
-                    for (let col = 0; col < this.numCols; col++) {
-                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                        cell.textContent = '';
-                        cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
-        
-                        if (this.board[row][col] === '1') {
-                            cell.style.backgroundImage = 'url("assets/white.png")';
-                        } else if (this.board[row][col] === '2') {
-                            cell.style.backgroundImage = 'url("assets/black.png")';
-                        }
-                    }
-                }
             }
-        }
 
 
         possible_remove(i,j,Player) {
-
-
-            // Check Horizontal
+            // Verifica um possível remove
+            // Verifica na horizontal
             let leftlim = Math.max(0, j - 3);
             let rightlim = Math.min(this.board[i].length - 1, j + 3);
             
-            //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
-            
             for (let k = leftlim; k <= rightlim - 2; k++) {
-                //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2]);
+
                 if (
                     Player === (this.board[i][k] || 0) &&
                     Player === (this.board[i][k + 1] || 0) &&
@@ -150,13 +96,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         
-            // Check Vertical
+            // Verifica na Vertical
             let toplim = Math.max(0, i - 3);
             let bottomlim = Math.min(this.board.length - 1, i + 3);
             
-            //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+  
             for (let k = toplim; k <= bottomlim - 2; k++) {
-                //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j])
+
                 if (
                     Player === (this.board[k][j] || 0) &&
                     Player === (this.board[k + 1][j] || 0) &&
@@ -172,7 +118,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         getPlayerCells(Player) {
-            // colocar depois se o bot é o primeiro a jogar ou nao
+            // Retorna uma lista de objetos de células que contêm as coordenadas de todas as células ocupadas pelo jogador especificado
             const cellsInBoard = [];
             for (let row = 0; row < this.numRows; row++) {
                 for (let col = 0; col < this.numCols; col++) {
@@ -186,11 +132,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         getAvailableCells() {
+            // Retorna uma lista de objetos de células que contêm as coordenadas de todas as células do jogador atual
             const availableCells = [];
             for (let row = 0; row < this.numRows; row++) {
                 for (let col = 0; col < this.numCols; col++) {
                     let boardCopy = JSON.parse(JSON.stringify(this.board));
-                    if (this.possible_play(row, col, currentPlayer, boardCopy,0,0)) {
+                    if (this.possible_play(row, col, game.currentPlayer, boardCopy,0,0)) {
                         availableCells.push({ row, col });
                     }
                 }
@@ -200,11 +147,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         removeLineof2(board_i, opponent) {
+            // Bloqueia uma linha de 2 do oponente
             const rows = this.numRows;
             const cols = this.numCols;
             const candidates = [];
         
-            // horizontal
+            // Horizontal
             for (let i = 0; i < rows; i++) {
                 for (let j = 0; j < cols - 2; j++) {
                     if (
@@ -217,7 +165,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }
         
-            // vertical
+            // Vertical
             for (let i = 0; i < rows - 2; i++) {
                 for (let j = 0; j < cols; j++) {
                     if (
@@ -226,7 +174,7 @@ document.addEventListener('DOMContentLoaded', () => {
                         board_i[i + 2][j] !== opponent
                     ) {
                         candidates.push({  i,  j });
-                        console.log("candidates: " + i + " " + j);
+                        
                     }
                 }
             }
@@ -241,6 +189,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         
         go_back(row,col,rowSel,colSel,Player){
+            // Verifica se a jogada não é a mesma que a anterior
             if (Player == '1'){
                 if (row == this.LastPlay1.row && 
                     col == this.LastPlay1.col && 
@@ -260,14 +209,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
         possible_remove2(i,j,Player, board_i) {
-
+            // Verifica um possível remove para testes
             let leftlim = Math.max(0, j - 3);
             let rightlim = Math.min(board_i[0].length - 1, j + 3);
             
-            //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
             
             for (let k = leftlim; k <= rightlim - 2; k++) {
-                //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2]);
+
                 if (
                     Player === (board_i[i][k] || 0) &&
                     Player === (board_i[i][k + 1] || 0) &&
@@ -281,9 +229,9 @@ document.addEventListener('DOMContentLoaded', () => {
             let toplim = Math.max(0, i - 3);
             let bottomlim = Math.min(board_i.length - 1, i + 3);
             
-            //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+
             for (let k = toplim; k <= bottomlim - 2; k++) {
-                //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j])
+
                 if (
                     Player === (board_i[k][j] || 0) &&
                     Player === (board_i[k + 1][j] || 0) &&
@@ -296,16 +244,16 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         possible_click(i, j, Player) {
+            // Verifica se a célula clicada contém uma peça do jogador
             if (this.board[i][j] === Player) {
-                //console.log('true - Cell is yours');
                 return true;
             }
-            //console.log('false - Cell is not yours');
             return false;
         }
 
         
         possible_move(i,j, rowSel, colSel){
+            // Verifica se a célula clicada é adjacente à célula selecionada
             if (i === rowSel && Math.abs(j -colSel) === 1) {
                 return true;
             }else if(j === colSel && Math.abs(i - rowSel) === 1){
@@ -316,87 +264,81 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
         possible_play(i, j, Player,board_layout, rowSel, colSel) {
-            // Check if the cell is out of bounds
+            // Verifica se a célula clicada é válida para colocar uma peça
             if (i < 0 || i >= board_layout.length || j < 0 || j >= board_layout[i].length) {
-                //console.log('false - Cell is out of bounds');
                 return false;
             }
         
-            // Check if the cell is not empty
+            // Verifica se a célula clicada está vazia
             if (board_layout[i][j] !== 0) {
-                //console.log('false - Cell is not empty');
                 return false;
             }
         
             board_layout[i][j] = Player;
     
-            if (!putPhase) {
-                //console.log( "rowSelected: " + rowSelected + " colSelected: " + colSelected) + " na board.possible_play";
+            if (!game.putPhase) {
                 board_layout[rowSel][colSel] = 0; // tirar a peça da posição anterior
             }
             
     
-            // Check Horizontal
+            // Verifica Horizontal
             let leftlim = Math.max(0, j - 3);
             let rightlim = Math.min(board_layout[i].length - 1, j + 3);
             
-            //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
             
             for (let k = leftlim; k <= rightlim - 3; k++) {
-                //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2] + " " + board.board[i][k + 3]);
+            
                 if (
                     Player === (board_layout[i][k] || 0 ) &&
                     Player === (board_layout[i][k + 1] || 0 ) &&
                     Player === (board_layout[i][k + 2] || 0 ) &&
                     Player === (board_layout[i][k + 3] || 0 )
                 ) {
-                    board_layout[i][j] = 0;  // Set it back to an empty cell
-                    if (!putPhase) {
-                        board_layout[rowSel][colSel] = Player; // tirar a peça da posição anterior
+                    board_layout[i][j] = 0;  // Põe a célula de volta a uma célula vazia
+                    if (!game.putPhase) {
+                        board_layout[rowSel][colSel] = Player; // Tirar a peça da posição anterior
                     }
-                    //console.log('false - Cell is 4 in line horizontal');
+    
                     return false;
                 }
             }
         
-            // Check Vertical
+            // Verifica Vertical
             let toplim = Math.max(0, i - 3);
             let bottomlim = Math.min(board_layout.length - 1, i + 3);
             
-            //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+
             for (let k = toplim; k <= bottomlim - 3; k++) {
-                //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j] + " " + board.board[k + 3][j])
+               
                 if (
                     Player === (board_layout[k][j] || 0) &&
                     Player === (board_layout[k + 1][j] || 0) &&
                     Player === (board_layout[k + 2][j] || 0) &&
                     Player === (board_layout[k + 3][j] || 0)
                 ) {
-                    board_layout[i][j] = 0;  // Set it back to an empty cell
-                    if (!putPhase) {
-                        board_layout[rowSel][colSel] = Player; // tirar a peça da posição anterior
+                    board_layout[i][j] = 0;  // Põe a célula de volta a uma célula vazia
+                    if (!game.putPhase) {
+                        board_layout[rowSel][colSel] = Player; // Tirar a peça da posição anterior
                     }
-                    //console.log('false - Cell is 4 in line vertical');
+
                     return false;
                 }
             }
         
-            if (!putPhase) {
+            if (!game.putPhase) {
                 board_layout[i][j] = 0;
                 board_layout[rowSel][colSel] = Player;
             }
         
-            //console.log('true - Move is possible');
+
             return true;
         } 
 
 
         moves_available(Player) {
+            // Retorna uma lista de movimentos disponíveis para o jogador
             let movesAvailable = [];
             let boardCopy = JSON.parse(JSON.stringify(this.board));
-            //for (let i = 0; i < 6; i++) {
-                //console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
-            //}
         
             for (let i = 0; i < boardCopy.length; i++) {
                 for (let j = 0; j < boardCopy[0].length; j++) {
@@ -426,652 +368,636 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
             }
-            //console.log("movesAvailable for player " + Player + ": " + movesAvailable);
             return movesAvailable;
         }
-    
 
-    }
-
-
-
-
-    // Função para gerar o tabuleiro com base no tamanho selecionado
-    function generateBoard() {
-        isGameActive = true;
-        //board = [];
-        putPhase = true;
-        if (boardSize === 6) {
-            playerBpieces = 12;
-            playerWpieces = 12;
-            finalWpieces = 12;
-            finalBpieces = 12;
-
-            numRows = 6; // Defina o número de linhas
-            numCols = 6; // Defina o número de colunas
-            gameContainer.innerHTML = '';
-            board = new Board(numRows, numCols);
-            for (let row = 0; row < numRows; row++) {
-                for (let col = 0; col < numCols; col++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('cell');
-                    cell.dataset.row = row;
-                    cell.dataset.col = col;
-                    cell.addEventListener('click', () => handleCellClick(row, col));
-                    gameContainer.appendChild(cell);
-                    putDisplay.style.display = 'block';
-                }
-            }
-        } else {           
-            playerBpieces = 12;
-            playerWpieces = 12;
-            finalWpieces = 12;
-            finalBpieces = 12;
-
-            numRows = 6; // Defina o número de linhas
-            numCols = 5; // Defina o número de colunas
-    
-            gameContainer.innerHTML = '';
-            board = new Board(numRows, numCols);
-    
-            for (let row = 0; row < numRows; row++) {
-                for (let col = 0; col < numCols; col++) {
-                    const cell = document.createElement('div');
-                    cell.classList.add('cell');
-                    cell.dataset.row = row;
-                    cell.dataset.col = col;
-                    cell.addEventListener('click', () => handleCellClick(row, col));
-                    gameContainer.appendChild(cell);
-                    putDisplay.style.display = 'block';
-                }
-            }
+        updateSideBoards() {
+            // Função para atualizar os tabuleiros laterais
+            this.updateSideBoard(1, 'side_board_1');
+            this.updateSideBoard(2, 'side_board_2');
         }
-    }
-
-    function updateLeaderboard(user) {
-        const leaderboardTable = document.getElementById('leaderboard-table');
-        let existingRow;
-    
-        // Verifique se o nome do usuário já está na tabela de classificação
-        for (let i = 1; i < leaderboardTable.rows.length; i++) {
-            const row = leaderboardTable.rows[i];
-            const nameCell = row.cells[1];
-            if (nameCell.textContent === user.username) {
-                existingRow = row;
-                break;
-            }
-        }
-    
-        if (existingRow) {
-            // Se o nome do usuário já estiver na tabela, atualize as células de vitórias, derrotas e total de jogos
-            const victoriesCell = existingRow.cells[2];
-            const defeatsCell = existingRow.cells[3];
-            const totalGamesCell = existingRow.cells[4];
-            victoriesCell.textContent = user.victories/2;
-            defeatsCell.textContent = user.loses/2;
-            totalGamesCell.textContent = (user.victories + user.loses)/2;
-        } else {
-            // Caso contrário, adicione uma nova linha na tabela
-            const newRow = leaderboardTable.insertRow(-1);
-            const positionCell = newRow.insertCell(0);
-            const nameCell = newRow.insertCell(1);
-            const victoriesCell = newRow.insertCell(2);
-            const defeatsCell = newRow.insertCell(3);
-            const totalGamesCell = newRow.insertCell(4);
-            positionCell.textContent = leaderboardTable.rows.length - 1;
-            nameCell.textContent = user.username;
-            victoriesCell.textContent = user.victories/2;
-            defeatsCell.textContent = user.loses /2;
-            totalGamesCell.textContent = (user.victories + user.loses)/2;
-        }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-    function updateSideBoards() {
-        updateSideBoard(1, 'side_board_1');
-        updateSideBoard(2, 'side_board_2');
-    }
-    
-    // Function to update a specific side board
-    function updateSideBoard(player, sideBoardId) {
-        if (putPhase) {
-        const sideBoard = document.querySelector(`.${sideBoardId}`);
-        const piecesCount = player === 1 ? playerBpieces : playerWpieces;
         
-        sideBoard.innerHTML = ''; // Clear the side board
     
-        for (let i = 0; i < piecesCount; i++) {
-            const piece = document.createElement('div');
-            piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
-            sideBoard.appendChild(piece);
-        }
-    } else {
-        const side = player === 1 ? 'side_board_2' : 'side_board_1';
-        const sideBoard = document.querySelector(`.${side}`);
-        const piecesCount = player === 1 ? finalBpieces : finalWpieces;
-        
-        sideBoard.innerHTML = ''; // Clear the side board
-        let npieces = 12 - piecesCount;
-    
-        for (let i = 0; i < npieces; i++) {
-            const piece = document.createElement('div');
-            piece.classList.add(player === 1 ? 'black-piece' : 'white-piece');
-            sideBoard.appendChild(piece);
-        }
-    }
-    }
-
-
-
-
-
-
-
-
-    
-    // Função para lidar com o clique em uma célula
-let bot_can_play = false;
-
-    function handleCellClick(row, col) {
-        if (!isGameActive) return;
-    
-        if (putPhase) {
-
-            handlePlacementPhase(row, col);
-
-            if (currentPlayer === bot_piece && bot === true && putPhase === true && level.value === 'easy') {
-                console.log("BOT MOVE 1111");
-                makeBotMove();
-            }
+        updateSideBoard(player, sideBoardId) {
+            // Função para atualizar um tabuleiro lateral
+            if (game.putPhase) {
+            const sideBoard = document.querySelector(`.${sideBoardId}`);
+            const piecesCount = player === 1 ? this.playerBpieces : this.playerWpieces;
             
-            if (currentPlayer === bot_piece && bot === true && putPhase === true && level.value === 'medium') {
-                console.log("MEDIUM MOVE");
-                makeBotMoveM();
-                
+            sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
+        
+            for (let i = 0; i < piecesCount; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
+                sideBoard.appendChild(piece);
             }
-            if (currentPlayer === bot_piece && bot === true && putPhase === true && level.value === 'hard') {
-                console.log("Hard MOVE");
-                makeBotMoveM();
-                
+        } else {
+            const side = player === 1 ? 'side_board_2' : 'side_board_1';
+            const sideBoard = document.querySelector(`.${side}`);
+            const piecesCount = player === 1 ? this.finalBpieces : this.finalWpieces;
+            
+            sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
+            let npieces = 12 - piecesCount;
+        
+            for (let i = 0; i < npieces; i++) {
+                const piece = document.createElement('div');
+                piece.classList.add(player === 1 ? 'black-piece' : 'white-piece');
+                sideBoard.appendChild(piece);
             }
-            if (putPhase === false && player1 == bot_piece) {
-                console.log("AQUUDSADUUADUAD " + currentPlayer)
-                performBotMove();
+        }
+        }
+    
+    
+
+    }
+
+
+
+
+    // Classe do jogo
+
+    class Game {
+
+        constructor(){
+            this.currentPlayer = -1;
+            this.putPhase = true;
+            this.isGameActive = false;
+            this.bot = false;
+            this.player1 = -1;
+            this.player_piece = -1;
+            this.bot_piece = -1;
+            this.rowSelected = 0;
+            this.colSelected = 0;
+            this.currentPlayer_copy = -1;
+            this.bot_can_play = false;
+            this.pieceSelected = false;
+            this.canRemove = false;
+            this.moved_piece = false;
+            this.moves_available_1 = [];
+            this.moves_available_2 = [];
+        }
+
+
+
+
+        handleCellClick(row, col) {
+            // Funçaõ para lidar com o clique na célula e controla o fluxo do jogo
+            if (!this.isGameActive) return;
+        
+            if (this.putPhase) {
+                // Fase de colocação
+                this.handlePlacementPhase(row, col);
+    
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
+                    this.makeBotMove();
+                }
+                
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'medium') {
+                    this.makeBotMoveM();
+                    
+                }
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'hard') {
+                    this.makeBotMoveM();
+                    
+                }
+                if (this.bot === true && this.putPhase === false && this.player1 == this.bot_piece) {
+                    this.performBotMove();
+                }
+            
+            } else{
+                this.possible_win();
+
+                if (!this.pieceSelected) {
+                    // Se nenhuma peça foi selecionada, tenta selecionar uma peça
+                    this.handlePieceSelection(row, col);
+                } else {
+                    if (!this.moved_piece) {
+                        // Se nenhuma peça foi movida, tenta mover a peça selecionada
+                        this.handlePieceMovement(row, col);
+                    }
+                }
+        
+                if (this.moved_piece) {
+                    // Se uma peça foi movida, verifica se é possível remover uma peça
+                    if (this.canRemove) {
+                        this.handleRemovePiece(row, col, this.currentPlayer_copy);
+                        removeDisplay.style.display = 'none';
+                        moveDisplay.style.display = 'block';
+                        this.possible_win();
+
+                    } else {
+                        if (board.possible_remove(row, col, this.currentPlayer_copy)) {
+                            this.canRemove = true;
+                        } else {
+
+                            currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
+                            this.moved_piece = false;
+                            this.pieceSelected = false;
+                            this.canRemove = false;
+                            this.bot_can_play = true;
+                            this.possible_win();   
+                            
+    
+                        }
+                    }
+                }
+                // Bots
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'easy') {
+   
+                    this.makeBotMove();
+                    this.moved_piece = false;
+                    this.pieceSelected = false;
+                    this.canRemove = false;
+                    this.bot_can_play = false;
+                    currentPlayerDisplay.textContent = playerNames[this.player_piece];
+                    this.possible_win();
+                }
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'medium') {
+  
+                    this.makeBotMoveM(); 
+                    this.moved_piece = false;
+                    this.pieceSelected = false;
+                    this.canRemove = false;
+                    this.bot_can_play = false;
+                    currentPlayerDisplay.textContent = playerNames[this.player_piece];
+                    this.possible_win();
+                }
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'hard') {
+
+                    this.makeBotMoveH(); 
+                    this.moved_piece = false;
+                    this.pieceSelected = false;
+                    this.canRemove = false;
+                    this.bot_can_play = false;
+                    currentPlayerDisplay.textContent = playerNames[this.player_piece];
+                    this.possible_win();
+                }
+            }
+        } 
+
+
+        handlePlacementPhase(row, col) {
+            // Função para lidar com a fase de colocação
+            let canPlacePiece = board.possible_play(row, col, this.currentPlayer,board.board,0,0);
+
+            if (canPlacePiece) {
+                if (this.currentPlayer === '1' && board.playerBpieces > 0) {
+                    board.renderBoard();
+                    board.playerBpieces--;
+                    board.updateSideBoards();
+                } else if (this.currentPlayer === '2' && board.playerWpieces > 0) {
+                    board.renderBoard();
+                    board.playerWpieces--;
+                    board.updateSideBoards();
+                }
+        
+                this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
+                currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
+            } else {
+                console.log('Jogada Inválida');
             }
         
-        console.log(bot_can_play);
-        } else{
-            console.log("ACABOU A PUT PHASE E JOGA O " + currentPlayer)
-            possible_win();
-            if (!pieceSelected) {
-                handlePieceSelection(row, col);
-            } else {
-                if (!moved_piece) {
-                    handlePieceMovement(row, col);
+            console.log('Peças restantes - Jogador 1:', board.playerBpieces, 'Jogador 2:', board.playerWpieces);
+        
+            if (board.playerBpieces === 0 && board.playerWpieces === 0) {
+                this.putPhase = false;
+                console.log('Já colocou todas as peças permitidas durante a fase de colocação.');
+                if (this.player1 === '2'){
+                    this.currentPlayer = '2'; // jogador preto
+                }else{
+                    this.currentPlayer = '1'; // jogador branco
                 }
-                console.log("currentPlayer: " + currentPlayer)
-                console.log("currentPlayerCopy: " + currentPlayer_copy)
-                //moves_available(currentPlayer_copy);
+                currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
+                if (this.bot === true && this.currentPlayer === this.bot_piece) {
+                    currentPlayerDisplay.textContent = playerNames[this.player_piece];
+                }
+                putDisplay.style.display = 'none';
+                moveDisplay.style.display = 'block';
             }
-    
-            if (moved_piece) {
-                if (canRemove) {
-                    handleRemovePiece(row, col, currentPlayer_copy);
-                    removeDisplay.style.display = 'none';
-                    moveDisplay.style.display = 'block';
-                    possible_win();
-                    //currentPlayer = currentPlayer === '1' ? '2' : '1';
-                } else {
-                    if (board.possible_remove(row, col, currentPlayer_copy)) {
-                        canRemove = true;
-                    } else {
-                        //currentPlayer = currentPlayer === '1' ? '2' : '1';
-                        currentPlayerDisplay.textContent = playerNames[currentPlayer];
-                        moved_piece = false;
-                        pieceSelected = false;
-                        canRemove = false;
-                        bot_can_play = true;
-                        possible_win();   
-                        
+        }
 
+
+        handlePieceSelection(row, col) {
+            // Função para lidar com a seleção de peças
+            if (board.possible_click(row, col, this.currentPlayer)) {
+                if (this.canRemove) {
+                    console.log("Não podes selecionar uma peça porque já removes-te uma peça");
+                    return;
+                }
+        
+                this.rowSelected = row;
+                this.colSelected = col;
+                this.pieceSelected = true;
+        
+                console.log('Peça selecionada');
+                console.log('Peça selecionada - Linha:', this.rowSelected, 'Coluna:', this.colSelected);
+        
+                // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
+                const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                if (this.currentPlayer === '1') {
+                    selectedCell.style.backgroundImage = 'url("assets/white-selected.png")';
+                } else {
+                    selectedCell.style.backgroundImage = 'url("assets/black-selected.png")';
+                }
+            } else {
+                console.log('Peça não pode ser selecionada');
+            }
+        }
+
+
+        handlePieceMovement(row, col) {
+            // Função para lidar com o movimento de peças
+            if (row === this.rowSelected && col === this.colSelected) {
+                const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                this.pieceSelected = false;
+                if (this.currentPlayer === '1') {
+                    selectedCell.style.backgroundImage = 'url("assets/white.png")';
+                }
+                else{
+                    selectedCell.style.backgroundImage = 'url("assets/black.png")';
+                }
+            } else {
+                // Verifique se a célula clicada é válida para mover a peça selecionada
+                if (board.possible_play(row, col, this.currentPlayer, board.board,this.rowSelected,this.colSelected) && board.possible_move(row, col, this.rowSelected, this.colSelected) && board.go_back(row, col, this.rowSelected, this.colSelected, this.currentPlayer)) {
+                    board.board[row][col] = this.currentPlayer;
+                    board.board[this.rowSelected][this.colSelected] = 0; // Tirar a peça da posição anterior
+        
+                    if (this.currentPlayer == '1') {
+                        board.LastPlay1.row = this.rowSelected;
+                        board.LastPlay1.col = this.colSelected;
+                        board.LastPlay1.rowSelected = row;
+                        board.LastPlay1.colSelected = col;
+                        console.log("LastPlay1: " + board.LastPlay1.row + " " + board.LastPlay1.col + " " + board.LastPlay1.rowSelected + " " + board.LastPlay1.colSelected);
+                    } else {
+                        board.LastPlay2.row = this.rowSelected;
+                        board.LastPlay2.col = this.colSelected;
+                        board.LastPlay2.rowSelected = row;
+                        board.LastPlay2.colSelected = col;
+                        console.log("LastPlay2: " + board.LastPlay2.row + " " + board.LastPlay2.col + " " + board.LastPlay2.rowSelected + " " + board.LastPlay2.colSelected);
+                    }
+        
+                    board.renderBoard();
+                    board.updateSideBoards();
+                    const selectedCell = document.querySelector(`[data-row="${this.rowSelected}"][data-col="${this.colSelected}"]`);
+                    selectedCell.style.backgroundImage = 'none'; // Remova a imagem de fundo da célula de origem
+                    this.pieceSelected = false;
+                    this.currentPlayer_copy = this.currentPlayer;
+                    this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
+                    this.moved_piece = true;
+                }
+            }
+        }
+
+
+        handleRemovePiece(row, col, Player) {
+            // Função para lidar com a remoção de peças
+            let correct_choice = false;
+        
+            if (Player === '1') {
+                if (board.board[row][col] === '2') {
+                    correct_choice = true;
+                }
+            } else {
+                if (board.board[row][col] === '1') {
+                    correct_choice = true;
+                }
+            }
+        
+            if (correct_choice) {
+                board.board[row][col] = 0;
+        
+                if (Player == '1') {
+                    board.finalBpieces--;
+                } else {
+                    board.finalWpieces--;
+                }
+    
+        
+                currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
+                //console.log("You cannot remove a piece - joagdor ativo" + currentPlayer );
+                this.moved_piece = false;
+                this.pieceSelected = false;
+                this.canRemove = false;
+        
+                // Defina this.bot_can_play como verdadeiro para permitir que o bot jogue
+                this.bot_can_play = true;
+        
+                board.renderBoard();
+                board.updateSideBoards();
+            }
+        }
+
+
+        performBotMove() {
+            // Crie um evento de clique simulado
+            const botRow = 1;
+            const botCol = 1;
+            const targetCell = document.querySelector(`[data-row="${botRow}"][data-col="${botCol}"]`);
+            targetCell.dispatchEvent(clickEvent);
+            
+            
+        }
+
+        makeBotMove() {
+            // Move do Bot dificuldade fácil
+            if (this.putPhase) {
+                const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
+                if (availableCells.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * availableCells.length);
+                    const randomCell = availableCells[randomIndex];
+                    // Simula o clique na célula escolhida pelo bot
+                    this.handlePlacementPhase(randomCell.row, randomCell.col);
+                }
+            }else{
+                const movesBot = board.moves_available(this.bot_piece);
+               
+                if (movesBot.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * movesBot.length);
+                    const randomMove = movesBot[randomIndex];
+
+                    this.handlePieceSelection(randomMove[0], randomMove[1]);
+                    this.handlePieceMovement(randomMove[2], randomMove[3]);
+                    
+                    if (board.possible_remove(randomMove[2], randomMove[3], this.bot_piece)){
+                        const piecesToRemove = board.getPlayerCells(this.player_piece);
+                        const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
+                        const randomCell = piecesToRemove[randomIndex];
+                        this.handleRemovePiece(randomCell.row, randomCell.col, this.bot_piece);
+                        moveDisplay.style.display = 'block';
+                        removeDisplay.style.display = 'none';
+                        this.possible_win();
+    
+                    }
+                        
+                }
+                
+    
+            }
+        }
+    
+        makeBotMoveM() {
+            // Move do Bot dificuldade média
+
+            if (this.putPhase) {
+                const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
+                if (availableCells.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * availableCells.length);
+                    const randomCell = availableCells[randomIndex];
+        
+                    // Simula o clique na célula escolhida pelo bot
+                    this.handlePlacementPhase(randomCell.row, randomCell.col);
+                }
+            } else {
+                const movesBot = board.moves_available(this.bot_piece);
+                const winningMoves = [];
+                let randomMove; // Defina randomMove antes do uso
+                
+                for (let i = 0; i < movesBot.length; i++) {
+                    const [startRow, startCol, endRow, endCol] = movesBot[i];
+                    // Faz uma cópia temporária do tabuleiro
+                    const boardCopy = JSON.parse(JSON.stringify(board.board));
+        
+                    // Simula a jogada do bot
+                    boardCopy[endRow][endCol] = this.bot_piece;
+                    boardCopy[startRow][startCol] = 0;
+                    // imprime o tabuleiro
+                    for (let i = 0; i < 6; i++) {
+                        console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
+                    }
+                    // Verifica se essa jogada resulta em uma linha de 3 para o bot
+                    if (board.possible_remove2(endRow, endCol, this.bot_piece, boardCopy)) {
+                        winningMoves.push(movesBot[i]);
+                    }
+                }
+        
+                if (winningMoves.length > 0) {
+                    // Se houver jogadas vencedoras, escolha uma delas
+                    const randomIndex = Math.floor(Math.random() * winningMoves.length);
+                    randomMove = winningMoves[randomIndex]; // Atribua randomMove aqui
+                    // Realiza a jogada vencedora
+                    this.handlePieceSelection(randomMove[0], randomMove[1]);
+                    this.handlePieceMovement(randomMove[2], randomMove[3]);
+                } else {
+                    // Caso contrário, escolha uma jogada aleatória
+                    const randomIndex = Math.floor(Math.random() * movesBot.length);
+                    randomMove = movesBot[randomIndex]; // Atribua randomMove aqui
+        
+                    // Realiza a jogada aleatória
+                    this.handlePieceSelection(randomMove[0], randomMove[1]);
+                    this.handlePieceMovement(randomMove[2], randomMove[3]);
+                }
+        
+                if (board.possible_remove(randomMove[2], randomMove[3], this.bot_piece)) {
+                    const piecesToRemove = board.getPlayerCells(this.player_piece);
+                    const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
+                    const randomCell = piecesToRemove[randomIndex];
+                    this.handleRemovePiece(randomCell.row, randomCell.col, this.bot_piece);
+                    moveDisplay.style.display = 'block';
+                    removeDisplay.style.display = 'none';
+                    this.possible_win();
+                }
+            }
+        }
+
+
+        makeBotMoveH() {
+            // Move do Bot dificuldade difícil
+            if (this.putPhase) {
+                const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
+                if (availableCells.length > 0) {
+                    const randomIndex = Math.floor(Math.random() * availableCells.length);
+                    const randomCell = availableCells[randomIndex];
+                    console.log("randomCell: " + randomCell.row + " " + randomCell.col);
+                    // Simula o clique na célula escolhida pelo bot
+                    this.handlePlacementPhase(randomCell.row, randomCell.col);
+                }
+            } else {
+                const movesBot = board.moves_available(this.bot_piece);
+                const winningMoves = [];
+                let randomMove; // Defina randomMove antes do uso
+                
+                for (let i = 0; i < movesBot.length; i++) {
+                    console.log("i: " + i + " movesBot: " + movesBot[i]);
+                    const [startRow, startCol, endRow, endCol] = movesBot[i];
+                    // Faça uma cópia temporária do tabuleiro
+                    const boardCopy = JSON.parse(JSON.stringify(board.board));
+        
+                    // Simule a jogada do bot
+                    boardCopy[endRow][endCol] = this.bot_piece;
+                    boardCopy[startRow][startCol] = 0;
+                    // imprime o tabuleiro
+                    for (let i = 0; i < 6; i++) {
+                        console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
+                    }
+                    // Verifique se essa jogada resulta em uma linha de 3 para o bot
+                    if (board.possible_remove2(endRow, endCol, this.bot_piece, boardCopy)) {
+                        winningMoves.push(movesBot[i]);
+                        console.log("Move de 3 : " + winningMoves[i]);
+                    }
+                }
+        
+                if (winningMoves.length > 0) {
+                    // Se houver jogadas vencedoras, escolha uma delas
+                    const randomIndex = Math.floor(Math.random() * winningMoves.length);
+                    randomMove = winningMoves[randomIndex]; // Atribua randomMove aqui
+                    // Realize a jogada vencedora
+                    this.handlePieceSelection(randomMove[0], randomMove[1]);
+                    this.handlePieceMovement(randomMove[2], randomMove[3]);
+                } else {
+                    // Caso contrário, escolha uma jogada aleatória
+                    const randomIndex = Math.floor(Math.random() * movesBot.length);
+                    randomMove = movesBot[randomIndex];
+                    this.handlePieceSelection(randomMove[0], randomMove[1]);
+                    this.handlePieceMovement(randomMove[2], randomMove[3]);
+                }
+        
+                // Verifique se é possível remover uma peça
+                if (board.possible_remove(randomMove[2], randomMove[3], this.bot_piece)) {
+                    // Encontre uma peça branca que pertença a uma linhaS de 2 e a remova
+                    
+                    const piecesToRemove = board.removeLineof2(board.board, this.player_piece);
+                    console.log("piecesToRemove: " + piecesToRemove.i + " " + piecesToRemove.j);
+    
+                    if (piecesToRemove !== -1) {
+                        console.log("isoooooo"+ this.bot_piece);
+                        this.handleRemovePiece(piecesToRemove.i, piecesToRemove.j, this.bot_piece);
+                        moveDisplay.style.display = 'block';
+                        removeDisplay.style.display = 'none';
+                        this.possible_win();
+                    }else{
+                        // Se não houver peças brancas que pertençam a uma linha de 2, remova uma peça branca aleatória
+                        const piecesToRemove = board.getPlayerCells(this.player_piece);
+                        const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
+                        const randomCell = piecesToRemove[randomIndex];
+                        this.handleRemovePiece(randomCell.row, randomCell.col, this.bot_piece);
+                        moveDisplay.style.display = 'block';
+                        removeDisplay.style.display = 'none';
+                        this.possible_win();
                     }
                 }
             }
-            if (currentPlayer === bot_piece && bot === true && bot_can_play === true && level.value === 'easy') {
-                console.log("BOT MOVE AAAAA");
-                makeBotMove(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
-                moved_piece = false;
-                pieceSelected = false;
-                canRemove = false;
-                bot_can_play = false;
-                currentPlayerDisplay.textContent = playerNames[player_piece];
-                console.log("bot_can_play" + bot_can_play);
-                possible_win();
-            }
-            if (currentPlayer === bot_piece && bot === true && bot_can_play === true && level.value === 'medium') {
-                console.log("Medium MOVE");
-                makeBotMoveM(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
-                moved_piece = false;
-                pieceSelected = false;
-                canRemove = false;
-                bot_can_play = false;
-                currentPlayerDisplay.textContent = playerNames[player_piece];
-                possible_win();
-            }
-            if (currentPlayer === bot_piece && bot === true && bot_can_play === true && level.value === 'hard') {
-                console.log("hard MOVE");
-                makeBotMoveH(); // Se for a fase de colocação e o jogador é o bot, faça o bot jogar imediatamente.
-                moved_piece = false;
-                pieceSelected = false;
-                canRemove = false;
-                bot_can_play = false;
-                currentPlayerDisplay.textContent = playerNames[player_piece];
-                possible_win();
-            }
         }
-    } 
-    
 
-    // Função para simular um clique para o bot
-    function performBotMove() {
-        console.log("BOT MOVE AUTOMÁTICO NA PRIMEIRA JOGADA");
-        // Defina as coordenadas da célula para o primeiro movimento do bot
-        const botRow = 1;
-        const botCol = 1;
-        // Dispamoves_availablere o evento de clique na célula desejada
-        const targetCell = document.querySelector(`[data-row="${botRow}"][data-col="${botCol}"]`);
-        targetCell.dispatchEvent(clickEvent);
-        isFirstBotMove = false; // Marque que o primeiro movimento do bot já ocorreu
-        
-    }
-
-    //_____________________________________________________________________________________________________________
-
-    function makeBotMove() {
-        if (putPhase) {
-            const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
-            if (availableCells.length > 0) {
-                const randomIndex = Math.floor(Math.random() * availableCells.length);
-                const randomCell = availableCells[randomIndex];
-
-                console.log("randomCell: " + randomCell.row + " " + randomCell.col);
-                // Simula o clique na célula escolhida pelo bot
-                handlePlacementPhase(randomCell.row, randomCell.col);
+        possible_win(){
+            // Verifica se há um possível vencedor
+            let winner = 0;
+            this.moves_available_1 = board.moves_available('1');
+            this.moves_available_1 = board.moves_available('2');
+            if (board.finalBpieces <= 2 ||  this.moves_available_1.length == 0){
+                winner = '1';
+                this.game_finished(winner);
+                return winner;
             }
-        }else{
-            console.log("BOT MOVE 2222")
-            const movesBot = board.moves_available(bot_piece);
-            console.log("movesBot: " + movesBot);
-            for (let i = 0; i < 6; i++) {
-                console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
-            }
-            if (movesBot.length > 0) {
-                const randomIndex = Math.floor(Math.random() * movesBot.length);
-                const randomMove = movesBot[randomIndex];
-                console.log("randomMove: " + randomMove);
-                handlePieceSelection(randomMove[0], randomMove[1]);
-                console.log("Selecionou a peça");
-                handlePieceMovement(randomMove[2], randomMove[3]);
-                console.log("Moveu a peça");
-                //for (let i = 0; i < 6; i++) {
-                    //console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
-                //}
-                
-                if (board.possible_remove(randomMove[2], randomMove[3], bot_piece)){
-                    const piecesToRemove = board.getPlayerCells(player_piece);
-                    const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
-                    const randomCell = piecesToRemove[randomIndex];
-                    handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
-                    moveDisplay.style.display = 'block';
-                    removeDisplay.style.display = 'none';
-                    possible_win();
-
-                }
-                    
-            }
-            
-        console.log("PLAYER AFTER MOVE DENTRO DO BOT: " + currentPlayer);
-
-        }
-    }
-
- 
-    function makeBotMoveM() {
-        if (putPhase) {
-            const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
-            if (availableCells.length > 0) {
-                const randomIndex = Math.floor(Math.random() * availableCells.length);
-                const randomCell = availableCells[randomIndex];
-    
-                console.log("randomCell: " + randomCell.row + " " + randomCell.col);
-                // Simula o clique na célula escolhida pelo bot
-                handlePlacementPhase(randomCell.row, randomCell.col);
-            }
-        } else {
-            const movesBot = board.moves_available(bot_piece);
-            const winningMoves = [];
-            let randomMove; // Defina randomMove antes do uso
-            
-            for (let i = 0; i < movesBot.length; i++) {
-                console.log("i: " + i + " movesBot: " + movesBot[i]);
-                const [startRow, startCol, endRow, endCol] = movesBot[i];
-                // Faça uma cópia temporária do tabuleiro
-                const boardCopy = JSON.parse(JSON.stringify(board.board));
-    
-                // Simule a jogada do bot
-                boardCopy[endRow][endCol] = bot_piece;
-                boardCopy[startRow][startCol] = 0;
-                // imprime o tabuleiro
-                for (let i = 0; i < 6; i++) {
-                    console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
-                }
-                // Verifique se essa jogada resulta em uma linha de 3 para o bot
-                if (board.possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
-                    winningMoves.push(movesBot[i]);
-                    console.log("Move de 3 : " + winningMoves[i]);
-                }
-            }
-    
-            if (winningMoves.length > 0) {
-                // Se houver jogadas vencedoras, escolha uma delas
-                const randomIndex = Math.floor(Math.random() * winningMoves.length);
-                randomMove = winningMoves[randomIndex]; // Atribua randomMove aqui
-                // Realize a jogada vencedora
-                handlePieceSelection(randomMove[0], randomMove[1]);
-                handlePieceMovement(randomMove[2], randomMove[3]);
-            } else {
-                // Caso contrário, escolha uma jogada aleatória
-                const randomIndex = Math.floor(Math.random() * movesBot.length);
-                randomMove = movesBot[randomIndex]; // Atribua randomMove aqui
-    
-                // Realize a jogada aleatória
-                handlePieceSelection(randomMove[0], randomMove[1]);
-                handlePieceMovement(randomMove[2], randomMove[3]);
-            }
-    
-            if (board.possible_remove(randomMove[2], randomMove[3], bot_piece)) {
-                const piecesToRemove = board.getPlayerCells(player_piece);
-                const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
-                const randomCell = piecesToRemove[randomIndex];
-                handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
-                moveDisplay.style.display = 'block';
-                removeDisplay.style.display = 'none';
-                possible_win();
-            }
-        }
-    }
-    
-    
-    function makeBotMoveH() {
-        if (putPhase) {
-            const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
-            if (availableCells.length > 0) {
-                const randomIndex = Math.floor(Math.random() * availableCells.length);
-                const randomCell = availableCells[randomIndex];
-                console.log("randomCell: " + randomCell.row + " " + randomCell.col);
-                // Simula o clique na célula escolhida pelo bot
-                handlePlacementPhase(randomCell.row, randomCell.col);
-            }
-        } else {
-            const movesBot = board.moves_available(bot_piece);
-            const winningMoves = [];
-            let randomMove; // Defina randomMove antes do uso
-            
-            for (let i = 0; i < movesBot.length; i++) {
-                console.log("i: " + i + " movesBot: " + movesBot[i]);
-                const [startRow, startCol, endRow, endCol] = movesBot[i];
-                // Faça uma cópia temporária do tabuleiro
-                const boardCopy = JSON.parse(JSON.stringify(board.board));
-    
-                // Simule a jogada do bot
-                boardCopy[endRow][endCol] = bot_piece;
-                boardCopy[startRow][startCol] = 0;
-                // imprime o tabuleiro
-                for (let i = 0; i < 6; i++) {
-                    console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
-                }
-                // Verifique se essa jogada resulta em uma linha de 3 para o bot
-                if (board.possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
-                    winningMoves.push(movesBot[i]);
-                    console.log("Move de 3 : " + winningMoves[i]);
-                }
-            }
-    
-            if (winningMoves.length > 0) {
-                // Se houver jogadas vencedoras, escolha uma delas
-                const randomIndex = Math.floor(Math.random() * winningMoves.length);
-                randomMove = winningMoves[randomIndex]; // Atribua randomMove aqui
-                // Realize a jogada vencedora
-                handlePieceSelection(randomMove[0], randomMove[1]);
-                handlePieceMovement(randomMove[2], randomMove[3]);
-            } else {
-                // Caso contrário, escolha uma jogada aleatória
-                const randomIndex = Math.floor(Math.random() * movesBot.length);
-                randomMove = movesBot[randomIndex];
-                handlePieceSelection(randomMove[0], randomMove[1]);
-                handlePieceMovement(randomMove[2], randomMove[3]);
-            }
-    
-            // Verifique se é possível remover uma peça
-            if (board.possible_remove(randomMove[2], randomMove[3], bot_piece)) {
-                // Encontre uma peça branca que pertença a uma linhaS de 2 e a remova
-                
-                const piecesToRemove = board.removeLineof2(board.board, player_piece);
-                console.log("piecesToRemove: " + piecesToRemove.i + " " + piecesToRemove.j);
-
-                if (piecesToRemove !== -1) {
-                    console.log("isoooooo"+ bot_piece);
-                    handleRemovePiece(piecesToRemove.i, piecesToRemove.j, bot_piece);
-                    moveDisplay.style.display = 'block';
-                    removeDisplay.style.display = 'none';
-                    possible_win();
-                }else{
-                    // Se não houver peças brancas que pertençam a uma linha de 2, remova uma peça branca aleatória
-                    const piecesToRemove = board.getPlayerCells(player_piece);
-                    const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
-                    const randomCell = piecesToRemove[randomIndex];
-                    handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
-                    moveDisplay.style.display = 'block';
-                    removeDisplay.style.display = 'none';
-                    possible_win();
-                }
-            }
-        }
-    }
-
-
-
-    //_____________________________________________________________________________________________________________
-
-    // Função para lidar com a fase de colocação de peças
-    function handlePlacementPhase(row, col) {
-        
-        //for (let i = 0; i < 6; i++) {
-            //console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
-        //}
-        let canPlacePiece = board.possible_play(row, col, currentPlayer,board.board,0,0);
-        console.log("canPlacePiece: " + canPlacePiece)
-        if (canPlacePiece) {
-            if (currentPlayer === '1' && playerBpieces > 0) {
-                board.renderBoard();
-                playerBpieces--;
-                updateSideBoards();
-            } else if (currentPlayer === '2' && playerWpieces > 0) {
-                board.renderBoard();
-                playerWpieces--;
-                updateSideBoards();
-            }
-    
-            currentPlayer = currentPlayer === '1' ? '2' : '1';
-            currentPlayerDisplay.textContent = playerNames[currentPlayer];
-        } else {
-            console.log('Jogada Inválida');
-        }
-    
-        console.log('Peças restantes - Jogador 1:', playerBpieces, 'Jogador 2:', playerWpieces);
-    
-        if (playerBpieces === 0 && playerWpieces === 0) {
-            putPhase = false;
-            console.log('Você já colocou todas as peças permitidas durante a fase de colocação.');
-            if (player1 === '2'){
-                currentPlayer = '2'; // jogador preto
-            }else{
-            currentPlayer = '1'; // jogador branco
-            }
-            currentPlayerDisplay.textContent = playerNames[currentPlayer];
-            if (bot === true && currentPlayer === '2') {
-        currentPlayerDisplay.textContent = playerNames[player_piece];
-            }
-            putDisplay.style.display = 'none';
-            moveDisplay.style.display = 'block';
-        }
-    }
-    
-
-    function handlePieceSelection(row, col) {
-        if (board.possible_click(row, col, currentPlayer)) {
-            if (canRemove) {
-                console.log("You cannot select a new piece after removing one.");
-                return;
-            }
-    
-            rowSelected = row;
-            colSelected = col;
-            pieceSelected = true;
-    
-            console.log('Peça selecionada');
-            console.log('Peça selecionada - Linha:', rowSelected, 'Coluna:', colSelected);
-    
-            // Atualize a imagem de fundo da célula selecionada para a imagem da peça selecionada
-            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-            if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("assets/white-selected.png")';
-            } else {
-                selectedCell.style.backgroundImage = 'url("assets/black-selected.png")';
-            }
-        } else {
-            console.log('Peça não pode ser selecionada');
-        }
-    }
-    
-
-    // Função para lidar com o movimento de peças
-    function handlePieceMovement(row, col) {
-        if (row === rowSelected && col === colSelected) {
-            const selectedCell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-            pieceSelected = false;
-            if (currentPlayer === '1') {
-                selectedCell.style.backgroundImage = 'url("assets/white.png")';
+            else if (board.finalWpieces <= 2 || this.moves_available_1.length == 0){
+                winner = '2';
+                this.game_finished(winner);
+                return winner;
             }
             else{
-                selectedCell.style.backgroundImage = 'url("assets/black.png")';
+                return 0;
             }
-        } else {
-            if (board.possible_play(row, col, currentPlayer, board.board,rowSelected,colSelected) && board.possible_move(row, col, rowSelected, colSelected) && board.go_back(row, col, rowSelected, colSelected, currentPlayer)) {
-                board.board[row][col] = currentPlayer;
-                board.board[rowSelected][colSelected] = 0; // Tirar a peça da posição anterior
-    
-                if (currentPlayer == '1') {
-                    board.LastPlay1.row = rowSelected;
-                    board.LastPlay1.col = colSelected;
-                    board.LastPlay1.rowSelected = row;
-                    board.LastPlay1.colSelected = col;
-                    console.log("board.LastPlay1: " + board.LastPlay1.row + " " + board.LastPlay1.col + " " + board.LastPlay1.rowSelected + " " + board.LastPlay1.colSelected);
+        }
+
+        game_finished(winner) {
+            // Função para lidar com o fim do jogo
+            let win_text = document.getElementById("game-result");
+            if (winner === '1') {
+                win_text.innerText = "Ganhou o Branco!";
+
+            } else {
+
+                win_text.innerText = "Ganhou o Preto!";
+            }
+        moveDisplay.style.display = 'none';
+        removeDisplay.style.display = 'none';
+        playerput.style.display = 'none';
+
+
+            if (this.bot === true) {
+
+                if (winner === game.player_piece) {
+                    user.victories++;
                 } else {
-                    board.LastPlay2.row = rowSelected;
-                    board.LastPlay2.col = colSelected;
-                    board.LastPlay2.rowSelected = row;
-                    board.LastPlay2.colSelected = col;
-                    console.log("board.LastPlay2: " + board.LastPlay2.row + " " + board.LastPlay2.col + " " + board.LastPlay2.rowSelected + " " + board.LastPlay2.colSelected);
+                    user.loses++;
                 }
-    
-                board.renderBoard();
-                updateSideBoards();
-                const selectedCell = document.querySelector(`[data-row="${rowSelected}"][data-col="${colSelected}"]`);
-                selectedCell.style.backgroundImage = 'none'; // Remova a imagem de fundo da célula de origem
-                pieceSelected = false;
-                currentPlayer_copy = currentPlayer;
-                currentPlayer = currentPlayer === '1' ? '2' : '1';
-                moved_piece = true;
+        
+                this.updateLeaderboard(user);
+                
             }
-        }
-    }
 
-    function handleRemovePiece(row, col, Player) {
-        let correct_choice = false;
-    
-        if (Player === '1') {
-            if (board.board[row][col] === '2') {
-                correct_choice = true;
-            }
-        } else {
-            if (board.board[row][col] === '1') {
-                correct_choice = true;
+            this.isGameActive = false;
+        }
+
+        generateBoard() {
+            // Função para gerar o tabuleiro com base no tamanho selecionado
+            game.isGameActive = true;
+            game.putPhase = true;
+            if (boardSize === 5) {
+                this.generate_tiles(6,5); 
+            } else if (boardSize === 6) {          
+                this.generate_tiles(6,6);
             }
         }
-    
-        if (correct_choice) {
-            board.board[row][col] = 0;
-    
-            if (Player == '1') {
-                finalBpieces--;
+
+        generate_tiles(numRows, numCols) {
+            // Função para gerar as células do tabuleiro
+            gameContainer.innerHTML = '';
+                board = new Board(numRows, numCols);
+                for (let row = 0; row < numRows; row++) {
+                    for (let col = 0; col < numCols; col++) {
+                        const cell = document.createElement('div');
+                        cell.classList.add('cell');
+                        cell.dataset.row = row;
+                        cell.dataset.col = col;
+                        cell.addEventListener('click', () => game.handleCellClick(row, col));
+                        gameContainer.appendChild(cell);
+                        putDisplay.style.display = 'block';
+                    }
+                }
+        }
+
+        updateLeaderboard(user) {
+            // Função para atualizar a tabela de classificação
+            const leaderboardTable = document.getElementById('leaderboard-table');
+            let existingRow;
+        
+            // Verifica se o nome do utilizador já está na tabela de classificação
+            for (let i = 1; i < leaderboardTable.rows.length; i++) {
+                const row = leaderboardTable.rows[i];
+                const nameCell = row.cells[1];
+                if (nameCell.textContent === user.username) {
+                    existingRow = row;
+                    break;
+                }
+            }
+        
+            if (existingRow) {
+                // Se o nome do utilizador já estiver na tabela, atualiza as células de vitórias, derrotas e total de jogos
+                const victoriesCell = existingRow.cells[2];
+                const defeatsCell = existingRow.cells[3];
+                const totalGamesCell = existingRow.cells[4];
+                victoriesCell.textContent = user.victories/2;
+                defeatsCell.textContent = user.loses/2;
+                totalGamesCell.textContent = (user.victories + user.loses)/2;
             } else {
-                finalWpieces--;
+                // Caso contrário, adicione uma nova linha na tabela
+                const newRow = leaderboardTable.insertRow(-1);
+                const positionCell = newRow.insertCell(0);
+                const nameCell = newRow.insertCell(1);
+                const victoriesCell = newRow.insertCell(2);
+                const defeatsCell = newRow.insertCell(3);
+                const totalGamesCell = newRow.insertCell(4);
+                positionCell.textContent = leaderboardTable.rows.length - 1;
+                nameCell.textContent = user.username;
+                victoriesCell.textContent = user.victories/2;
+                defeatsCell.textContent = user.loses /2;
+                totalGamesCell.textContent = (user.victories + user.loses)/2;
             }
+        }
 
     
-            console.log("AAA playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
-    
-            currentPlayerDisplay.textContent = playerNames[currentPlayer];
-            //console.log("You cannot remove a piece - joagdor ativo" + currentPlayer );
-            moved_piece = false;
-            pieceSelected = false;
-            canRemove = false;
-    
-            // Defina bot_can_play como verdadeiro para permitir que o bot jogue
-            bot_can_play = true;
-    
-            board.renderBoard();
-            updateSideBoards();
-        }
     }
-
-
-    //_______________________________________________________________________________________________________
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    
 
 
 
@@ -1081,124 +1007,72 @@ let bot_can_play = false;
 
 
 
-
-    
-
-
-
-
-
-
-    
-    
+//Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
+const playerNames = {
+    '1': 'Branco',
+    '2': 'Preto'
+};
 
 
-    function possible_win(){
-            console.log("POSSIBLE WINNNNNNN");
-            console.log("playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
-            moves_available_1 = board.moves_available('1');
-            moves_available_2 = board.moves_available('2');
-            console.log("moves_available_1: " + moves_available_1);
-            console.log("moves_available_2: " + moves_available_2);
-        if (finalBpieces <= 2 ||  moves_available_2.length == 0){
-            winner = '1';
-            game_finished(winner);
-            return winner;
-        }
-        else if (finalWpieces <= 2 || moves_available_1.length == 0){
-            winner = '2';
-            game_finished(winner);
-            return winner;
-        }
-        else{
-            return 0;
-        }
-    } 
+let boardSize = boardSizeSelect;
 
-
-    function game_finished(winner) {
-        let win_text = document.getElementById("game-result");
-        if (winner === '1') {
-            win_text.innerText = "Ganhou o Branco";
-        } else {
-
-            win_text.innerText = "Ganhou o Preto";
-        }
-    
-        if (bot === true) {
-
-            if (winner === player_piece) {
-                user.victories++;
-            } else {
-                user.loses++;
-            }
-    
-            updateLeaderboard(user);
-            
-        }
-
-        isGameActive = false;
-    }
-
-
-
-// mudar depois de sitio
-
-
-let bot_piece = '2'
-let player_piece = '1'
+let username = '';
+let user;
+let board;
+let game;
 
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', () => {
+    game = new Game();
     sideBoard1.style.display = 'grid';
     sideBoard2.style.display = 'grid';
     boardSize = parseInt(boardSizeSelect.value);
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
-    generateBoard();
-    updateSideBoards();
+    game.generateBoard();
+    board.updateSideBoards();
     if (firstPlayerSelect.value === 'branco') {
-        player1 = '1';
+        game.player1 = '1';
 
     } else if (firstPlayerSelect.value === 'preto'){
-        player1 = '2';
+        game.player1 = '2';
     }
 
     if (colorSelect.value === 'branco'){
-        bot_piece = '2';
-        player_piece = '1';
+        game.bot_piece = '2';
+        game.player_piece = '1';
     } else if (colorSelect.value === 'preto'){
-        bot_piece = '1';
-        player_piece = '2';
+        game.bot_piece = '1';
+        game.player_piece = '2';
     }
 
 
-    currentPlayer = player1;
-    currentPlayerDisplay.textContent = playerNames[currentPlayer];
+    game.currentPlayer = game.player1;
+    currentPlayerDisplay.textContent = playerNames[game.currentPlayer];
     gameResultDisplay.textContent = '';
-    isGameActive = true;
+    game.isGameActive = true;
 
     //verifca se o outro jogador é o bot
     if (opponentSelect.value === 'computer') {
-        bot = true;
+        game.bot = true;
         if (level.value === 'easy') {
-            if (player1 === bot_piece) {
-                makeBotMove();
-                bot_can_play = true;
+            if (game.player1 === game.bot_piece) {
+                game.makeBotMove();
+                game.bot_can_play = true;
             }
         }else if (level.value === 'medium') {
-            if (player1 === bot_piece) {
-                makeBotMoveM();
-                bot_can_play = true; 
+            if (game.player1 === game.bot_piece) {
+                game.makeBotMoveM();
+                game.bot_can_play = true; 
             }
         }else{
-            if (player1 === bot_piece) {
-                makeBotMoveH();
-                bot_can_play = true; 
+            if (game.player1 === game.bot_piece) {
+                game.makeBotMoveH();
+                game.bot_can_play = true; 
             }
         }
         
     }else{
-        bot = false;
+        game.bot = false;
     }
 
 
@@ -1210,6 +1084,8 @@ startGameButton.addEventListener('click', () => {
     start_button.style.display = 'none';
     quit_button.style.display = 'block';
     gameSettings.style.display = 'none';
+    playerput.style.display = 'block';
+
 
 });
 
@@ -1229,6 +1105,11 @@ quit_button.addEventListener('click', () => {
     start_button.style.display = 'block';
     quit_button.style.display = 'none';
     gameSettings.style.display = 'block';
+
+    if (game.isGameActive){
+        user.loses += 2;
+    }
+    game.updateLeaderboard(user);
 
 });
 
@@ -1279,7 +1160,6 @@ quit_button.addEventListener('click', () => {
         // Alternar a visibilidade da main-section e hidden-section
         mainSection.style.display = 'block'; // Mostra a main-section
         hiddenSection.style.display = 'none'; // Esconde a hidden-section
-
     });
 
     returnButton2.addEventListener('click', () => {
@@ -1317,7 +1197,7 @@ quit_button.addEventListener('click', () => {
         // Coloque o código para lidar com o login aqui
 
         username = document.getElementById("username").value;
-        //console.log("username: " + username);
+ 
         hiddenSection.style.display = 'none';
         loginSection.style.display = 'none';
         mainSection.style.display = 'block';
@@ -1354,4 +1234,4 @@ quit_button.addEventListener('click', () => {
         view: window
     });
 
-}); 
+});
