@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
+
     //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
     const playerNames = {
         '1': 'Branco',
@@ -55,10 +56,12 @@ document.addEventListener('DOMContentLoaded', () => {
     
 
     class User {
-        constructor(username, totalGames, victories) {
+        constructor(username, totalGames, victories, loses) {
             this.username = username;
             this.totalGames = totalGames;
             this.victories = victories;
+            this.loses = loses;
+            this.totalGames = this.victories + this.loses;
         }
     }
 
@@ -124,7 +127,315 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+
+        possible_remove(i,j,Player) {
+
+
+            // Check Horizontal
+            let leftlim = Math.max(0, j - 3);
+            let rightlim = Math.min(this.board[i].length - 1, j + 3);
+            
+            //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
+            
+            for (let k = leftlim; k <= rightlim - 2; k++) {
+                //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2]);
+                if (
+                    Player === (this.board[i][k] || 0) &&
+                    Player === (this.board[i][k + 1] || 0) &&
+                    Player === (this.board[i][k + 2] || 0)
+                ) {
+                    moveDisplay.style.display = 'none';
+                    removeDisplay.style.display = 'block';
+                    return true;
+                }
+            }
+        
+            // Check Vertical
+            let toplim = Math.max(0, i - 3);
+            let bottomlim = Math.min(this.board.length - 1, i + 3);
+            
+            //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+            for (let k = toplim; k <= bottomlim - 2; k++) {
+                //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j])
+                if (
+                    Player === (this.board[k][j] || 0) &&
+                    Player === (this.board[k + 1][j] || 0) &&
+                    Player === (this.board[k + 2][j] || 0)
+                ) {
+                    moveDisplay.style.display = 'none';
+                    removeDisplay.style.display = 'block';
+                    return true;
+                }
+            }
+            return false;
+        }
+
+
+        getPlayerCells(Player) {
+            // colocar depois se o bot é o primeiro a jogar ou nao
+            const cellsInBoard = [];
+            for (let row = 0; row < this.numRows; row++) {
+                for (let col = 0; col < this.numCols; col++) {
+                    if (this.board[row][col] === Player) {
+                        cellsInBoard.push({ row, col });
+                    }
+                }
+            }
+            return cellsInBoard;
+        }
+
+
+        getAvailableCells() {
+            const availableCells = [];
+            for (let row = 0; row < this.numRows; row++) {
+                for (let col = 0; col < this.numCols; col++) {
+                    let boardCopy = JSON.parse(JSON.stringify(this.board));
+                    if (this.possible_play(row, col, currentPlayer, boardCopy,0,0)) {
+                        availableCells.push({ row, col });
+                    }
+                }
+            }
+            return availableCells;
+        }
+
+
+        removeLineof2(board_i, opponent) {
+            const rows = this.numRows;
+            const cols = this.numCols;
+            const candidates = [];
+        
+            // horizontal
+            for (let i = 0; i < rows; i++) {
+                for (let j = 0; j < cols - 2; j++) {
+                    if (
+                        board_i[i][j] === opponent && 
+                        board_i[i][j + 1] === opponent && 
+                        board_i[i][j + 2] !== opponent
+                    ) {
+                        candidates.push({ i, j });
+                    }
+                }
+            }
+        
+            // vertical
+            for (let i = 0; i < rows - 2; i++) {
+                for (let j = 0; j < cols; j++) {
+                    if (
+                        board_i[i][j] === opponent && 
+                        board_i[i + 1][j] === opponent && 
+                        board_i[i + 2][j] !== opponent
+                    ) {
+                        candidates.push({  i,  j });
+                        console.log("candidates: " + i + " " + j);
+                    }
+                }
+            }
+        
+            if (candidates.length > 0) {
+                const randomIndex = Math.floor(Math.random() * candidates.length);
+                const candidate = candidates[randomIndex];
+                return candidate;
+            }
+            return -1;
+        }
+
+        
+        go_back(row,col,rowSel,colSel,Player){
+            if (Player == '1'){
+                if (row == this.LastPlay1.row && 
+                    col == this.LastPlay1.col && 
+                    rowSel == this.LastPlay1.rowSelected 
+                    && colSel == this.LastPlay1.colSelected)
+                    return false;
+            }else{
+                if (row == this.LastPlay2.row && 
+                    col == this.LastPlay2.col && 
+                    rowSel == this.LastPlay2.rowSelected 
+                    && colSel == this.LastPlay2.colSelected)
+                    return false;	
+            }
+            return true;
+        
+        }
+
+
+        possible_remove2(i,j,Player, board_i) {
+
+            let leftlim = Math.max(0, j - 3);
+            let rightlim = Math.min(board_i[0].length - 1, j + 3);
+            
+            //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
+            
+            for (let k = leftlim; k <= rightlim - 2; k++) {
+                //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2]);
+                if (
+                    Player === (board_i[i][k] || 0) &&
+                    Player === (board_i[i][k + 1] || 0) &&
+                    Player === (board_i[i][k + 2] || 0)
+                ) {
+    
+                    return true;
+                }
+            }
+        
+            let toplim = Math.max(0, i - 3);
+            let bottomlim = Math.min(board_i.length - 1, i + 3);
+            
+            //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+            for (let k = toplim; k <= bottomlim - 2; k++) {
+                //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j])
+                if (
+                    Player === (board_i[k][j] || 0) &&
+                    Player === (board_i[k + 1][j] || 0) &&
+                    Player === (board_i[k + 2][j] || 0)
+                ) {
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        possible_click(i, j, Player) {
+            if (this.board[i][j] === Player) {
+                //console.log('true - Cell is yours');
+                return true;
+            }
+            //console.log('false - Cell is not yours');
+            return false;
+        }
+
+        
+        possible_move(i,j, rowSel, colSel){
+            if (i === rowSel && Math.abs(j -colSel) === 1) {
+                return true;
+            }else if(j === colSel && Math.abs(i - rowSel) === 1){
+                return true;    
+            }else{
+                return false;
+            }
+        }
+
+        possible_play(i, j, Player,board_layout, rowSel, colSel) {
+            // Check if the cell is out of bounds
+            if (i < 0 || i >= board_layout.length || j < 0 || j >= board_layout[i].length) {
+                //console.log('false - Cell is out of bounds');
+                return false;
+            }
+        
+            // Check if the cell is not empty
+            if (board_layout[i][j] !== 0) {
+                //console.log('false - Cell is not empty');
+                return false;
+            }
+        
+            board_layout[i][j] = Player;
+    
+            if (!putPhase) {
+                //console.log( "rowSelected: " + rowSelected + " colSelected: " + colSelected) + " na board.possible_play";
+                board_layout[rowSel][colSel] = 0; // tirar a peça da posição anterior
+            }
+            
+    
+            // Check Horizontal
+            let leftlim = Math.max(0, j - 3);
+            let rightlim = Math.min(board_layout[i].length - 1, j + 3);
+            
+            //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
+            
+            for (let k = leftlim; k <= rightlim - 3; k++) {
+                //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2] + " " + board.board[i][k + 3]);
+                if (
+                    Player === (board_layout[i][k] || 0 ) &&
+                    Player === (board_layout[i][k + 1] || 0 ) &&
+                    Player === (board_layout[i][k + 2] || 0 ) &&
+                    Player === (board_layout[i][k + 3] || 0 )
+                ) {
+                    board_layout[i][j] = 0;  // Set it back to an empty cell
+                    if (!putPhase) {
+                        board_layout[rowSel][colSel] = Player; // tirar a peça da posição anterior
+                    }
+                    //console.log('false - Cell is 4 in line horizontal');
+                    return false;
+                }
+            }
+        
+            // Check Vertical
+            let toplim = Math.max(0, i - 3);
+            let bottomlim = Math.min(board_layout.length - 1, i + 3);
+            
+            //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
+            for (let k = toplim; k <= bottomlim - 3; k++) {
+                //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j] + " " + board.board[k + 3][j])
+                if (
+                    Player === (board_layout[k][j] || 0) &&
+                    Player === (board_layout[k + 1][j] || 0) &&
+                    Player === (board_layout[k + 2][j] || 0) &&
+                    Player === (board_layout[k + 3][j] || 0)
+                ) {
+                    board_layout[i][j] = 0;  // Set it back to an empty cell
+                    if (!putPhase) {
+                        board_layout[rowSel][colSel] = Player; // tirar a peça da posição anterior
+                    }
+                    //console.log('false - Cell is 4 in line vertical');
+                    return false;
+                }
+            }
+        
+            if (!putPhase) {
+                board_layout[i][j] = 0;
+                board_layout[rowSel][colSel] = Player;
+            }
+        
+            //console.log('true - Move is possible');
+            return true;
+        } 
+
+
+        moves_available(Player) {
+            let movesAvailable = [];
+            let boardCopy = JSON.parse(JSON.stringify(this.board));
+            //for (let i = 0; i < 6; i++) {
+                //console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
+            //}
+        
+            for (let i = 0; i < boardCopy.length; i++) {
+                for (let j = 0; j < boardCopy[0].length; j++) {
+                    if (boardCopy[i][j] === Player) {
+                        let new_colSelected = j;
+                        let new_rowSelected = i;
+                        if (i > 0) {
+                            if (board.possible_play(i - 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i - 1, j, i, j) && board.go_back(i - 1, j, i, j, Player)) {
+                                movesAvailable.push([i, j, i - 1, j]);
+                            }
+                        }
+                        if (i < boardCopy.length - 1) {
+                            if (board.possible_play(i + 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i + 1, j, i, j) && board.go_back(i + 1, j, i, j, Player)) {
+                                movesAvailable.push([i, j, i + 1, j]);
+                            }
+                        }
+                        if (j > 0) {
+                            if (board.possible_play(i, j - 1, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i, j - 1, i, j) && board.go_back(i, j - 1, i, j, Player)) {
+                                movesAvailable.push([i, j, i, j - 1]);
+                            }
+                        }
+                        if (j < boardCopy[0].length - 1) {
+                            if (board.possible_play(i, j + 1, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i, j + 1, i, j) && board.go_back(i, j + 1, i, j, Player)) {
+                                movesAvailable.push([i, j, i, j + 1]);
+                            }
+                        }
+                    }
+                }
+            }
+            //console.log("movesAvailable for player " + Player + ": " + movesAvailable);
+            return movesAvailable;
+        }
+    
+
     }
+
+
+
+
     // Função para gerar o tabuleiro com base no tamanho selecionado
     function generateBoard() {
         isGameActive = true;
@@ -177,6 +488,57 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
+    function updateLeaderboard(user) {
+        const leaderboardTable = document.getElementById('leaderboard-table');
+        let existingRow;
+    
+        // Verifique se o nome do usuário já está na tabela de classificação
+        for (let i = 1; i < leaderboardTable.rows.length; i++) {
+            const row = leaderboardTable.rows[i];
+            const nameCell = row.cells[1];
+            if (nameCell.textContent === user.username) {
+                existingRow = row;
+                break;
+            }
+        }
+    
+        if (existingRow) {
+            // Se o nome do usuário já estiver na tabela, atualize as células de vitórias, derrotas e total de jogos
+            const victoriesCell = existingRow.cells[2];
+            const defeatsCell = existingRow.cells[3];
+            const totalGamesCell = existingRow.cells[4];
+            victoriesCell.textContent = user.victories/2;
+            defeatsCell.textContent = user.loses/2;
+            totalGamesCell.textContent = (user.victories + user.loses)/2;
+        } else {
+            // Caso contrário, adicione uma nova linha na tabela
+            const newRow = leaderboardTable.insertRow(-1);
+            const positionCell = newRow.insertCell(0);
+            const nameCell = newRow.insertCell(1);
+            const victoriesCell = newRow.insertCell(2);
+            const defeatsCell = newRow.insertCell(3);
+            const totalGamesCell = newRow.insertCell(4);
+            positionCell.textContent = leaderboardTable.rows.length - 1;
+            nameCell.textContent = user.username;
+            victoriesCell.textContent = user.victories/2;
+            defeatsCell.textContent = user.loses /2;
+            totalGamesCell.textContent = (user.victories + user.loses)/2;
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
     function updateSideBoards() {
         updateSideBoard(1, 'side_board_1');
@@ -211,6 +573,12 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
     }
+
+
+
+
+
+
 
 
     
@@ -267,7 +635,7 @@ let bot_can_play = false;
                     possible_win();
                     //currentPlayer = currentPlayer === '1' ? '2' : '1';
                 } else {
-                    if (possible_remove(row, col, currentPlayer_copy)) {
+                    if (board.possible_remove(row, col, currentPlayer_copy)) {
                         canRemove = true;
                     } else {
                         //currentPlayer = currentPlayer === '1' ? '2' : '1';
@@ -334,7 +702,7 @@ let bot_can_play = false;
 
     function makeBotMove() {
         if (putPhase) {
-            const availableCells = getAvailableCells(); // Função para obter células disponíveis
+            const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
             if (availableCells.length > 0) {
                 const randomIndex = Math.floor(Math.random() * availableCells.length);
                 const randomCell = availableCells[randomIndex];
@@ -345,7 +713,7 @@ let bot_can_play = false;
             }
         }else{
             console.log("BOT MOVE 2222")
-            const movesBot = moves_available(bot_piece);
+            const movesBot = board.moves_available(bot_piece);
             console.log("movesBot: " + movesBot);
             for (let i = 0; i < 6; i++) {
                 console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
@@ -362,8 +730,8 @@ let bot_can_play = false;
                     //console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
                 //}
                 
-                if (possible_remove(randomMove[2], randomMove[3], bot_piece)){
-                    const piecesToRemove = getPlayerCells(player_piece);
+                if (board.possible_remove(randomMove[2], randomMove[3], bot_piece)){
+                    const piecesToRemove = board.getPlayerCells(player_piece);
                     const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
                     const randomCell = piecesToRemove[randomIndex];
                     handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
@@ -383,7 +751,7 @@ let bot_can_play = false;
  
     function makeBotMoveM() {
         if (putPhase) {
-            const availableCells = getAvailableCells(); // Função para obter células disponíveis
+            const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
             if (availableCells.length > 0) {
                 const randomIndex = Math.floor(Math.random() * availableCells.length);
                 const randomCell = availableCells[randomIndex];
@@ -393,7 +761,7 @@ let bot_can_play = false;
                 handlePlacementPhase(randomCell.row, randomCell.col);
             }
         } else {
-            const movesBot = moves_available(bot_piece);
+            const movesBot = board.moves_available(bot_piece);
             const winningMoves = [];
             let randomMove; // Defina randomMove antes do uso
             
@@ -411,7 +779,7 @@ let bot_can_play = false;
                     console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
                 }
                 // Verifique se essa jogada resulta em uma linha de 3 para o bot
-                if (possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
+                if (board.possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
                     winningMoves.push(movesBot[i]);
                     console.log("Move de 3 : " + winningMoves[i]);
                 }
@@ -434,8 +802,8 @@ let bot_can_play = false;
                 handlePieceMovement(randomMove[2], randomMove[3]);
             }
     
-            if (possible_remove(randomMove[2], randomMove[3], bot_piece)) {
-                const piecesToRemove = getPlayerCells(player_piece);
+            if (board.possible_remove(randomMove[2], randomMove[3], bot_piece)) {
+                const piecesToRemove = board.getPlayerCells(player_piece);
                 const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
                 const randomCell = piecesToRemove[randomIndex];
                 handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
@@ -449,7 +817,7 @@ let bot_can_play = false;
     
     function makeBotMoveH() {
         if (putPhase) {
-            const availableCells = getAvailableCells(); // Função para obter células disponíveis
+            const availableCells = board.getAvailableCells(); // Função para obter células disponíveis
             if (availableCells.length > 0) {
                 const randomIndex = Math.floor(Math.random() * availableCells.length);
                 const randomCell = availableCells[randomIndex];
@@ -458,7 +826,7 @@ let bot_can_play = false;
                 handlePlacementPhase(randomCell.row, randomCell.col);
             }
         } else {
-            const movesBot = moves_available(bot_piece);
+            const movesBot = board.moves_available(bot_piece);
             const winningMoves = [];
             let randomMove; // Defina randomMove antes do uso
             
@@ -476,7 +844,7 @@ let bot_can_play = false;
                     console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
                 }
                 // Verifique se essa jogada resulta em uma linha de 3 para o bot
-                if (possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
+                if (board.possible_remove2(endRow, endCol, bot_piece, boardCopy)) {
                     winningMoves.push(movesBot[i]);
                     console.log("Move de 3 : " + winningMoves[i]);
                 }
@@ -498,19 +866,21 @@ let bot_can_play = false;
             }
     
             // Verifique se é possível remover uma peça
-            if (possible_remove(randomMove[2], randomMove[3], bot_piece)) {
+            if (board.possible_remove(randomMove[2], randomMove[3], bot_piece)) {
                 // Encontre uma peça branca que pertença a uma linhaS de 2 e a remova
-                const piecesToRemove = removeLineof2(board.board, player_piece);
+                
+                const piecesToRemove = board.removeLineof2(board.board, player_piece);
                 console.log("piecesToRemove: " + piecesToRemove.i + " " + piecesToRemove.j);
 
                 if (piecesToRemove !== -1) {
+                    console.log("isoooooo"+ bot_piece);
                     handleRemovePiece(piecesToRemove.i, piecesToRemove.j, bot_piece);
                     moveDisplay.style.display = 'block';
                     removeDisplay.style.display = 'none';
                     possible_win();
                 }else{
                     // Se não houver peças brancas que pertençam a uma linha de 2, remova uma peça branca aleatória
-                    const piecesToRemove = getPlayerCells(player_piece);
+                    const piecesToRemove = board.getPlayerCells(player_piece);
                     const randomIndex = Math.floor(Math.random() * piecesToRemove.length);
                     const randomCell = piecesToRemove[randomIndex];
                     handleRemovePiece(randomCell.row, randomCell.col, bot_piece);
@@ -522,85 +892,17 @@ let bot_can_play = false;
         }
     }
 
-    function getPlayerCells(player) {
-        // colocar depois se o bot é o primeiro a jogar ou nao
-        const cellsInBoard = [];
-        for (let row = 0; row < board.numRows; row++) {
-            for (let col = 0; col < board.numCols; col++) {
-                if (board.board[row][col] === player) {
-                    cellsInBoard.push({ row, col });
-                }
-            }
-        }
-        return cellsInBoard;
-    }
 
-    
-    function getAvailableCells() {
-        const availableCells = [];
-        for (let row = 0; row < board.numRows; row++) {
-            for (let col = 0; col < board.numCols; col++) {
-                let boardCopy = JSON.parse(JSON.stringify(board.board));
-                if (possible_play(row, col, currentPlayer, boardCopy,0,0)) {
-                    availableCells.push({ row, col });
-                }
-            }
-        }
-        return availableCells;
-    }
 
-    function removeLineof2(board_i) {
-        const rows = board.numRows;
-        const cols = board.numCols;
-        const candidates = [];
-    
-        // horizontal
-        for (let i = 0; i < rows; i++) {
-            for (let j = 0; j < cols - 2; j++) {
-                if (
-                    board_i[i][j] === '1' && 
-                    board_i[i][j + 1] === '1' && 
-                    board_i[i][j + 2] !== '1'
-                ) {
-                    candidates.push({ i, j });
-                }
-            }
-        }
-    
-        // vertical
-        for (let i = 0; i < rows - 2; i++) {
-            for (let j = 0; j < cols; j++) {
-                if (
-                    board_i[i][j] === '1' && 
-                    board_i[i + 1][j] === '1' && 
-                    board_i[i + 2][j] !== '1'
-                ) {
-                    candidates.push({  i,  j });
-                    console.log("candidates: " + i + " " + j);
-                }
-            }
-        }
-    
-        if (candidates.length > 0) {
-            const randomIndex = Math.floor(Math.random() * candidates.length);
-            const candidate = candidates[randomIndex];
-            return candidate;
-        }
-        return -1;
-    }
-    
-
-    
     //_____________________________________________________________________________________________________________
 
-    
     // Função para lidar com a fase de colocação de peças
     function handlePlacementPhase(row, col) {
         
         //for (let i = 0; i < 6; i++) {
             //console.log(board.board[i][0] + " " + board.board[i][1] + " " + board.board[i][2] + " " + board.board[i][3] + " " + board.board[i][4]);
         //}
-        let canPlacePiece = possible_play(row, col, currentPlayer,board.board,0,0);
+        let canPlacePiece = board.possible_play(row, col, currentPlayer,board.board,0,0);
         console.log("canPlacePiece: " + canPlacePiece)
         if (canPlacePiece) {
             if (currentPlayer === '1' && playerBpieces > 0) {
@@ -631,7 +933,7 @@ let bot_can_play = false;
             }
             currentPlayerDisplay.textContent = playerNames[currentPlayer];
             if (bot === true && currentPlayer === '2') {
-                currentPlayerDisplay.textContent = playerNames[1];
+        currentPlayerDisplay.textContent = playerNames[player_piece];
             }
             putDisplay.style.display = 'none';
             moveDisplay.style.display = 'block';
@@ -640,7 +942,7 @@ let bot_can_play = false;
     
 
     function handlePieceSelection(row, col) {
-        if (possible_click(row, col, currentPlayer)) {
+        if (board.possible_click(row, col, currentPlayer)) {
             if (canRemove) {
                 console.log("You cannot select a new piece after removing one.");
                 return;
@@ -666,26 +968,6 @@ let bot_can_play = false;
     }
     
 
-
-
-function go_back(row,col,rowSelected,colSelected,currentPlayer){
-    if (currentPlayer == '1'){
-        if (row == board.LastPlay1.row && 
-            col == board.LastPlay1.col && 
-            rowSelected == board.LastPlay1.rowSelected 
-            && colSelected == board.LastPlay1.colSelected)
-            return false;
-    }else{
-        if (row == board.LastPlay2.row && 
-            col == board.LastPlay2.col && 
-            rowSelected == board.LastPlay2.rowSelected 
-            && colSelected == board.LastPlay2.colSelected)
-            return false;	
-    }
-    return true;
-
-}
-
     // Função para lidar com o movimento de peças
     function handlePieceMovement(row, col) {
         if (row === rowSelected && col === colSelected) {
@@ -698,7 +980,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
                 selectedCell.style.backgroundImage = 'url("assets/black.png")';
             }
         } else {
-            if (possible_play(row, col, currentPlayer, board.board,rowSelected,colSelected) && possible_move(row, col, rowSelected, colSelected) && go_back(row, col, rowSelected, colSelected, currentPlayer)) {
+            if (board.possible_play(row, col, currentPlayer, board.board,rowSelected,colSelected) && board.possible_move(row, col, rowSelected, colSelected) && board.go_back(row, col, rowSelected, colSelected, currentPlayer)) {
                 board.board[row][col] = currentPlayer;
                 board.board[rowSelected][colSelected] = 0; // Tirar a peça da posição anterior
     
@@ -749,6 +1031,7 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
             } else {
                 finalWpieces--;
             }
+
     
             console.log("AAA playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
     
@@ -767,247 +1050,63 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
     }
 
 
-    //________________________________________________________
+    //_______________________________________________________________________________________________________
 
 
 
-    function possible_remove(i,j,currentPlayer) {
 
 
-        // Check Horizontal
-        let leftlim = Math.max(0, j - 3);
-        let rightlim = Math.min(board.board[i].length - 1, j + 3);
-        
-        //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
-        
-        for (let k = leftlim; k <= rightlim - 2; k++) {
-            //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2]);
-            if (
-                currentPlayer === (board.board[i][k] || 0) &&
-                currentPlayer === (board.board[i][k + 1] || 0) &&
-                currentPlayer === (board.board[i][k + 2] || 0)
-            ) {
-                moveDisplay.style.display = 'none';
-                removeDisplay.style.display = 'block';
-                return true;
-            }
-        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     
-        // Check Vertical
-        let toplim = Math.max(0, i - 3);
-        let bottomlim = Math.min(board.board.length - 1, i + 3);
-        
-        //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
-        for (let k = toplim; k <= bottomlim - 2; k++) {
-            //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j])
-            if (
-                currentPlayer === (board.board[k][j] || 0) &&
-                currentPlayer === (board.board[k + 1][j] || 0) &&
-                currentPlayer === (board.board[k + 2][j] || 0)
-            ) {
-                moveDisplay.style.display = 'none';
-                removeDisplay.style.display = 'block';
-                return true;
-            }
-        }
-        return false;
-    }
 
-    function possible_remove2(i,j,Player, board_i) {
 
-        let leftlim = Math.max(0, j - 3);
-        let rightlim = Math.min(board_i[0].length - 1, j + 3);
-        
-        //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
-        
-        for (let k = leftlim; k <= rightlim - 2; k++) {
-            //console.log("hor row: "  + i + " | " + board[i][k] + " " + board[i][k + 1] + " " + board[i][k + 2]);
-            if (
-                Player === (board_i[i][k] || 0) &&
-                Player === (board_i[i][k + 1] || 0) &&
-                Player === (board_i[i][k + 2] || 0)
-            ) {
 
-                return true;
-            }
-        }
+
+
+
     
-        let toplim = Math.max(0, i - 3);
-        let bottomlim = Math.min(board_i.length - 1, i + 3);
-        
-        //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
-        for (let k = toplim; k <= bottomlim - 2; k++) {
-            //console.log("ver col: "  + k + " | " + board[k][j] + " " + board[k + 1][j] + " " + board[k + 2][j])
-            if (
-                Player === (board_i[k][j] || 0) &&
-                Player === (board_i[k + 1][j] || 0) &&
-                Player === (board_i[k + 2][j] || 0)
-            ) {
-                return true;
-            }
-        }
-        return false;
-    }
 
 
 
 
-    //________________________________________________________
 
 
-    function possible_click(i, j, currentPlayer) {
-        if (board.board[i][j] === currentPlayer) {
-            //console.log('true - Cell is yours');
-            return true;
-        }
-        //console.log('false - Cell is not yours');
-        return false;
-    }
-
-    function possible_move(i,j, rowSelected, colSelected){
-        if (i === rowSelected && Math.abs(j -colSelected) === 1) {
-            return true;
-        }else if(j === colSelected && Math.abs(i - rowSelected) === 1){
-            return true;    
-        }else{
-            return false;
-        }
-    }
-
-
-
-    function possible_play(i, j, currentPlayer,board_layout, rowSelected, colSelected) {
-        // Check if the cell is out of bounds
-        if (i < 0 || i >= board_layout.length || j < 0 || j >= board_layout[i].length) {
-            //console.log('false - Cell is out of bounds');
-            return false;
-        }
     
-        // Check if the cell is not empty
-        if (board_layout[i][j] !== 0) {
-            //console.log('false - Cell is not empty');
-            return false;
-        }
-    
-        board_layout[i][j] = currentPlayer;
-
-        if (!putPhase) {
-            //console.log( "rowSelected: " + rowSelected + " colSelected: " + colSelected) + " na possible_play";
-            board_layout[rowSelected][colSelected] = 0; // tirar a peça da posição anterior
-        }
-        
-
-        // Check Horizontal
-        let leftlim = Math.max(0, j - 3);
-        let rightlim = Math.min(board_layout[i].length - 1, j + 3);
-        
-        //console.log("horizontal| top: "  + leftlim + " bottom: " + rightlim)
-        
-        for (let k = leftlim; k <= rightlim - 3; k++) {
-            //console.log("hor row: "  + i + " | " + board.board[i][k] + " " + board.board[i][k + 1] + " " + board.board[i][k + 2] + " " + board.board[i][k + 3]);
-            if (
-                currentPlayer === (board_layout[i][k] || 0 ) &&
-                currentPlayer === (board_layout[i][k + 1] || 0 ) &&
-                currentPlayer === (board_layout[i][k + 2] || 0 ) &&
-                currentPlayer === (board_layout[i][k + 3] || 0 )
-            ) {
-                board_layout[i][j] = 0;  // Set it back to an empty cell
-                if (!putPhase) {
-                    board_layout[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
-                }
-                //console.log('false - Cell is 4 in line horizontal');
-                return false;
-            }
-        }
-    
-        // Check Vertical
-        let toplim = Math.max(0, i - 3);
-        let bottomlim = Math.min(board_layout.length - 1, i + 3);
-        
-        //console.log("vertical| top: "  + toplim + " bottom: " + bottomlim)
-        for (let k = toplim; k <= bottomlim - 3; k++) {
-            //console.log("ver col: "  + k + " | " + board.board[k][j] + " " + board.board[k + 1][j] + " " + board.board[k + 2][j] + " " + board.board[k + 3][j])
-            if (
-                currentPlayer === (board_layout[k][j] || 0) &&
-                currentPlayer === (board_layout[k + 1][j] || 0) &&
-                currentPlayer === (board_layout[k + 2][j] || 0) &&
-                currentPlayer === (board_layout[k + 3][j] || 0)
-            ) {
-                board_layout[i][j] = 0;  // Set it back to an empty cell
-                if (!putPhase) {
-                    board_layout[rowSelected][colSelected] = currentPlayer; // tirar a peça da posição anterior
-                }
-                //console.log('false - Cell is 4 in line vertical');
-                return false;
-            }
-        }
-    
-        if (!putPhase) {
-            board_layout[i][j] = 0;
-            board_layout[rowSelected][colSelected] = currentPlayer;
-        }
-    
-        //console.log('true - Move is possible');
-        return true;
-    }  
-
-
-
-    function moves_available(Player) {
-        let movesAvailable = [];
-        let boardCopy = JSON.parse(JSON.stringify(board.board));
-        //for (let i = 0; i < 6; i++) {
-            //console.log(boardCopy[i][0] + " " + boardCopy[i][1] + " " + boardCopy[i][2] + " " + boardCopy[i][3] + " " + boardCopy[i][4]);
-        //}
-    
-        for (let i = 0; i < boardCopy.length; i++) {
-            for (let j = 0; j < boardCopy[0].length; j++) {
-                if (boardCopy[i][j] === Player) {
-                    let new_colSelected = j;
-                    let new_rowSelected = i;
-                    if (i > 0) {
-                        if (possible_play(i - 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i - 1, j, i, j) && go_back(i - 1, j, i, j, Player)) {
-                            movesAvailable.push([i, j, i - 1, j]);
-                        }
-                    }
-                    if (i < boardCopy.length - 1) {
-                        if (possible_play(i + 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i + 1, j, i, j) && go_back(i + 1, j, i, j, Player)) {
-                            movesAvailable.push([i, j, i + 1, j]);
-                        }
-                    }
-                    if (j > 0) {
-                        if (possible_play(i, j - 1, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i, j - 1, i, j) && go_back(i, j - 1, i, j, Player)) {
-                            movesAvailable.push([i, j, i, j - 1]);
-                        }
-                    }
-                    if (j < boardCopy[0].length - 1) {
-                        if (possible_play(i, j + 1, Player, boardCopy, new_rowSelected, new_colSelected) && possible_move(i, j + 1, i, j) && go_back(i, j + 1, i, j, Player)) {
-                            movesAvailable.push([i, j, i, j + 1]);
-                        }
-                    }
-                }
-            }
-        }
-        //console.log("movesAvailable for player " + Player + ": " + movesAvailable);
-        return movesAvailable;
-    }
     
 
 
     function possible_win(){
-    console.log("POSSIBLE WINNNNNNN");
+            console.log("POSSIBLE WINNNNNNN");
             console.log("playerBpieces: " + finalBpieces + " playerWpieces: " + finalWpieces);
-            moves_available_1 = moves_available('1');
-            moves_available_2 = moves_available('2');
+            moves_available_1 = board.moves_available('1');
+            moves_available_2 = board.moves_available('2');
             console.log("moves_available_1: " + moves_available_1);
             console.log("moves_available_2: " + moves_available_2);
         if (finalBpieces <= 2 ||  moves_available_2.length == 0){
-            winner = 1;
+            winner = '1';
             game_finished(winner);
             return winner;
         }
         else if (finalWpieces <= 2 || moves_available_1.length == 0){
-            winner = 2;
+            winner = '2';
             game_finished(winner);
             return winner;
         }
@@ -1019,15 +1118,24 @@ function go_back(row,col,rowSelected,colSelected,currentPlayer){
 
     function game_finished(winner) {
         let win_text = document.getElementById("game-result");
-        if (winner==1) {
-            win_text.innerText = "Ganhou o Branco";             
+        if (winner === '1') {
+            win_text.innerText = "Ganhou o Branco";
         } else {
-            isGameActive = false;
+
             win_text.innerText = "Ganhou o Preto";
         }
-        // Quando o jogo é concluído e o usuário ganha, você pode atualizar as estatísticas
-        user.totalGames++; // Incrementa o número total de jogos
-        user.victories++; // Incrementa o número de vitórias
+    
+        if (bot === true) {
+
+            if (winner === player_piece) {
+                user.victories++;
+            } else {
+                user.loses++;
+            }
+    
+            updateLeaderboard(user);
+            
+        }
 
         isGameActive = false;
     }
@@ -1048,24 +1156,21 @@ startGameButton.addEventListener('click', () => {
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
     generateBoard();
     updateSideBoards();
-    if (firstPlayerSelect.value === 'branco' && colorSelect.value === 'branco') {
+    if (firstPlayerSelect.value === 'branco') {
         player1 = '1';
-        bot_piece = '2';
-        player_piece = '1';
 
-    } else if (firstPlayerSelect.value === 'branco' && colorSelect.value === 'preto'){
-        player1 = '1';
-        bot_piece = '1';
-        player_piece = '2';
-    } else if ( firstPlayerSelect.value === 'preto' && colorSelect.value === 'branco'){
+    } else if (firstPlayerSelect.value === 'preto'){
         player1 = '2';
+    }
+
+    if (colorSelect.value === 'branco'){
         bot_piece = '2';
         player_piece = '1';
-    } else if ( firstPlayerSelect.value === 'preto' && colorSelect.value === 'preto'){
-        player1 = '2';
+    } else if (colorSelect.value === 'preto'){
         bot_piece = '1';
         player_piece = '2';
     }
+
 
     currentPlayer = player1;
     currentPlayerDisplay.textContent = playerNames[currentPlayer];
@@ -1221,7 +1326,7 @@ quit_button.addEventListener('click', () => {
 
         // Cria um objeto de utilizador para armazenar os dados do utilizador
 
-        user = new User(username, 0, 0);
+        user = new User(username, 0, 0, 0);
 
     });
 
@@ -1249,4 +1354,4 @@ quit_button.addEventListener('click', () => {
         view: window
     });
 
-});
+}); 
