@@ -1106,7 +1106,7 @@ quit_button.addEventListener('click', () => {
     quit_button.style.display = 'none';
     gameSettings.style.display = 'block';
 
-    if (game.isGameActive){
+    if (game.isGameActive && game.bot === true) {
         user.loses += 2;
     }
     game.updateLeaderboard(user);
