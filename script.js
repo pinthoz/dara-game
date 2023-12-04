@@ -1022,7 +1022,7 @@ let board;
 let game;
 
 // Event listener para o botão "Iniciar Jogo"
-startGameButton.addEventListener('click', () => {
+startGameButton.addEventListener('click', async() => {
     game = new Game();
     sideBoard1.style.display = 'grid';
     sideBoard2.style.display = 'grid';
@@ -1073,6 +1073,16 @@ startGameButton.addEventListener('click', () => {
         
     }else{
         game.bot = false;
+        const group = 4; // Replace with the actual group ID
+        const nick = document.getElementById("username").value; // Replace with the actual player nick
+        const password = document.getElementById("password").value; // Replace with the actual player password
+        const size = { rows: boardSize, cols: 6}
+        try {
+            await join(group, nick, password, size);
+        } catch (error) {
+            console.error("Error joining the game:", error.message);
+            // Handle the error as needed
+        }
     }
 
 
@@ -1192,23 +1202,48 @@ quit_button.addEventListener('click', () => {
     const leaderboardSection = document.getElementById("leaderboard-section");
 
     
-    loginForm.addEventListener("submit", (event) => {
-        event.preventDefault(); // Isso impedirá o envio padrão do formulário que recarrega a página
-        // Coloque o código para lidar com o login aqui
-
-        username = document.getElementById("username").value;
- 
-        hiddenSection.style.display = 'none';
-        loginSection.style.display = 'none';
-        mainSection.style.display = 'block';
-        logoutButton.style.display = 'block';
-        leaderboardSection.style.display = 'none';
-
-        // Cria um objeto de utilizador para armazenar os dados do utilizador
-
-        user = new User(username, 0, 0, 0);
-
+    loginForm.addEventListener("submit", async (event) => {
+        event.preventDefault();
+    
+        (async () => {
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+    
+            const registrationSuccess = await clickRegister(username, password);
+    
+            if (registrationSuccess) {
+                // Registration successful, you can now handle the login logic
+                hiddenSection.style.display = 'none';
+                loginSection.style.display = 'none';
+                mainSection.style.display = 'block';
+                logoutButton.style.display = 'block';
+                leaderboardSection.style.display = 'none';
+    
+                user = new User(username, 0, 0, 0);
+    
+                // For example, you might want to use the same function for login
+                const loginSuccess = await clickRegister(username, password);
+    
+                if (loginSuccess) {
+                    console.log("Login successful");
+                    hiddenSection.style.display = 'none';
+                    loginSection.style.display = 'none';
+                    mainSection.style.display = 'block';
+                    logoutButton.style.display = 'block';
+                    leaderboardSection.style.display = 'none';
+    
+                    user = new User(username, 0, 0, 0);
+                } else {
+                    console.log("Login failed");
+                    // Handle login failure
+                }
+            } else {
+                console.log("Registration failed");
+                // Handle registration failure
+            }
+        })();
     });
+    
 
 
     logoutButton.addEventListener("click", () => {
