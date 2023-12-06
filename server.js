@@ -60,7 +60,6 @@ function join(group, nick, password, size,game_classe) {
                 game_info = data.game;
                 game_classe.game_id = game_info;
                 console.log("Entrada no grupo de jogo com ID " + game_info);
-                alert('Joined group successfuly, but not with professors link.');
             }
         })
         .catch(error => console.error('Error:', error));
