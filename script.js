@@ -436,6 +436,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.moves_available_1 = [];
             this.moves_available_2 = [];
             this.game_id = 0;
+            this.online = false;
         }
 
 
@@ -1068,8 +1069,9 @@ startGameButton.addEventListener('click', async() => {
             }
         }
         
-    }else{
+    }else if (opponentSelect.value === 'online'){
         game.bot = false;
+        game.online = true;
         const group = 4; 
         const nick = document.getElementById("username").value; // Replace with the actual player nick
         const password = document.getElementById("password").value; // Replace with the actual player password
@@ -1082,6 +1084,9 @@ startGameButton.addEventListener('click', async() => {
         } catch (error) {
             console.error("Error joining the game:", error.message);
         }
+    }else{
+        game.bot = false;
+        game.online = false;
     }
 
     // Adiciona a classe "active" ao elemento ".game-info"
@@ -1093,7 +1098,6 @@ startGameButton.addEventListener('click', async() => {
     quit_button.style.display = 'block';
     gameSettings.style.display = 'none';
     playerput.style.display = 'block';
-
 
 });
 
@@ -1119,9 +1123,10 @@ quit_button.addEventListener('click', () => {
         user.loses += 2;
     }
     console.log('pass ' + user.password);
-    leave(game.game_id, user.username, user.password);
+    if (game.online === true){
+        leave(game.game_id, user.username, user.password);
+    }
     game.updateLeaderboard(user);
-
 
 });
 
