@@ -16,11 +16,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const level = document.getElementById('level');
     const playerput = document.getElementById("player-toplay");
 
-
 //classe do utilizador
     class User {
-        constructor(username, totalGames, victories, loses) {
+        constructor(username, password,totalGames, victories, loses) {
             this.username = username;
+            this.password = password;
             this.totalGames = totalGames;
             this.victories = victories;
             this.loses = loses;
@@ -435,6 +435,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.moved_piece = false;
             this.moves_available_1 = [];
             this.moves_available_2 = [];
+            this.game_id = 0;
         }
 
 
@@ -1001,10 +1002,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-    
-
-
-
 
 
 //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
@@ -1073,18 +1070,19 @@ startGameButton.addEventListener('click', async() => {
         
     }else{
         game.bot = false;
-        const group = 4; // Replace with the actual group ID
+        const group = 4; 
         const nick = document.getElementById("username").value; // Replace with the actual player nick
         const password = document.getElementById("password").value; // Replace with the actual player password
-        const size = { rows: boardSize, cols: 6}
+        const new_cols = parseInt(boardSize,10);
+        const new_rows = 6;
+        const size = { rows: new_rows, columns: new_cols }; // Replace with the actual board size
         try {
-            await join(group, nick, password, size);
+            join(group, nick, password, size,game);
+            
         } catch (error) {
             console.error("Error joining the game:", error.message);
-            // Handle the error as needed
         }
     }
-
 
     // Adiciona a classe "active" ao elemento ".game-info"
     const gameInfoElement = document.querySelector('.game-info');
@@ -1100,6 +1098,7 @@ startGameButton.addEventListener('click', async() => {
 });
 
 quit_button.addEventListener('click', () => {
+
     // Esconde o tabuleiro
     gameContainer.innerHTML = '';
     sideBoard1.style.display = 'none';
@@ -1119,7 +1118,10 @@ quit_button.addEventListener('click', () => {
     if (game.isGameActive && game.bot === true) {
         user.loses += 2;
     }
+    console.log('pass ' + user.password);
+    leave(game.game_id, user.username, user.password);
     game.updateLeaderboard(user);
+
 
 });
 
@@ -1219,7 +1221,7 @@ quit_button.addEventListener('click', () => {
                 logoutButton.style.display = 'block';
                 leaderboardSection.style.display = 'none';
     
-                user = new User(username, 0, 0, 0);
+                user = new User(username,password, 0, 0, 0);
     
                 // For example, you might want to use the same function for login
                 const loginSuccess = await clickRegister(username, password);
@@ -1232,7 +1234,7 @@ quit_button.addEventListener('click', () => {
                     logoutButton.style.display = 'block';
                     leaderboardSection.style.display = 'none';
     
-                    user = new User(username, 0, 0, 0);
+                    user = new User(username,password, 0, 0, 0);
                 } else {
                     console.log("Login failed");
                     // Handle login failure

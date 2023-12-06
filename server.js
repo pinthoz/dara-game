@@ -29,7 +29,6 @@ async function clickRegister() {
     let canRegister = await registerClient(username, password);
 
     if (canRegister) {
-        console.log("Registration successful");
         return true;
     } else {
         console.log("Registration failed");
@@ -37,42 +36,78 @@ async function clickRegister() {
     }
 }
 
-async function join(group, nick, password, size) {
-    try {
-        // Check for missing or invalid arguments
-        if (!group || !nick || !password || !size) {
-            throw new Error("Missing or invalid arguments.");
-        }
 
-        console.log("Here!!");
-        // Send a request to join the game
-        const response = await fetch(`${SERVER}join`, {
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json",
-                Accept: "application/json",
-            },
-            body: JSON.stringify({
-                group: group,
-                nick: nick,
-                password: password,
-                size: size,
-            }),
-        });
-        console.log(response);
-
-        if (response.ok) {
-            const json = await response.json();
-            // Handle the result as needed
-            console.log("Join request successful:", json);
-        } else {
-            throw new Error("Failed to join the game.");
-        }
-    } catch (error) {
-        console.error("Error in join function:", error.message);
-    }
+function join(group, nick, password, size,game_classe) {
+    fetch(SERVER + 'join', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+            Accept: "application/json",
+        },
+        body: JSON.stringify({
+            group: group,
+            nick: nick,
+            password: password,
+            size: size,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                console.log(size);
+                alert(`Error: ${data.error}`);
+            } else {
+                game_info = data.game;
+                game_classe.game_id = game_info;
+                console.log("Entrada no grupo de jogo com ID " + game_info);
+                alert('Joined group successfuly, but not with professors link.');
+            }
+        })
+        .catch(error => console.error('Error:', error));
 }
 
+function leave(game, nick, password) {
+    fetch(SERVER +'leave', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            game: game,
+            nick: nick,
+            password: password,
+        }),
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(`Error: ${data.error}`);
+            } else {
+                console.log("Saida do grupo de jogo");
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
+
+function notify(jsonData) {
+    fetch(SERVER + 'notify', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: jsonData
+    })
+        .then(response => response.json())
+        .then(data => {
+            if (data.error) {
+                alert(`Error: ${data.error}`);
+            } else {
+                console.log("Notificação de jogada" + data.nick);
+
+            }
+        })
+        .catch(error => console.error('Error:', error));
+}
 
 
 document.addEventListener("DOMContentLoaded", function () {
