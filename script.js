@@ -1299,7 +1299,7 @@ rankingSelect.addEventListener('change', event => {
     const selectedOption = document.getElementById('board_ranking').value;
     const leaderboardSize = parseInt(selectedOption);
     console.log(leaderboardSize);
-    new_leaderboard(leaderboardSize, leaderboardSize);
+    new_leaderboard(6, leaderboardSize);
 });
 
 const clickEvent = new MouseEvent('click', {

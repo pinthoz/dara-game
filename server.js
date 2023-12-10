@@ -187,7 +187,7 @@ async function ranking(group, size) {
     headerRow.appendChild(nickHeader);
 
     const gamesHeader = document.createElement('th');
-    gamesHeader.textContent = 'Jogos  '; // Adjust the header text as needed
+    gamesHeader.textContent = 'Jogos '; // Adjust the header text as needed
     headerRow.appendChild(gamesHeader);
 
     const victoriesHeader = document.createElement('th');
