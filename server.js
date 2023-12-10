@@ -1,5 +1,5 @@
-const SERVER = "http://twserver.alunos.dcc.fc.up.pt:8008/";
-
+//const SERVER = "http://twserver.alunos.dcc.fc.up.pt:8008/";
+const SERVER = "http://34.67.217.93:8008/";
 async function registerClient(username, password) {
     let url = SERVER + "register";
 
@@ -37,7 +37,7 @@ async function clickRegister() {
 }
 
 
-function join(group, nick, password, size,game_classe) {
+function join(group, nick, password, size ,game_classe) {
     fetch(SERVER + 'join', {
         method: 'POST',
         headers: {
@@ -88,13 +88,18 @@ function leave(game, nick, password) {
         .catch(error => console.error('Error:', error));
 }
 
-function notify(jsonData) {
+function notify(nick, password, game, move) {
     fetch(SERVER + 'notify', {
         method: 'POST',
         headers: {
             'Content-Type': 'application/json'
         },
-        body: jsonData
+        body: JSON.stringify({
+            nick: nick,
+            password: password,
+            game: game,
+            move: move,
+        }),
     })
         .then(response => response.json())
         .then(data => {
@@ -102,10 +107,34 @@ function notify(jsonData) {
                 alert(`Error: ${data.error}`);
             } else {
                 console.log("Notificação de jogada" + data.nick);
-
             }
         })
         .catch(error => console.error('Error:', error));
+}
+
+async function update(gameId, nick) {
+    const queryParams = new URLSearchParams({
+        nick: nick,
+        game: gameId,
+    });
+    console.log("update");
+    fetch(`${SERVER}update?${queryParams.toString()}`, {
+        method: 'GET',
+        headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+        },
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data)
+        if (data.error) {
+            alert(`Error: ${data.error}`);
+        } else {
+        console.log("Aqui+ " + data.board);
+            alert('Updating game');
+        }
+    })
+    .catch(error => console.error('Error:', error));
 }
 
 

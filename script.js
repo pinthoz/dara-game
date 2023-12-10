@@ -412,8 +412,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
 
-
-
     // Classe do jogo
 
     class Game {
@@ -437,10 +435,13 @@ document.addEventListener('DOMContentLoaded', () => {
             this.moves_available_2 = [];
             this.game_id = 0;
             this.online = false;
+            this.firstPlayerOnline = false;
+            this.secondPlayerOnline = false;
+
         }
 
 
-
+//622
 
         handleCellClick(row, col) {
             // Funçaõ para lidar com o clique na célula e controla o fluxo do jogo
@@ -448,8 +449,19 @@ document.addEventListener('DOMContentLoaded', () => {
         
             if (this.putPhase) {
                 // Fase de colocação
+                
                 this.handlePlacementPhase(row, col);
-    
+                // Primeiro a jogar online
+                if (this.online === true && this.firstPlayerOnline === true){
+                    let lmove = {row: row, column: col};
+                    notify(user.username, user.password, game.game_id, lmove);
+                    
+                }
+
+                // Segundo a jogar online
+                if (this.online === true && this.secondPlayerOnline === true){
+
+
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
                     this.makeBotMove();
                 }
@@ -465,6 +477,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (this.bot === true && this.putPhase === false && this.player1 == this.bot_piece) {
                     this.performBotMove();
                 }
+
             
             } else{
                 this.possible_win();
@@ -505,7 +518,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
                 // Bots
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'easy') {
-   
+
                     this.makeBotMove();
                     this.moved_piece = false;
                     this.pieceSelected = false;
@@ -515,7 +528,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.possible_win();
                 }
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'medium') {
-  
+
                     this.makeBotMoveM(); 
                     this.moved_piece = false;
                     this.pieceSelected = false;
@@ -535,7 +548,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     this.possible_win();
                 }
             }
+
         } 
+    }
+
+
 
 
         handlePlacementPhase(row, col) {
@@ -712,7 +729,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
             }else{
                 const movesBot = board.moves_available(this.bot_piece);
-               
+            
                 if (movesBot.length > 0) {
                     const randomIndex = Math.floor(Math.random() * movesBot.length);
                     const randomMove = movesBot[randomIndex];
@@ -880,6 +897,10 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        performOnlineMove() {
+
+        }
+
         possible_win(){
             // Verifica se há um possível vencedor
             let winner = 0;
@@ -1004,7 +1025,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-
 //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
 const playerNames = {
     '1': 'Branco',
@@ -1012,7 +1032,7 @@ const playerNames = {
 };
 
 
-let boardSize = boardSizeSelect;
+let boardSize = boardSizeSelect.value;
 
 let username = '';
 let user;
@@ -1020,8 +1040,33 @@ let board;
 let game;
 
 // Event listener para o botão "Iniciar Jogo"
-startGameButton.addEventListener('click', async() => {
+startGameButton.addEventListener('click', async () => {
     game = new Game();
+
+    if (opponentSelect.value === 'online') {
+        game.bot = false;
+        game.online = true;
+        const group = 4;
+        const nick = document.getElementById("username").value;
+        const password = document.getElementById("password").value;
+        const new_cols = parseInt(boardSize);
+        const new_rows = 6;
+        const size = { rows: new_rows, columns: new_cols };
+
+    try {
+        await join(group, nick, password, size, game);
+        // The `game.game_id` should be set now
+        await new Promise(resolve => setTimeout(resolve, 2000));
+
+        // Agora, game.game_id deve ser definido corretamente
+        await update(game.game_id, nick);
+
+        // Other code here
+    } catch (error) {
+        console.error("Error joining or updating the game:", error.message);
+        return; // If there is an error, don't proceed with the rest of the code
+    }
+    }
     sideBoard1.style.display = 'grid';
     sideBoard2.style.display = 'grid';
     boardSize = parseInt(boardSizeSelect.value);
@@ -1069,21 +1114,6 @@ startGameButton.addEventListener('click', async() => {
             }
         }
         
-    }else if (opponentSelect.value === 'online'){
-        game.bot = false;
-        game.online = true;
-        const group = 4; 
-        const nick = document.getElementById("username").value; // Replace with the actual player nick
-        const password = document.getElementById("password").value; // Replace with the actual player password
-        const new_cols = parseInt(boardSize,10);
-        const new_rows = 6;
-        const size = { rows: new_rows, columns: new_cols }; // Replace with the actual board size
-        try {
-            join(group, nick, password, size,game);
-            
-        } catch (error) {
-            console.error("Error joining the game:", error.message);
-        }
     }else{
         game.bot = false;
         game.online = false;
@@ -1122,7 +1152,7 @@ quit_button.addEventListener('click', () => {
     if (game.isGameActive && game.bot === true) {
         user.loses += 2;
     }
-    console.log('pass ' + user.password);
+
     if (game.online === true){
         leave(game.game_id, user.username, user.password);
     }
