@@ -37,7 +37,7 @@ async function clickRegister() {
 }
 
 
-function join(group, nick, password, size ,game_classe) {
+async function join(group, nick, password, size ,game_classe) {
     fetch(SERVER + 'join', {
         method: 'POST',
         headers: {
@@ -51,7 +51,7 @@ function join(group, nick, password, size ,game_classe) {
             size: size,
         }),
     })
-        .then(response => response.json())
+        .then(response =>response.json())
         .then(data => {
             if (data.error) {
                 console.log(size);
@@ -59,6 +59,7 @@ function join(group, nick, password, size ,game_classe) {
             } else {
                 game_info = data.game;
                 game_classe.game_id = game_info;
+                console.log(data);
                 console.log("Entrada no grupo de jogo com ID " + game_info);
             }
         })
@@ -101,7 +102,9 @@ function notify(nick, password, game, move) {
             move: move,
         }),
     })
-        .then(response => response.json())
+        .then(response => {
+            response.json()
+        })
         .then(data => {
             if (data.error) {
                 alert(`Error: ${data.error}`);
@@ -117,26 +120,56 @@ async function update(gameId, nick) {
         nick: nick,
         game: gameId,
     });
+
     console.log("update");
+
     fetch(`${SERVER}update?${queryParams.toString()}`, {
         method: 'GET',
         headers: {
             'Content-Type': 'application/x-www-form-urlencoded'
         },
     })
-    .then(response => response.json())
+    .then(response => {
+        console.log(response);
+        alert('Game found');
+        return response.json();  
+    })
     .then(data => {
-        console.log(data)
+        console.log(data);
         if (data.error) {
             alert(`Error: ${data.error}`);
         } else {
-        console.log("Aqui+ " + data.board);
+            console.log("Aqui+ " + data.board);
             alert('Updating game');
         }
     })
     .catch(error => console.error('Error:', error));
 }
 
+async function ranking(group, size) {
+    fetch(SERVER + 'ranking', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            group: group,
+            size: size,
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        console.log(data);
+        if (data.error) {
+            alert(`Error: ${data.error}`);
+        } else {
+            rankingData = data.ranking;  
+            alert('Ranking updated');
+            return data;
+        }
+    })
+    .catch(error => console.error('Error:', error));
+}
 
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("login-button").addEventListener("click", clickRegister);

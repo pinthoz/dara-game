@@ -441,7 +441,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
 
 
-//622
 
         handleCellClick(row, col) {
             // Funçaõ para lidar com o clique na célula e controla o fluxo do jogo
@@ -451,15 +450,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fase de colocação
                 
                 this.handlePlacementPhase(row, col);
-                // Primeiro a jogar online
-                if (this.online === true && this.firstPlayerOnline === true){
-                    let lmove = {row: row, column: col};
-                    notify(user.username, user.password, game.game_id, lmove);
-                    
-                }
-
-                // Segundo a jogar online
-                if (this.online === true && this.secondPlayerOnline === true){
 
 
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
@@ -550,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }
 
         } 
-    }
+    
 
 
 
@@ -944,7 +934,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     user.loses++;
                 }
         
-                this.updateLeaderboard(user);
+                //this.updateLeaderboard(user);
                 
             }
 
@@ -979,7 +969,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
         }
 
-        updateLeaderboard(user) {
+        /*updateLeaderboard(user) {
             // Função para atualizar a tabela de classificação
             const leaderboardTable = document.getElementById('leaderboard-table');
             let existingRow;
@@ -1016,13 +1006,11 @@ document.addEventListener('DOMContentLoaded', () => {
                 defeatsCell.textContent = user.loses /2;
                 totalGamesCell.textContent = (user.victories + user.loses)/2;
             }
-        }
+        }*/
 
+    };
     
-    }
     
-
-
 
 
 //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
@@ -1156,7 +1144,7 @@ quit_button.addEventListener('click', () => {
     if (game.online === true){
         leave(game.game_id, user.username, user.password);
     }
-    game.updateLeaderboard(user);
+    //game.updateLeaderboard(user);
 
 });
 
@@ -1280,7 +1268,7 @@ quit_button.addEventListener('click', () => {
             }
         })();
     });
-    
+
 
 
     logoutButton.addEventListener("click", () => {
@@ -1292,18 +1280,39 @@ quit_button.addEventListener('click', () => {
         leaderboardSection.style.display = 'none';
     });
 
-    leaderboardButton.addEventListener("click", () => {
-        hiddenSection.style.display = 'none';
-        loginSection.style.display = 'none';
-        mainSection.style.display = 'none';
-        leaderboardSection.style.display = 'block';
+leaderboardButton.addEventListener("click", () => {
+    hiddenSection.style.display = 'none';
+    loginSection.style.display = 'none';
+    mainSection.style.display = 'none';
+    leaderboardSection.style.display = 'block';
+    const leaderboardBoard = document.getElementById("board_ranking").value;
+    console.log(leaderboardBoard);
+    new_leaderboard(6,5);
 
-    });
+});
 
-    const clickEvent = new MouseEvent('click', {
-        bubbles: true,
-        cancelable: true,
-        view: window
-    });
+const rankingSelect = document.querySelector('#board_ranking');
+
+rankingSelect.addEventListener('change', event => {
+    event.preventDefault(); // Prevent the default behavior of triggering the change event again in the next repaint cycle
+
+    const selectedOption = document.getElementById('board_ranking').value;
+    const leaderboardSize = parseInt(selectedOption);
+    console.log(leaderboardSize);
+
+    new_leaderboard(leaderboardSize, 5);
+});
+
+const clickEvent = new MouseEvent('click', {
+    bubbles: true,
+    cancelable: true,
+    view: window
+});
+
+function new_leaderboard(row, col) {
+    const size = { rows: row, columns: col };
+    ranking(4, size);
+}
+    
 
 });
