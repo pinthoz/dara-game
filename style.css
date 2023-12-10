@@ -322,3 +322,22 @@ label{
     height: 50px;
 }
 
+body {
+    text-align: center;
+  }
+  
+  #ranking-container {
+    display: inline-block; /* This will make the container only as wide as its contents */
+    text-align: left; /* Reset text alignment for the contents inside */
+  }
+  
+  #ranking-container table {
+    margin: 0 auto;
+    border-collapse: collapse;
+  }
+  
+  #ranking-container th,
+  #ranking-container td {
+    padding: 8px;
+    border: 1px solid #ddd;
+  }

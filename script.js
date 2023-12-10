@@ -1299,8 +1299,7 @@ rankingSelect.addEventListener('change', event => {
     const selectedOption = document.getElementById('board_ranking').value;
     const leaderboardSize = parseInt(selectedOption);
     console.log(leaderboardSize);
-
-    new_leaderboard(leaderboardSize, 5);
+    new_leaderboard(leaderboardSize, leaderboardSize);
 });
 
 const clickEvent = new MouseEvent('click', {
@@ -1309,10 +1308,12 @@ const clickEvent = new MouseEvent('click', {
     view: window
 });
 
+
 function new_leaderboard(row, col) {
     const size = { rows: row, columns: col };
     ranking(4, size);
 }
+
     
 
 });

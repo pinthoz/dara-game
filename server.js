@@ -146,29 +146,79 @@ async function update(gameId, nick) {
     .catch(error => console.error('Error:', error));
 }
 
+
 async function ranking(group, size) {
-    fetch(SERVER + 'ranking', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            group: group,
-            size: size,
-        })
+    const leaderboardTable = document.getElementById("ranking-container");
+
+    // Make an HTTP request to the server
+    const response = await fetch(SERVER + 'ranking', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+        group: group,
+        size: size
     })
-    .then(response => response.json())
-    .then(data => {
-        console.log(data);
-        if (data.error) {
-            alert(`Error: ${data.error}`);
-        } else {
-            rankingData = data.ranking;  
-            alert('Ranking updated');
-            return data;
-        }
-    })
-    .catch(error => console.error('Error:', error));
+    });
+
+    // Check if the request was successful
+    if (!response.ok) {
+    throw new Error('Error fetching ranking data');
+    }
+
+    // Get the JSON data from the response
+    const data = await response.json();
+
+    // Parse the JSON data
+    const parsedData = data.ranking;
+
+    console.log(parsedData);
+
+    // Remove existing rows from the table
+    leaderboardTable.innerHTML = '';
+
+    // Create a header row
+    const headerRow = document.createElement('tr');
+
+    // Create header cells for nick, games, and victories
+    const nickHeader = document.createElement('th');
+    nickHeader.textContent = 'Nick  ';
+    headerRow.appendChild(nickHeader);
+
+    const gamesHeader = document.createElement('th');
+    gamesHeader.textContent = 'Jogos  '; // Adjust the header text as needed
+    headerRow.appendChild(gamesHeader);
+
+    const victoriesHeader = document.createElement('th');
+    victoriesHeader.textContent = 'Vitórias'; // Adjust the header text as needed
+    headerRow.appendChild(victoriesHeader);
+
+    // Append the header row to the leaderboard table
+    leaderboardTable.appendChild(headerRow);
+
+    // Create HTML elements for new data
+    for (const player of parsedData) {
+        const row = document.createElement('tr');
+
+        // Create cells for nick, games, and victories
+        const nickCell = document.createElement('td');
+        nickCell.textContent = player.nick;
+        row.appendChild(nickCell);
+
+        const gamesCell = document.createElement('td');
+        gamesCell.textContent = player.games;
+        row.appendChild(gamesCell);
+
+        const victoriesCell = document.createElement('td');
+        victoriesCell.textContent = player.victories;
+        row.appendChild(victoriesCell);
+
+        // Append row to the leaderboard table
+        leaderboardTable.appendChild(row);
+    }
+
+    return data;
 }
 
 document.addEventListener("DOMContentLoaded", function () {
