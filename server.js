@@ -1,5 +1,6 @@
-//const SERVER = "http://twserver.alunos.dcc.fc.up.pt:8008/";
-const SERVER = "http://34.67.217.93:8008/";
+
+const SERVER = "http://twserver.alunos.dcc.fc.up.pt:8008/";
+//const SERVER = "http://34.67.217.93:8008/";
 async function registerClient(username, password) {
     let url = SERVER + "register";
 
@@ -115,7 +116,7 @@ function notify(nick, password, game, move) {
         .catch(error => console.error('Error:', error));
 }
 
-async function update(gameId, nick) {
+function update(gameId, nick, gameOnline) {
     const queryParams = new URLSearchParams({
         nick: nick,
         game: gameId,
@@ -123,27 +124,35 @@ async function update(gameId, nick) {
 
     console.log("update");
 
-    fetch(`${SERVER}update?${queryParams.toString()}`, {
-        method: 'GET',
-        headers: {
-            'Content-Type': 'application/x-www-form-urlencoded'
-        },
-    })
-    .then(response => {
-        console.log(response);
-        alert('Game found');
-        return response.json();  
-    })
-    .then(data => {
-        console.log(data);
-        if (data.error) {
-            alert(`Error: ${data.error}`);
-        } else {
-            console.log("Aqui+ " + data.board);
-            alert('Updating game');
+
+    const url = `${SERVER}update?${queryParams.toString()}`;
+    const source = new EventSource(url);
+
+    source.onmessage = event => {
+        console.log(event);
+
+        try {
+            const data = JSON.parse(event.data);
+
+            console.log(data);
+
+            if (data.error) {
+                alert(`Error: ${data.error}`);
+            }else{
+                if (gameOnline===0){
+                    alert('Game Found')
+                    gameOnline=1;
+                }
+            }
+        } catch (error) {
+            console.error('Error parsing JSON:', error);
         }
-    })
-    .catch(error => console.error('Error:', error));
+    };
+
+    source.onerror = error => {
+        console.error('Error:', error);
+        source.close(); // Close the EventSource in case of an error
+    };
 }
 
 

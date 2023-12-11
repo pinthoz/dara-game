@@ -1026,6 +1026,7 @@ let username = '';
 let user;
 let board;
 let game;
+let gameOnline = 0;
 
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', async () => {
@@ -1047,7 +1048,7 @@ startGameButton.addEventListener('click', async () => {
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Agora, game.game_id deve ser definido corretamente
-        await update(game.game_id, nick);
+        await update(game.game_id, nick, gameOnline);
 
         // Other code here
     } catch (error) {
