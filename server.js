@@ -107,16 +107,15 @@ function notify(nick, password, game, move) {
             response.json()
         })
         .then(data => {
-            if (data.error) {
-                alert(`Error: ${data.error}`);
-            } else {
-                console.log("Notificação de jogada" + data.nick);
+            console.log(nick);
+            console.log(password);
+            console.log("Notificação de jogada" + nick);
             }
-        })
+        )
         .catch(error => console.error('Error:', error));
 }
 
-function update(gameId, nick, gameOnline) {
+async function update(gameId, nick) {
     const queryParams = new URLSearchParams({
         nick: nick,
         game: gameId,
@@ -129,7 +128,6 @@ function update(gameId, nick, gameOnline) {
     const source = new EventSource(url);
 
     source.onmessage = event => {
-        console.log(event);
 
         try {
             const data = JSON.parse(event.data);
@@ -139,10 +137,11 @@ function update(gameId, nick, gameOnline) {
             if (data.error) {
                 alert(`Error: ${data.error}`);
             }else{
-                if (gameOnline===0){
-                    alert('Game Found')
-                    gameOnline=1;
+                if (game.gameOnline===0){
+                    alert(`Game Found! It's ${data.turn}'s turn!`)
+                    game.gameOnline=1;
                 }
+
             }
         } catch (error) {
             console.error('Error parsing JSON:', error);
@@ -233,3 +232,4 @@ async function ranking(group, size) {
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("login-button").addEventListener("click", clickRegister);
 });
+

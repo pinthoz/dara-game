@@ -437,7 +437,9 @@ document.addEventListener('DOMContentLoaded', () => {
             this.online = false;
             this.firstPlayerOnline = false;
             this.secondPlayerOnline = false;
-
+            this.onlinePlayer = 1; // 1 é o primeiro
+            this.nick = document.getElementById("username").value
+            this.gameOnline = 0;
         }
 
 
@@ -450,7 +452,13 @@ document.addEventListener('DOMContentLoaded', () => {
                 // Fase de colocação
                 
                 this.handlePlacementPhase(row, col);
-
+                console.log(this.online);
+                if (this.online){
+                    console.log("ssss")
+                    const move = {row:row,column:col}
+                    notify(user.username, user.password, game.game_id, move);
+                    update(game.game_id, user.username)
+                }
 
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
                     this.makeBotMove();
@@ -1026,7 +1034,6 @@ let username = '';
 let user;
 let board;
 let game;
-let gameOnline = 0;
 
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', async () => {
@@ -1036,26 +1043,30 @@ startGameButton.addEventListener('click', async () => {
         game.bot = false;
         game.online = true;
         const group = 4;
-        const nick = document.getElementById("username").value;
-        const password = document.getElementById("password").value;
         const new_cols = parseInt(boardSize);
         const new_rows = 6;
         const size = { rows: new_rows, columns: new_cols };
 
     try {
-        await join(group, nick, password, size, game);
+        await join(group,user.username , user.password, size, game);
         // The `game.game_id` should be set now
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Agora, game.game_id deve ser definido corretamente
-        await update(game.game_id, nick, gameOnline);
+        await update(game.game_id, user.username);
 
         // Other code here
     } catch (error) {
         console.error("Error joining or updating the game:", error.message);
         return; // If there is an error, don't proceed with the rest of the code
+    }if (game.onlinePlayer === 2){
+        await update(game.game_id, user.username);
     }
+    }else{
+        game.bot = false;
+        game.online = false;
     }
+    console.log("game online: "+ game.gameOnline)
     sideBoard1.style.display = 'grid';
     sideBoard2.style.display = 'grid';
     boardSize = parseInt(boardSizeSelect.value);
@@ -1103,9 +1114,6 @@ startGameButton.addEventListener('click', async () => {
             }
         }
         
-    }else{
-        game.bot = false;
-        game.online = false;
     }
 
     // Adiciona a classe "active" ao elemento ".game-info"
@@ -1315,6 +1323,5 @@ function new_leaderboard(row, col) {
     ranking(4, size);
 }
 
-    
-
 });
+
