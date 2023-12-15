@@ -1,7 +1,6 @@
 
 const SERVER = "http://twserver.alunos.dcc.fc.up.pt:8008/";
 //const SERVER = "http://34.67.217.93:8008/";
-
 async function registerClient(username, password) {
     let url = SERVER + "register";
 
@@ -116,7 +115,7 @@ function notify(nick, password, game, move) {
         .catch(error => console.error('Error:', error));
 }
 
-async function update(gameId, nick, IsOnlineGame) {
+async function update(gameId, nick) {
     const queryParams = new URLSearchParams({
         nick: nick,
         game: gameId,
@@ -138,8 +137,15 @@ async function update(gameId, nick, IsOnlineGame) {
             if (data.error) {
                 alert(`Error: ${data.error}`);
             }else{
-                if (IsOnlineGame===0){
+                if (game.gameOnline===0){
                     alert(`Game Found! It's ${data.turn}'s turn!`)
+                    game.gameOnline=1;
+                    sideBoard1.style.display = 'grid';
+                    sideBoard2.style.display = 'grid';
+                    boardSize = parseInt(boardSizeSelect.value);
+                    gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
+                    game.generateBoard();
+                    board.updateSideBoards();
                 }
 
             }

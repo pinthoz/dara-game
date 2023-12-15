@@ -15,7 +15,6 @@ document.addEventListener('DOMContentLoaded', () => {
     const sideBoard2 = document.querySelector('.side_board_2'); 
     const level = document.getElementById('level');
     const playerput = document.getElementById("player-toplay");
-    const playerputonline = document.getElementById("player-toplay-online");
 
 //classe do utilizador
     class User {
@@ -440,6 +439,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.secondPlayerOnline = false;
             this.onlinePlayer = 1; // 1 é o primeiro
             this.nick = document.getElementById("username").value
+            this.gameOnline = 0;
         }
 
 
@@ -457,7 +457,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("ssss")
                     const move = {row:row,column:col}
                     notify(user.username, user.password, game.game_id, move);
-                    update(game.game_id, user.username, IsOnlineGame)
+                    update(game.game_id, user.username)
                 }
 
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
@@ -1029,19 +1029,17 @@ const playerNames = {
 
 
 let boardSize = boardSizeSelect.value;
+
+let username = '';
 let user;
 let board;
 let game;
-let IsOnlineGame = 0; // Só para o alerta aparecer uma vez
 
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', async () => {
     game = new Game();
 
     if (opponentSelect.value === 'online') {
-        playerput.style.display = 'none';
-        playerputonline.style.display = 'block';
-
         game.bot = false;
         game.online = true;
         const group = 4;
@@ -1050,39 +1048,41 @@ startGameButton.addEventListener('click', async () => {
         const size = { rows: new_rows, columns: new_cols };
 
     try {
-
         await join(group,user.username , user.password, size, game);
         // The `game.game_id` should be set now
         await new Promise(resolve => setTimeout(resolve, 2000));
 
         // Agora, game.game_id deve ser definido corretamente
-        await update(game.game_id, user.username, IsOnlineGame);
-        console.log("ordem " + game.onlinePlayer)
-        
-        // Other code here
+        await update(game.game_id, user.username);
 
+        // Other code here
     } catch (error) {
         console.error("Error joining or updating the game:", error.message);
         return; // If there is an error, don't proceed with the rest of the code
-    }
-
-    if (game.onlinePlayer === 2){
-        await update(game.game_id, user.username, IsOnlineGame);
+    }if (game.onlinePlayer === 2){
+        await update(game.game_id, user.username);
     }
     }else{
         game.bot = false;
         game.online = false;
-        playerput.style.display = 'block';
+    }
+    
+    if (game.online === false){
+        sideBoard1.style.display = 'grid';
+        sideBoard2.style.display = 'grid';
+        boardSize = parseInt(boardSizeSelect.value);
+        gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
+        game.generateBoard();
+        board.updateSideBoards();
     }
 
+    console.log("game online: "+ game.gameOnline)
     sideBoard1.style.display = 'grid';
     sideBoard2.style.display = 'grid';
     boardSize = parseInt(boardSizeSelect.value);
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
     game.generateBoard();
     board.updateSideBoards();
-
-
     if (firstPlayerSelect.value === 'branco') {
         game.player1 = '1';
 
@@ -1134,6 +1134,7 @@ startGameButton.addEventListener('click', async () => {
     start_button.style.display = 'none';
     quit_button.style.display = 'block';
     gameSettings.style.display = 'none';
+    playerput.style.display = 'block';
 
 });
 
@@ -1165,7 +1166,6 @@ quit_button.addEventListener('click', () => {
     //game.updateLeaderboard(user);
 
 });
-
 
     const colorSelect = document.querySelector('#color-choice');
     const opponentSelect = document.querySelector('#opponent');
@@ -1333,7 +1333,5 @@ function new_leaderboard(row, col) {
     ranking(4, size);
 }
 
-
 });
-
 
