@@ -456,6 +456,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("ssss")
                     const move = {row:row,column:col}
                     notify(user.username, user.password, game.game_id, move);
+                    board.renderBoard();
                 }
 
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
@@ -555,7 +556,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Função para lidar com a fase de colocação
             let canPlacePiece = board.possible_play(row, col, this.currentPlayer,board.board,0,0);
 
-            if (canPlacePiece) {
+            if (canPlacePiece ) {
                 if (this.currentPlayer === '1' && board.playerBpieces > 0) {
                     board.renderBoard();
                     board.playerBpieces--;
@@ -1054,7 +1055,7 @@ startGameButton.addEventListener('click', async () => {
 
         await join(group,user.username , user.password, size, game);
         // The `game.game_id` should be set now
-        await new Promise(resolve => setTimeout(resolve, 500));
+        await new Promise(resolve => setTimeout(resolve, 600));
 
         // Agora, game.game_id deve ser definido corretamente
         await update(game.game_id, user.username, IsOnlineGame, game, board);

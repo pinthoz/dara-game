@@ -117,6 +117,7 @@ function notify(nick, password, game, move) {
         .catch(error => console.error('Error:', error));
 }
 
+
 async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
     const queryParams = new URLSearchParams({
         nick: nick,
@@ -129,6 +130,8 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
     const url = `${SERVER}update?${queryParams.toString()}`;
     const source = new EventSource(url);
 
+    const playerputonline = document.getElementById("player-toplay-online");
+
     source.onmessage = event => {
 
         try {
@@ -140,8 +143,11 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                 alert(`Error: ${data.error}`);
             }else{
                 if (IsOnlineGame===0){
-                    alert(`Game Found! It's ${data.turn}'s turn!`)
+                    const opponentNick = Object.keys(data.players).find(player => player !== nick);
+                    alert(`Adversário encontrado: ${opponentNick}`);
+                    IsOnlineGame=1;
                 }
+                playerputonline.textContent = `Vez do ${data.turn}`;
                 if ("players" in  data){
                     if (data.players[nick] != "white"){
                         game_class.player1='2';
@@ -167,15 +173,14 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                             let piece=convert_board(data.board[l][c])
                             board_class.board[l][c]=piece
                             if(piece ==1){
-                                board_class.playerWpieces--;
                                 console.log("playerWpieces: " + board_class.playerWpieces)
                             }
                             else if (piece==2){
-                                board_class.playerBpieces--;
                                 console.log("playerBpieces: " + board_class.playerBpieces)
                             }
                         }
                     }
+                    console.log(board_class.board)
                     board_class.renderBoard()
                 }
                 
