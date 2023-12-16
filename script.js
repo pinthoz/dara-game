@@ -313,7 +313,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
 
             for (let k = toplim; k <= bottomlim - 3; k++) {
-               
+            
                 if (
                     Player === (board_layout[k][j] || 0) &&
                     Player === (board_layout[k + 1][j] || 0) &&
@@ -461,7 +461,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     await notify(user.username, user.password, game.game_id, move);
                 }
                 //board.renderBoard();
-                
 
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
                     this.makeBotMove();
@@ -482,9 +481,7 @@ document.addEventListener('DOMContentLoaded', () => {
             
             } else{
                 this.possible_win();
-
-
-
+                console.log("Move Phaseeeeeeee")
                 if (!this.pieceSelected) {
                     // Se nenhuma peça foi selecionada, tenta selecionar uma peça
                     this.handlePieceSelection(row, col);
@@ -493,6 +490,11 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (!this.moved_piece) {
                         // Se nenhuma peça foi movida, tenta mover a peça selecionada
                         this.handlePieceMovement(row, col);
+                        if (this.online){
+                            console.log("ssss")
+                            const move = {row:row,column:col}
+                            await notify(user.username, user.password, game.game_id, move);
+                        }
                     }
                 }
         
@@ -502,6 +504,11 @@ document.addEventListener('DOMContentLoaded', () => {
                         this.handleRemovePiece(row, col, this.currentPlayer_copy);
                         removeDisplay.style.display = 'none';
                         moveDisplay.style.display = 'block';
+                        if (this.online){
+                            console.log("ssss")
+                            const move = {row:row,column:col}
+                            await notify(user.username, user.password, game.game_id, move);
+                        }
                         this.possible_win();
 
                     } else {
@@ -516,7 +523,6 @@ document.addEventListener('DOMContentLoaded', () => {
                             this.bot_can_play = true;
                             this.possible_win();   
                             
-    
                         }
                     }
                 }
@@ -571,8 +577,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     else{
                         if (this.player1 === '1'){
                             board.updateSideBoard(1, 'side_board_1');
-                        } else{
-                            board.updateSideBoard(2, 'side_board_2');
                         }
                     }   
                 } else if (this.currentPlayer === '2' && board.playerWpieces > 0) {
@@ -580,9 +584,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     board.playerWpieces--;
                     if (!this.online)board.updateSideBoards();
                     else{
-                        if (this.player1 === '1'){
-                            board.updateSideBoard(1, 'side_board_1');
-                        } else{
+                        if (this.player1 === '2'){
                             board.updateSideBoard(2, 'side_board_2');
                         }
                     }   
@@ -614,6 +616,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 putDisplay.style.display = 'none';
                 moveDisplay.style.display = 'block';
             }
+            
         }
 
 
@@ -975,6 +978,7 @@ document.addEventListener('DOMContentLoaded', () => {
         generateBoard() {
             // Função para gerar o tabuleiro com base no tamanho selecionado
             game.isGameActive = true;
+            
             game.putPhase = true;
             if (boardSize === 5) {
                 this.generate_tiles(6,5); 
@@ -1068,7 +1072,7 @@ startGameButton.addEventListener('click', async () => {
     if (opponentSelect.value === 'online') {
         playerput.style.display = 'none';
         playerputonline.style.display = 'block';
-
+        game.isGameActive = false;
         game.bot = false;
         game.online = true;
         const group = 4;
@@ -1119,7 +1123,7 @@ startGameButton.addEventListener('click', async () => {
     game.currentPlayer = game.player1;
     currentPlayerDisplay.textContent = playerNames[game.currentPlayer];
     gameResultDisplay.textContent = '';
-    game.isGameActive = true;
+    if(!game.online)game.isGameActive = true;
 
     //verifca se o outro jogador é o bot
     if (opponentSelect.value === 'computer') {

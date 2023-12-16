@@ -142,12 +142,15 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
             if (data.error) {
                 alert(`Error: ${data.error}`);
             }else{
+                const putDisplay = document.getElementById("place-piece-display");
+                const moveDisplay = document.getElementById("move-piece-display");
+                const removeDisplay = document.querySelector('#remove-display')
                 if (IsOnlineGame===0){
                     const opponentNick = Object.keys(data.players).find(player => player !== nick);
                     alert(`Adversário encontrado: ${opponentNick}`);
                     IsOnlineGame=1;
-                    const putDisplay = document.getElementById("place-piece-display")
                     putDisplay.style.display = 'block';
+                    game_class.isGameActive = true;
                 }
                 playerputonline.textContent = `Vez do ${data.turn}`;
                 if ("players" in  data){
@@ -171,7 +174,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                 }
                 if("board" in  data){
                     console.log("Received board data:", data.board);
-                     // Rest of the code
+                    // Rest of the code
                     let piecesWhite = 0;
                     let piecesBlack = 0;
                     for( let l=0; l< board_class.numRows;l++){
@@ -195,17 +198,19 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     if (game_class.putPhase) {
                         const sideBoard = document.querySelector(`.side_board_${game_class.player1%2 + 1}`);
                         const piecesCount = game_class.player1 === '1' ? 12 - piecesBlack : 12- piecesWhite;
-                        
                         sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
-                    
+                        board_class.playerWpieces = 12 -piecesWhite;
+                        console.log("piecesBlack: " + piecesBlack)
+                        board_class.playerBpieces = 12 -piecesBlack;
+                        console.log("playerBpieces: " + board_class.playerBpieces)
                         for (let i = 0; i < piecesCount; i++) {
                             const piece = document.createElement('div');
                             piece.classList.add(game_class.player1 === '1' ?  'black-piece': 'white-piece');
                             sideBoard.appendChild(piece);
                         }
-                    console.log(board_class.board)
 
-                }
+                    }
+                    console.log(board_class.board)
                 }
                 
                 if("phase" in data){
@@ -215,6 +220,15 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     }else{
                         game_class.putPhase = false;
                         console.log("putPhase: " + game_class.putPhase)
+                        board_class.playerWpieces = 0;
+                        board_class.playerBpieces = 0;
+                        putDisplay.style.display = 'none';
+                        moveDisplay.style.display = 'block';
+                        if (game_class.player1 === '2'){
+                            game_class.currentPlayer = '2'; // jogador preto
+                        }else{
+                            game_class.currentPlayer = '1'; // jogador branco
+                        }
                     }
                 }
                 if("step" in data){
