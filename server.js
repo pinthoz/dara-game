@@ -91,7 +91,7 @@ function leave(game, nick, password) {
         .catch(error => console.error('Error:', error));
 }
 
-function notify(nick, password, game, move) {
+async function notify(nick, password, game, move) {
     fetch(SERVER + 'notify', {
         method: 'POST',
         headers: {
@@ -168,20 +168,30 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     }
                 }
                 if("board" in  data){
+                    console.log("Received board data:", data.board);
+                     // Rest of the code
+                
+                    
                     for( let l=0; l< board_class.numRows;l++){
                         for(let c= 0;c<board_class.numCols;c++){
+                            const cell = document.querySelector(`[data-row="${l}"][data-col="${c}"]`);
+                            cell.textContent = '';
+                            cell.style.backgroundImage = 'none';
+
                             let piece=convert_board(data.board[l][c])
                             board_class.board[l][c]=piece
                             if(piece ==1){
+                                cell.style.backgroundImage = 'url("assets/white.png")';
                                 console.log("playerWpieces: " + board_class.playerWpieces)
                             }
                             else if (piece==2){
+                                cell.style.backgroundImage = 'url("assets/black.png")';
                                 console.log("playerBpieces: " + board_class.playerBpieces)
                             }
                         }
                     }
                     console.log(board_class.board)
-                    board_class.renderBoard()
+                    //board_class.renderBoard();
                 }
                 
                 if("phase" in data){
