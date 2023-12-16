@@ -146,6 +146,8 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     const opponentNick = Object.keys(data.players).find(player => player !== nick);
                     alert(`Adversário encontrado: ${opponentNick}`);
                     IsOnlineGame=1;
+                    const putDisplay = document.getElementById("place-piece-display")
+                    putDisplay.style.display = 'block';
                 }
                 playerputonline.textContent = `Vez do ${data.turn}`;
                 if ("players" in  data){

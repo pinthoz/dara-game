@@ -451,7 +451,6 @@ document.addEventListener('DOMContentLoaded', () => {
             // Funçaõ para lidar com o clique na célula e controla o fluxo do jogo
   
             if (!this.isGameActive) return;
-        
             if (this.putPhase) {
                 // Fase de colocação
                 //board.renderBoard();
@@ -484,9 +483,12 @@ document.addEventListener('DOMContentLoaded', () => {
             } else{
                 this.possible_win();
 
+
+
                 if (!this.pieceSelected) {
                     // Se nenhuma peça foi selecionada, tenta selecionar uma peça
                     this.handlePieceSelection(row, col);
+
                 } else {
                     if (!this.moved_piece) {
                         // Se nenhuma peça foi movida, tenta mover a peça selecionada
@@ -1048,6 +1050,7 @@ startGameButton.addEventListener('click', async () => {
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
     game.generateBoard(); // meti aqui por agora para criar o board para dar como parametro ao update
     board.updateSideBoards();
+    putDisplay.style.display = 'none';
     if (opponentSelect.value === 'online') {
         playerput.style.display = 'none';
         playerputonline.style.display = 'block';
@@ -1076,9 +1079,6 @@ startGameButton.addEventListener('click', async () => {
         return; // If there is an error, don't proceed with the rest of the code
     }
 
-    if (game.onlinePlayer === 2){
-        // Se for o segundo jogador a entrar no jogo, espera que o primeiro jogador faça a sua jogada
-    }
     }else{
         game.bot = false;
         game.online = false;
