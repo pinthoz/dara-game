@@ -460,7 +460,6 @@ document.addEventListener('DOMContentLoaded', () => {
                     console.log("ssss")
                     const move = {row:row,column:col}
                     await notify(user.username, user.password, game.game_id, move);
-
                 }
                 //board.renderBoard();
                 

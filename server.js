@@ -170,8 +170,8 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                 if("board" in  data){
                     console.log("Received board data:", data.board);
                      // Rest of the code
-                
-                    
+                    let piecesWhite = 0;
+                    let piecesBlack = 0;
                     for( let l=0; l< board_class.numRows;l++){
                         for(let c= 0;c<board_class.numCols;c++){
                             const cell = document.querySelector(`[data-row="${l}"][data-col="${c}"]`);
@@ -182,16 +182,28 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                             board_class.board[l][c]=piece
                             if(piece ==1){
                                 cell.style.backgroundImage = 'url("assets/white.png")';
-                                console.log("playerWpieces: " + board_class.playerWpieces)
+                                piecesWhite++;
                             }
                             else if (piece==2){
                                 cell.style.backgroundImage = 'url("assets/black.png")';
-                                console.log("playerBpieces: " + board_class.playerBpieces)
+                                piecesBlack++;
                             }
                         }
                     }
+                    if (game_class.putPhase) {
+                        const sideBoard = document.querySelector(`.side_board_${game_class.player1%2 + 1}`);
+                        const piecesCount = game_class.player1 === '1' ? 12 - piecesBlack : 12- piecesWhite;
+                        
+                        sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
+                    
+                        for (let i = 0; i < piecesCount; i++) {
+                            const piece = document.createElement('div');
+                            piece.classList.add(game_class.player1 === '1' ?  'black-piece': 'white-piece');
+                            sideBoard.appendChild(piece);
+                        }
                     console.log(board_class.board)
-                    //board_class.renderBoard();
+
+                }
                 }
                 
                 if("phase" in data){
