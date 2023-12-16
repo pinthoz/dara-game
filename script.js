@@ -60,22 +60,25 @@ document.addEventListener('DOMContentLoaded', () => {
             return board;
         }
         renderBoard() {
-            // Atualiza a visualização do tabuleiro
-            for (let row = 0; row < this.numRows;   row++) {
-                    for (let col = 0; col < this.numCols; col++) {
-                        const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                        cell.textContent = '';
-                        cell.style.backgroundImage = 'none'; // Remova a imagem de fundo
+            console.log("Rendering the board...");
         
-                        if (this.board[row][col] === '1') {
-                            cell.style.backgroundImage = 'url("assets/white.png")';
-                        }
-                        if (this.board[row][col] === '2') {
-                            cell.style.backgroundImage = 'url("assets/black.png")';
-                        }
+            for (let row = 0; row < this.numRows; row++) {
+                for (let col = 0; col < this.numCols; col++) {
+                    const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
+                    console.log(`(${row}, ${col}): ${this.board[row][col]}`);
+                    
+                    cell.textContent = '';
+                    cell.style.backgroundImage = 'none';
+        
+                    if (this.board[row][col] == '1') {
+                        cell.style.backgroundImage = 'url("assets/white.png")';
+                    } else if (this.board[row][col] == '2') {
+                        cell.style.backgroundImage = 'url("assets/black.png")';
                     }
                 }
             }
+        }
+        
 
 
         possible_remove(i,j,Player) {
@@ -444,20 +447,23 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-        handleCellClick(row, col) {
+        async handleCellClick(row, col) {
             // Funçaõ para lidar com o clique na célula e controla o fluxo do jogo
+  
             if (!this.isGameActive) return;
         
             if (this.putPhase) {
                 // Fase de colocação
+                //board.renderBoard();
                 this.handlePlacementPhase(row, col);
-                console.log(this.online);
                 if (this.online){
                     console.log("ssss")
                     const move = {row:row,column:col}
-                    notify(user.username, user.password, game.game_id, move);
-                    board.renderBoard();
+                    await notify(user.username, user.password, game.game_id, move);
+
                 }
+                //board.renderBoard();
+                
 
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
                     this.makeBotMove();
@@ -552,23 +558,26 @@ document.addEventListener('DOMContentLoaded', () => {
 
 
 
-        handlePlacementPhase(row, col) {
+        async handlePlacementPhase(row, col) {
             // Função para lidar com a fase de colocação
             let canPlacePiece = board.possible_play(row, col, this.currentPlayer,board.board,0,0);
 
             if (canPlacePiece ) {
                 if (this.currentPlayer === '1' && board.playerBpieces > 0) {
-                    board.renderBoard();
+                    if (!this.online)board.renderBoard();
                     board.playerBpieces--;
                     board.updateSideBoards();
                 } else if (this.currentPlayer === '2' && board.playerWpieces > 0) {
-                    board.renderBoard();
+                    if (!this.online)board.renderBoard();
                     board.playerWpieces--;
                     board.updateSideBoards();
                 }
         
                 this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
                 currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
+
+                
+
             } else {
                 console.log('Jogada Inválida');
             }
