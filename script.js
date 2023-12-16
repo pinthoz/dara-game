@@ -450,14 +450,12 @@ document.addEventListener('DOMContentLoaded', () => {
         
             if (this.putPhase) {
                 // Fase de colocação
-                
                 this.handlePlacementPhase(row, col);
                 console.log(this.online);
                 if (this.online){
                     console.log("ssss")
                     const move = {row:row,column:col}
                     notify(user.username, user.password, game.game_id, move);
-                    update(game.game_id, user.username, IsOnlineGame)
                 }
 
                 if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
@@ -1037,7 +1035,10 @@ let IsOnlineGame = 0; // Só para o alerta aparecer uma vez
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', async () => {
     game = new Game();
-
+    boardSize = parseInt(boardSizeSelect.value);
+    gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
+    game.generateBoard(); // meti aqui por agora para criar o board para dar como parametro ao update
+    board.updateSideBoards();
     if (opponentSelect.value === 'online') {
         playerput.style.display = 'none';
         playerputonline.style.display = 'block';
@@ -1053,10 +1054,10 @@ startGameButton.addEventListener('click', async () => {
 
         await join(group,user.username , user.password, size, game);
         // The `game.game_id` should be set now
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        await new Promise(resolve => setTimeout(resolve, 500));
 
         // Agora, game.game_id deve ser definido corretamente
-        await update(game.game_id, user.username, IsOnlineGame);
+        await update(game.game_id, user.username, IsOnlineGame, game, board);
         console.log("ordem " + game.onlinePlayer)
         
         // Other code here
@@ -1067,21 +1068,14 @@ startGameButton.addEventListener('click', async () => {
     }
 
     if (game.onlinePlayer === 2){
-        await update(game.game_id, user.username, IsOnlineGame);
+        // Se for o segundo jogador a entrar no jogo, espera que o primeiro jogador faça a sua jogada
     }
     }else{
         game.bot = false;
         game.online = false;
         playerput.style.display = 'block';
     }
-
-    sideBoard1.style.display = 'grid';
-    sideBoard2.style.display = 'grid';
-    boardSize = parseInt(boardSizeSelect.value);
-    gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
-    game.generateBoard();
-    board.updateSideBoards();
-
+    
 
     if (firstPlayerSelect.value === 'branco') {
         game.player1 = '1';

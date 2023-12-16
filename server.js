@@ -110,13 +110,14 @@ function notify(nick, password, game, move) {
         .then(data => {
             console.log(nick);
             console.log(password);
-            console.log("Notificação de jogada" + nick);
+            console.log("Notificação de jogada " + nick);
+            console.log(move);
             }
         )
         .catch(error => console.error('Error:', error));
 }
 
-async function update(gameId, nick, IsOnlineGame) {
+async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
     const queryParams = new URLSearchParams({
         nick: nick,
         game: gameId,
@@ -141,8 +142,65 @@ async function update(gameId, nick, IsOnlineGame) {
                 if (IsOnlineGame===0){
                     alert(`Game Found! It's ${data.turn}'s turn!`)
                 }
+                if ("players" in  data){
+                    if (data.players[nick] != "white"){
+                        game_class.player1='2';
+                        console.log("player1: " + game_class.player1);
+                    }else{
+                        game_class.player1='1';
+                        console.log("player1: " + game_class.player1);
+                    }
+                }
+                if( "turn" in data){
+                    if( data.turn == nick){
+                        game_class.currentPlayer = game_class.player1;
+                        console.log("currentPlayer: " + game_class.currentPlayer);
+                    }
+                    else{
+                        game_class.currentPlayer = game_class.player1%2 + 1;
+                        console.log("currentPlayer: " + game_class.currentPlayer);
+                    }
+                }
+                if("board" in  data){
+                    for( let l=0; l< board_class.numRows;l++){
+                        for(let c= 0;c<board_class.numCols;c++){
+                            let piece=convert_board(data.board[l][c])
+                            board_class.board[l][c]=piece
+                            if(piece ==1){
+                                board_class.playerWpieces--;
+                                console.log("playerWpieces: " + board_class.playerWpieces)
+                            }
+                            else if (piece==2){
+                                board_class.playerBpieces--;
+                                console.log("playerBpieces: " + board_class.playerBpieces)
+                            }
+                        }
+                    }
+                    board_class.renderBoard()
+                }
+                
+                if("phase" in data){
+                    if(data.phase =="drop"){
+                        game_class.putPhase = true;
+                        console.log("putPhase: " + game_class.putPhase)
+                    }else{
+                        game_class.putPhase = false;
+                        console.log("putPhase: " + game_class.putPhase)
+                    }
+                }
+                if("step" in data){
+                    if(data.step=="take"){
+                        game_class.canRemove = true;
+                        console.log("canRemove: " + game_class.canRemove)
+                    }
+                    else{
+                        game_class.canRemove = false;
+                        console.log("canRemove: " + game_class.canRemove)
+                    }
+                }
 
             }
+            
         } catch (error) {
             console.error('Error parsing JSON:', error);
         }
@@ -227,6 +285,17 @@ async function ranking(group, size) {
     }
 
     return data;
+}
+
+function convert_board(str){
+    if (str == "empty"){
+        return 0
+    }
+    if( str=="white"){
+        return 1
+    }
+    return 2
+
 }
 
 document.addEventListener("DOMContentLoaded", function () {
