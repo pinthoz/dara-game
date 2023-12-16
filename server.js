@@ -218,6 +218,8 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                         game_class.putPhase = true;
                         console.log("putPhase: " + game_class.putPhase)
                     }else{
+                        const sideBoard = document.querySelector(`.side_board_2`);
+                        sideBoard.innerHTML = '';
                         game_class.putPhase = false;
                         console.log("putPhase: " + game_class.putPhase)
                         board_class.playerWpieces = 0;

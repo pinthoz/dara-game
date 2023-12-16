@@ -387,14 +387,40 @@ document.addEventListener('DOMContentLoaded', () => {
             if (game.putPhase) {
             const sideBoard = document.querySelector(`.${sideBoardId}`);
             const piecesCount = player === 1 ? this.playerBpieces : this.playerWpieces;
-            
-            sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
-        
-            for (let i = 0; i < piecesCount; i++) {
-                const piece = document.createElement('div');
-                piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
-                sideBoard.appendChild(piece);
+            let piecesCount2;
+            if (game.player1 === '2'){
+                piecesCount2 = piecesCount + 1;
             }
+            console.log("aquiiiiiiii" + piecesCount2);
+            sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
+            
+            if (game.online){
+                if (game.player1 === '1'){
+                    for (let i = 0; i < piecesCount; i++) {
+                        const piece = document.createElement('div');
+                        piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
+                        sideBoard.appendChild(piece);
+                    }
+                }
+                else{
+                    for (let i = 0; i < piecesCount2; i++) {
+                        const piece = document.createElement('div');
+                        piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
+                        sideBoard.appendChild(piece);
+                    }
+                    if(!game.putPhase){
+                        sideBoard.innerHTML = '';
+                    }
+                }
+            }else{
+                for (let i = 0; i < piecesCount; i++) {
+                    const piece = document.createElement('div');
+                    piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
+                    sideBoard.appendChild(piece);
+                }
+            }
+
+
         } else {
             const side = player === 1 ? 'side_board_2' : 'side_board_1';
             const sideBoard = document.querySelector(`.${side}`);
