@@ -567,11 +567,25 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (this.currentPlayer === '1' && board.playerBpieces > 0) {
                     if (!this.online)board.renderBoard();
                     board.playerBpieces--;
-                    board.updateSideBoards();
+                    if (!this.online)board.updateSideBoards();
+                    else{
+                        if (this.player1 === '1'){
+                            board.updateSideBoard(1, 'side_board_1');
+                        } else{
+                            board.updateSideBoard(2, 'side_board_2');
+                        }
+                    }   
                 } else if (this.currentPlayer === '2' && board.playerWpieces > 0) {
                     if (!this.online)board.renderBoard();
                     board.playerWpieces--;
-                    board.updateSideBoards();
+                    if (!this.online)board.updateSideBoards();
+                    else{
+                        if (this.player1 === '1'){
+                            board.updateSideBoard(1, 'side_board_1');
+                        } else{
+                            board.updateSideBoard(2, 'side_board_2');
+                        }
+                    }   
                 }
         
                 this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
