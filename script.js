@@ -408,9 +408,6 @@ document.addEventListener('DOMContentLoaded', () => {
                         piece.classList.add(player === 1 ? 'white-piece' : 'black-piece');
                         sideBoard.appendChild(piece);
                     }
-                    if(!game.putPhase){
-                        sideBoard.innerHTML = '';
-                    }
                 }
             }else{
                 for (let i = 0; i < piecesCount; i++) {
@@ -1090,6 +1087,8 @@ let IsOnlineGame = 0; // Só para o alerta aparecer uma vez
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', async () => {
     game = new Game();
+    sideBoard1.style.display = 'grid';
+    sideBoard2.style.display = 'grid';
     boardSize = parseInt(boardSizeSelect.value);
     gameContainer.style.gridTemplateColumns = `repeat(${boardSize}, 50px)`; // Ajusta o número de colunas
     game.generateBoard(); // meti aqui por agora para criar o board para dar como parametro ao update
@@ -1209,6 +1208,8 @@ quit_button.addEventListener('click', () => {
     if (game.online === true){
         leave(game.game_id, user.username, user.password);
     }
+    game.isGameActive = false;
+
     //game.updateLeaderboard(user);
 
 });
