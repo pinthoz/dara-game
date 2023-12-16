@@ -249,11 +249,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
         possible_click(i, j, Player) {
             // Verifica se a célula clicada contém uma peça do jogador
-            if (String(this.board[i][j]) === String(Player)) {
-                console.log("certo")
+            if (this.board[i][j] === Player) {
                 return true;
             }
-            console.log("errado")
             return false;
         }
 
@@ -469,133 +467,157 @@ document.addEventListener('DOMContentLoaded', () => {
             this.onlinePlayer = 1; // 1 é o primeiro
             this.nick = document.getElementById("username").value
         }
-        
-        async handleClickOnline(row, col) {
-            let move = {row:row,column:col};
-            await notify(user.username, user.password, game.game_id, move);
-        }
 
-        handleCellClick(row, col) {
+
+
+        async handleCellClick(row, col) {
             // Funçaõ para lidar com o clique na célula e controla o fluxo do jogo
+  
             if (!this.isGameActive) return;
-        
             if (this.putPhase) {
                 // Fase de colocação
-                if(this.online)this.handleClickOnline(row,col);
+                //board.renderBoard();
+                this.handlePlacementPhase(row, col);
+                if (this.online){
+                    console.log("ssss")
+                    const move = {row:row,column:col}
+                    await notify(user.username, user.password, game.game_id, move);
+                }
+                //board.renderBoard();
 
-                else{
-                    this.handlePlacementPhase(row, col);
-        
-                    if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
-                        this.makeBotMove();
-                    }
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'easy') {
+                    this.makeBotMove();
+                }
+                
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'medium') {
+                    this.makeBotMoveM();
                     
-                    if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'medium') {
-                        this.makeBotMoveM();
-                        
-                    }
-                    if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'hard') {
-                        this.makeBotMoveM();
-                        
-                    }
-                    if (this.bot === true && this.putPhase === false && this.player1 == this.bot_piece) {
-                        this.performBotMove();
+                }
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.putPhase === true && level.value === 'hard') {
+                    this.makeBotMoveM();
+                    
+                }
+                if (this.bot === true && this.putPhase === false && this.player1 == this.bot_piece) {
+                    this.performBotMove();
+                }
+
+            
+            } else{
+                this.possible_win();
+                console.log("Move Phaseeeeeeee")
+                if (!this.pieceSelected) {
+                    // Se nenhuma peça foi selecionada, tenta selecionar uma peça
+                    this.handlePieceSelection(row, col);
+
+                } else {
+                    if (!this.moved_piece) {
+                        // Se nenhuma peça foi movida, tenta mover a peça selecionada
+                        this.handlePieceMovement(row, col);
+                        if (this.online){
+                            console.log("ssss")
+                            const move = {row:row,column:col}
+                            await notify(user.username, user.password, game.game_id, move);
+                        }
                     }
                 }
-            } else{
-
-                if(this.online)this.handleClickOnline(row,col);
-                
-                else{
-                    this.possible_win();
-
-                    if (!this.pieceSelected) {
-                        // Se nenhuma peça foi selecionada, tenta selecionar uma peça
-                        this.handlePieceSelection(row, col);
-                    } else {
-                        if (!this.moved_piece) {
-                            // Se nenhuma peça foi movida, tenta mover a peça selecionada
-                            this.handlePieceMovement(row, col);
-                        }
-                    }
-            
-                    if (this.moved_piece) {
-                        // Se uma peça foi movida, verifica se é possível remover uma peça
-                        if (this.canRemove) {
-                            this.handleRemovePiece(row, col, this.currentPlayer_copy);
-                            removeDisplay.style.display = 'none';
-                            moveDisplay.style.display = 'block';
-                            this.possible_win();
-
-                        } else {
-                            if (board.possible_remove(row, col, this.currentPlayer_copy)) {
-                                this.canRemove = true;
-                            } else {
-
-                                currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
-                                this.moved_piece = false;
-                                this.pieceSelected = false;
-                                this.canRemove = false;
-                                this.bot_can_play = true;
-                                this.possible_win();   
-                                
         
-                            }
+                if (this.moved_piece) {
+                    // Se uma peça foi movida, verifica se é possível remover uma peça
+                    if (this.canRemove) {
+                        this.handleRemovePiece(row, col, this.currentPlayer_copy);
+                        removeDisplay.style.display = 'none';
+                        moveDisplay.style.display = 'block';
+                        if (this.online){
+                            console.log("ssss")
+                            const move = {row:row,column:col}
+                            await notify(user.username, user.password, game.game_id, move);
+                        }
+                        this.possible_win();
+
+                    } else {
+                        if (board.possible_remove(row, col, this.currentPlayer_copy)) {
+                            this.canRemove = true;
+                        } else {
+
+                            currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
+                            this.moved_piece = false;
+                            this.pieceSelected = false;
+                            this.canRemove = false;
+                            this.bot_can_play = true;
+                            this.possible_win();   
+                            
                         }
                     }
-                    // Bots
-                    if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'easy') {
-    
-                        this.makeBotMove();
-                        this.moved_piece = false;
-                        this.pieceSelected = false;
-                        this.canRemove = false;
-                        this.bot_can_play = false;
-                        currentPlayerDisplay.textContent = playerNames[this.player_piece];
-                        this.possible_win();
-                    }
-                    if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'medium') {
-    
-                        this.makeBotMoveM(); 
-                        this.moved_piece = false;
-                        this.pieceSelected = false;
-                        this.canRemove = false;
-                        this.bot_can_play = false;
-                        currentPlayerDisplay.textContent = playerNames[this.player_piece];
-                        this.possible_win();
-                    }
-                    if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'hard') {
+                }
+                // Bots
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'easy') {
 
-                        this.makeBotMoveH(); 
-                        this.moved_piece = false;
-                        this.pieceSelected = false;
-                        this.canRemove = false;
-                        this.bot_can_play = false;
-                        currentPlayerDisplay.textContent = playerNames[this.player_piece];
-                        this.possible_win();
-                    }
+                    this.makeBotMove();
+                    this.moved_piece = false;
+                    this.pieceSelected = false;
+                    this.canRemove = false;
+                    this.bot_can_play = false;
+                    currentPlayerDisplay.textContent = playerNames[this.player_piece];
+                    this.possible_win();
+                }
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'medium') {
+
+                    this.makeBotMoveM(); 
+                    this.moved_piece = false;
+                    this.pieceSelected = false;
+                    this.canRemove = false;
+                    this.bot_can_play = false;
+                    currentPlayerDisplay.textContent = playerNames[this.player_piece];
+                    this.possible_win();
+                }
+                if (this.currentPlayer === this.bot_piece && this.bot === true && this.bot_can_play === true && level.value === 'hard') {
+
+                    this.makeBotMoveH(); 
+                    this.moved_piece = false;
+                    this.pieceSelected = false;
+                    this.canRemove = false;
+                    this.bot_can_play = false;
+                    currentPlayerDisplay.textContent = playerNames[this.player_piece];
+                    this.possible_win();
                 }
             }
+
         } 
+    
 
 
-        handlePlacementPhase(row, col) {
+
+
+        async handlePlacementPhase(row, col) {
             // Função para lidar com a fase de colocação
+            console.log("kkkk- " + this.player1 + " " + this.currentPlayer)
             let canPlacePiece = board.possible_play(row, col, this.currentPlayer,board.board,0,0);
-
-            if (canPlacePiece) {
+            console.log("canPlacePiece: " + canPlacePiece)
+            if (canPlacePiece ) {
                 if (this.currentPlayer === '1' && board.playerBpieces > 0) {
-                    board.renderBoard();
+                    if (!this.online)board.renderBoard();
                     board.playerBpieces--;
-                    board.updateSideBoards();
+                    if (!this.online)board.updateSideBoards();
+                    else{
+                        if (this.player1 === '1'){
+                            board.updateSideBoard(1, 'side_board_1');
+                        }
+                    }   
                 } else if (this.currentPlayer === '2' && board.playerWpieces > 0) {
-                    board.renderBoard();
+                    if (!this.online)board.renderBoard();
                     board.playerWpieces--;
-                    board.updateSideBoards();
+                    if (!this.online)board.updateSideBoards();
+                    else{
+                        if (this.player1 === '2'){
+                            board.updateSideBoard(2, 'side_board_2');
+                        }
+                    }   
                 }
         
                 this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
                 currentPlayerDisplay.textContent = playerNames[this.currentPlayer];
+                
+
             } else {
                 console.log('Jogada Inválida');
             }
@@ -617,12 +639,12 @@ document.addEventListener('DOMContentLoaded', () => {
                 putDisplay.style.display = 'none';
                 moveDisplay.style.display = 'block';
             }
+            
         }
 
 
-        async handlePieceSelection(row, col) {
+        handlePieceSelection(row, col) {
             // Função para lidar com a seleção de peças
-            console.log(this.currentPlayer);
             if (board.possible_click(row, col, this.currentPlayer)) {
                 if (this.canRemove) {
                     console.log("Não podes selecionar uma peça porque já removes-te uma peça");
@@ -922,6 +944,9 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
+        performOnlineMove() {
+
+        }
 
         possible_win(){
             // Verifica se há um possível vencedor
@@ -953,9 +978,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 win_text.innerText = "Ganhou o Preto!";
             }
-            moveDisplay.style.display = 'none';
-            removeDisplay.style.display = 'none';
-            playerput.style.display = 'none';
+        moveDisplay.style.display = 'none';
+        removeDisplay.style.display = 'none';
+        playerput.style.display = 'none';
 
 
             if (this.bot === true) {
@@ -969,18 +994,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 //this.updateLeaderboard(user);
                 
             }
-
-            this.isGameActive = false;
-        }
-
-        game_finished_online(winner) {
-            // Função para lidar com o fim do jogo
-            let win_text = document.getElementById("game-result");
-            win_text.innerText = "Ganhou o " + winner + "!";
-            moveDisplay.style.display = 'none';
-            removeDisplay.style.display = 'none';
-            playerput.style.display = 'none';
-            playerputonline.style.display = 'none';
 
             this.isGameActive = false;
         }
@@ -1081,7 +1094,7 @@ startGameButton.addEventListener('click', async () => {
     game.generateBoard(); // meti aqui por agora para criar o board para dar como parametro ao update
     board.updateSideBoards();
     putDisplay.style.display = 'none';
-    
+
     if (opponentSelect.value === 'online') {
         playerput.style.display = 'none';
         playerputonline.style.display = 'block';
@@ -1092,7 +1105,6 @@ startGameButton.addEventListener('click', async () => {
         const new_cols = parseInt(boardSize);
         const new_rows = 6;
         const size = { rows: new_rows, columns: new_cols };
-        canvas();
 
     try {
 
@@ -1102,7 +1114,6 @@ startGameButton.addEventListener('click', async () => {
 
         // Agora, game.game_id deve ser definido corretamente
         await update(game.game_id, user.username, IsOnlineGame, game, board);
-        console.log("ordem " + game.onlinePlayer)
         
         // Other code here
 
@@ -1111,12 +1122,12 @@ startGameButton.addEventListener('click', async () => {
         return; // If there is an error, don't proceed with the rest of the code
     }
 
-    }else{
+    }
+    else{
         game.bot = false;
         game.online = false;
-        playerput.style.display = 'block';
         putDisplay.style.display = 'block';
-
+        playerput.style.display = 'block';
     }
     
 
@@ -1134,7 +1145,6 @@ startGameButton.addEventListener('click', async () => {
         game.bot_piece = '1';
         game.player_piece = '2';
     }
-
 
     game.currentPlayer = game.player1;
     currentPlayerDisplay.textContent = playerNames[game.currentPlayer];
@@ -1372,28 +1382,7 @@ function new_leaderboard(row, col) {
     ranking(4, size);
 }
 
-function canvas() {
-        const canvas = document.getElementById('tela');
-        canvas.style.display = 'block';
-        const ctx = canvas.getContext('2d');
-        const radius = 20;
-        let angle = 0;
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const x = canvas.width / 2 + Math.cos(angle) * 50;
-            const y = canvas.height / 2 + Math.sin(angle) * 50;
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.fillStyle = '#3498db';
-            ctx.fill();
-            angle += 0.05;
-            requestAnimationFrame(draw);
-        }
-
-        draw();
-    }
-
 
 });
+
 

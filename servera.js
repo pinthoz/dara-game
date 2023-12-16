@@ -105,20 +105,16 @@ async function notify(nick, password, game, move) {
         }),
     })
         .then(response => {
-            if (response.ok) {
-                let message = response.json();
-
-                if ('error' in message) {
-                    console.log(`Error: ${message.error}`);
-                }
-                else return message;
-            }else{
-                let message = response.json();
-                console.log(`Error: ${message.error}`)
-            }
-            
+            response.json()
         })
-        .catch(error => console.error('', error));
+        .then(data => {
+            console.log(nick);
+            console.log(password);
+            console.log("Notificação de jogada " + nick);
+            console.log(move);
+            }
+        )
+        .catch(error => console.error('Error:', error));
 }
 
 
@@ -155,14 +151,12 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     IsOnlineGame=1;
                     putDisplay.style.display = 'block';
                     game_class.isGameActive = true;
-                    hideCanvas();
                 }
                 playerputonline.textContent = `Vez do ${data.turn}`;
                 if ("players" in  data){
                     if (data.players[nick] != "white"){
                         game_class.player1='2';
                         console.log("player1: " + game_class.player1);
-
                     }else{
                         game_class.player1='1';
                         console.log("player1: " + game_class.player1);
@@ -170,19 +164,15 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                 }
                 if( "turn" in data){
                     if( data.turn == nick){
-                        hideCanvas();
-                        putDisplay.style.display = 'block';
                         game_class.currentPlayer = game_class.player1;
                         console.log("currentPlayer: " + game_class.currentPlayer);
                     }
                     else{
-                        canvas();
-                        putDisplay.style.display = 'none';
                         game_class.currentPlayer = game_class.player1%2 + 1;
                         console.log("currentPlayer: " + game_class.currentPlayer);
                     }
                 }
-                if("board" in data){
+                if("board" in  data){
                     console.log("Received board data:", data.board);
                     // Rest of the code
                     let piecesWhite = 0;
@@ -205,26 +195,21 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                             }
                         }
                     }
-                    
-                    const sideBoard = document.querySelector(`.side_board_1`);
-                    const piecesCount = 12- piecesWhite;
-                    sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
-                    for (let i = 0; i < piecesCount; i++) {
-                        const piece = document.createElement('div');
-                        piece.classList.add('white-piece');
-                        sideBoard.appendChild(piece);
-                    }
+                    if (game_class.putPhase) {
+                        const sideBoard = document.querySelector(`.side_board_${game_class.player1%2 + 1}`);
+                        const piecesCount = game_class.player1 === '1' ? 12 - piecesBlack : 12- piecesWhite;
+                        sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
+                        board_class.playerWpieces = 12 -piecesWhite;
+                        console.log("piecesBlack: " + piecesBlack)
+                        board_class.playerBpieces = 12 -piecesBlack;
+                        console.log("playerBpieces: " + board_class.playerBpieces)
+                        for (let i = 0; i < piecesCount; i++) {
+                            const piece = document.createElement('div');
+                            piece.classList.add(game_class.player1 === '1' ?  'black-piece': 'white-piece');
+                            sideBoard.appendChild(piece);
+                        }
 
-                    const sideBoard2 = document.querySelector(`.side_board_2`);
-                    const piecesCount2 = 12- piecesBlack;
-                    sideBoard2.innerHTML = ''; // «Limpa» o tabuleiro lateral
-                    for (let i = 0; i < piecesCount2; i++) {
-                        const piece = document.createElement('div');
-                        piece.classList.add('black-piece');
-                        sideBoard2.appendChild(piece);
                     }
-
-                    
                     console.log(board_class.board)
                 }
                 
@@ -233,13 +218,14 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                         game_class.putPhase = true;
                         console.log("putPhase: " + game_class.putPhase)
                     }else{
+                        const sideBoard = document.querySelector(`.side_board_2`);
+                        sideBoard.innerHTML = '';
+                        game_class.putPhase = false;
+                        console.log("putPhase: " + game_class.putPhase)
+                        board_class.playerWpieces = 0;
+                        board_class.playerBpieces = 0;
                         putDisplay.style.display = 'none';
-                        if (data.turn == nick){
-                            moveDisplay.style.display = 'block';
-                        }else{
-                            moveDisplay.style.display = 'none';
-                        }
-                        removeDisplay.style.display = 'none';
+                        moveDisplay.style.display = 'block';
                         if (game_class.player1 === '2'){
                             game_class.currentPlayer = '2'; // jogador preto
                         }else{
@@ -250,44 +236,16 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                 if("step" in data){
                     if(data.step=="take"){
                         game_class.canRemove = true;
-                        if (data.turn == nick){
-                            removeDisplay.style.display = 'block';
-                        }else{
-                            removeDisplay.style.display = 'none';
-                        }
-                        moveDisplay.style.display = 'none';
                         console.log("canRemove: " + game_class.canRemove)
                     }
-                    else if(data.step=="to"){
-                        let r = data.move["row"];
-                        let c = data.move["column"];
-                        const selectedCell = document.querySelector(`[data-row="${r}"][data-col="${c}"]`);
-                        if (game_class.player1 === '1') {
-                            if (data.turn == nick){
-                                selectedCell.style.backgroundImage = 'url("assets/white-selected.png")';
-                            }else{
-                                selectedCell.style.backgroundImage = 'url("assets/black-selected.png")';
-                            }
-                        } else {
-                            if (data.turn == nick){
-                                selectedCell.style.backgroundImage = 'url("assets/black-selected.png")';
-                            }else{
-                                selectedCell.style.backgroundImage = 'url("assets/-selected.png")';
-                            }
-                        }
-                        }
                     else{
-                            game_class.canRemove = false;
-                            console.log("canRemove: " + game_class.canRemove)
-                        }
+                        game_class.canRemove = false;
+                        console.log("canRemove: " + game_class.canRemove)
+                    }
                 }
-                if ( "winner" in data){
-                    hideCanvas();
-                    console.log("winnnnnner" + data["winner"])
-                    game_class.game_finished_online(data["winner"]);
-                }
-            }
 
+            }
+            
         } catch (error) {
             console.error('Error parsing JSON:', error);
         }
@@ -385,33 +343,7 @@ function convert_board(str){
 
 }
 
-function hideCanvas() {
-    const canvas = document.getElementById('tela');
-    canvas.style.display = 'none';
-}
-
-function canvas() {
-    const canvas = document.getElementById('tela');
-    canvas.style.display = 'block';
-    const ctx = canvas.getContext('2d');
-    const radius = 20;
-    let angle = 0;
-
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const x = canvas.width / 2 + Math.cos(angle) * 50;
-        const y = canvas.height / 2 + Math.sin(angle) * 50;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#3498db';
-        ctx.fill();
-        angle += 0.05;
-        requestAnimationFrame(draw);
-    }
-
-    draw();
-}
-
 document.addEventListener("DOMContentLoaded", function () {
     document.getElementById("login-button").addEventListener("click", clickRegister);
 });
+
