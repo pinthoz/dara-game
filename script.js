@@ -1064,6 +1064,7 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     
         updateLeaderboard(user) {
+            console.log('Updating leaderboard:', user);
             console.log(user.username);
             console.log(user.victories);
             console.log(user.loses);
@@ -1120,13 +1121,14 @@ document.addEventListener('DOMContentLoaded', () => {
         saveLeaderboard() {
             // Salva a leaderboard no localStorage como uma string JSON
             localStorage.setItem('leaderboard', JSON.stringify(this.users));
+            console.log('Saving leaderboard:', this.users);
             console.log(localStorage)
         }
     
         loadLeaderboard() {
             // Carrega a leaderboard do localStorage
             const savedLeaderboard = localStorage.getItem('leaderboard');
-    
+            console.log('Loaded leaderboard from localStorage:', savedLeaderboard);
             if (savedLeaderboard) {
                 // Se houver dados salvos, converte de volta para objetos JavaScript
                 this.users = JSON.parse(savedLeaderboard);

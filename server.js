@@ -1,6 +1,7 @@
 
-const SERVER = "http://twserver.alunos.dcc.fc.up.pt:8008/";
+//const SERVER = "http://twserver.alunos.dcc.fc.up.pt:8008/";
 //const SERVER = "http://34.67.217.93:8008/";
+const SERVER = "http://localhost:8009/";
 
 async function registerClient(username, password) {
     let url = SERVER + "register";
@@ -16,7 +17,8 @@ async function registerClient(username, password) {
         });
 
         if (response.ok) {
-            const json = await response.json();
+            const json = response.body;
+            console.log(json);  
             return !("error" in json);
         }
     } catch (error) {
@@ -302,7 +304,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
 async function ranking(group, size) {
     const leaderboardTable = document.getElementById("ranking-container");
 
-    // Make an HTTP request to the server
+    // Fazer um pedido POST para o servidor
     const response = await fetch(SERVER + 'ranking', {
     method: 'POST',
     headers: {
@@ -314,46 +316,47 @@ async function ranking(group, size) {
     })
     });
 
-    // Check if the request was successful
+    // Verificar se o pedido foi bem sucedido
     if (!response.ok) {
     throw new Error('Error fetching ranking data');
     }
 
-    // Get the JSON data from the response
+    // Obter os dados JSON
     const data = await response.json();
+    console.log(data);
 
-    // Parse the JSON data
+    // Obter o array de jogadores
     const parsedData = data.ranking;
 
     console.log(parsedData);
 
-    // Remove existing rows from the table
+    //  Limpar o conteúdo da tabela
     leaderboardTable.innerHTML = '';
 
-    // Create a header row
+    // Cria uma linha para o cabeçalho da tabela
     const headerRow = document.createElement('tr');
 
-    // Create header cells for nick, games, and victories
+    // Cria células para o nick, jogos, e vitórias
     const nickHeader = document.createElement('th');
     nickHeader.textContent = 'Nick  ';
     headerRow.appendChild(nickHeader);
 
     const gamesHeader = document.createElement('th');
-    gamesHeader.textContent = 'Jogos '; // Adjust the header text as needed
+    gamesHeader.textContent = 'Jogos '; 
     headerRow.appendChild(gamesHeader);
 
     const victoriesHeader = document.createElement('th');
-    victoriesHeader.textContent = 'Vitórias'; // Adjust the header text as needed
+    victoriesHeader.textContent = 'Vitórias'; 
     headerRow.appendChild(victoriesHeader);
 
-    // Append the header row to the leaderboard table
+    // Adiciona a linha de cabeçalho à tabela
     leaderboardTable.appendChild(headerRow);
 
-    // Create HTML elements for new data
+    // Criar uma linha para cada jogador
     for (const player of parsedData) {
         const row = document.createElement('tr');
 
-        // Create cells for nick, games, and victories
+        // Cria células para o nick, jogos, e vitórias
         const nickCell = document.createElement('td');
         nickCell.textContent = player.nick;
         row.appendChild(nickCell);
@@ -366,7 +369,7 @@ async function ranking(group, size) {
         victoriesCell.textContent = player.victories;
         row.appendChild(victoriesCell);
 
-        // Append row to the leaderboard table
+        // Adiciona a linha à tabela
         leaderboardTable.appendChild(row);
     }
 
