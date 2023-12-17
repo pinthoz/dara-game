@@ -23,7 +23,7 @@ document.addEventListener('DOMContentLoaded', () => {
             this.username = username;
             this.password = password;
             this.totalGames = totalGames;
-            this.victories = victories;
+            this.victories = victories ;
             this.loses = loses;
             this.totalGames = this.victories + this.loses;
         }
@@ -65,7 +65,7 @@ document.addEventListener('DOMContentLoaded', () => {
             for (let row = 0; row < this.numRows; row++) {
                 for (let col = 0; col < this.numCols; col++) {
                     const cell = document.querySelector(`[data-row="${row}"][data-col="${col}"]`);
-                    console.log(`(${row}, ${col}): ${this.board[row][col]}`);
+                    //console.log(`(${row}, ${col}): ${this.board[row][col]}`);
                     
                     cell.textContent = '';
                     cell.style.backgroundImage = 'none';
@@ -962,11 +962,13 @@ document.addEventListener('DOMContentLoaded', () => {
 
                 if (winner === game.player_piece) {
                     user.victories++;
+
                 } else {
                     user.loses++;
+
                 }
         
-                //this.updateLeaderboard(user);
+                leaderboard_off.updateLeaderboard(user);
                 
             }
 
@@ -1016,7 +1018,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         /*updateLeaderboard(user) {
             // Função para atualizar a tabela de classificação
-            const leaderboardTable = document.getElementById('leaderboard-table');
+            const leaderboardTable = document.getElementById('leaderboard-table-off');
             let existingRow;
         
             // Verifica se o nome do utilizador já está na tabela de classificação
@@ -1054,9 +1056,118 @@ document.addEventListener('DOMContentLoaded', () => {
         }*/
 
     };
-    
-    
 
+    class Leaderboard {
+        constructor() {
+            this.users = [];
+            this.loadLeaderboard();
+        }
+    
+        updateLeaderboard(user) {
+            console.log(user.username);
+            console.log(user.victories);
+            console.log(user.loses);
+            
+            console.log("aaa" + this.users)
+            const existingUserIndex = this.users.findIndex(u => u && u.username === user.username);
+    
+            if (existingUserIndex !== -1) {
+                // Se o usuário já estiver na tabela, atualiza as informações
+                this.users[existingUserIndex] = user;
+            } else {
+                // Caso contrário, adiciona o novo usuário
+                this.users.push(user);
+            }
+    
+    
+            // Salva a leaderboard no localStorage
+            this.saveLeaderboard();
+    
+            // Atualiza a tabela na interface
+            this.renderLeaderboard();
+        }
+    
+        renderLeaderboard() {
+            const leaderboardTable = document.getElementById("leaderboard-table-off");
+        
+            // Limpa as linhas de dados da tabela, mantendo a linha de cabeçalho
+            for (let i = leaderboardTable.rows.length - 1; i > 0; i--) {
+                leaderboardTable.deleteRow(i);
+            }
+        
+            // Filtra os usuários para remover elementos nulos
+            const validUsers = this.users.filter(user => user !== null);
+        
+            // Adiciona as linhas de dados à tabela
+            validUsers.forEach((user, index) => {
+                const newRow = leaderboardTable.insertRow(-1);
+                const positionCell = newRow.insertCell(0);
+                const nameCell = newRow.insertCell(1);
+                const victoriesCell = newRow.insertCell(2);
+                const defeatsCell = newRow.insertCell(3);
+                const totalGamesCell = newRow.insertCell(4);
+        
+                positionCell.textContent = index + 1;
+                nameCell.textContent = user.username || 'N/A';
+                victoriesCell.textContent = user.victories/2 || '0';
+                defeatsCell.textContent = user.loses/2 || '0';
+                totalGamesCell.textContent = (user.victories /2 || 0) + (user.loses /2 || 0);
+            });
+        }
+        
+        
+    
+        saveLeaderboard() {
+            // Salva a leaderboard no localStorage como uma string JSON
+            localStorage.setItem('leaderboard', JSON.stringify(this.users));
+            console.log(localStorage)
+        }
+    
+        loadLeaderboard() {
+            // Carrega a leaderboard do localStorage
+            const savedLeaderboard = localStorage.getItem('leaderboard');
+    
+            if (savedLeaderboard) {
+                // Se houver dados salvos, converte de volta para objetos JavaScript
+                this.users = JSON.parse(savedLeaderboard);
+            }
+        }
+    }
+
+    
+    
+const canvasFunctions = {
+    
+    hideCanvas: function () {
+        const canvas = document.getElementById('tela');
+        canvas.style.display = 'none';
+    },
+
+    showCanvas: function () {
+        const canvas = document.getElementById('tela');
+        canvas.style.display = 'block';
+        const gc = canvas.getContext('2d');
+        const radius = 40;
+        const lineWidth = 5;
+        let rotation = 0;
+        const speed = 0.1;
+
+        function draw() {
+            gc.clearRect(0, 0, canvas.width, canvas.height);
+
+            gc.beginPath();
+            gc.arc(canvas.width / 2, canvas.height / 2, radius, rotation, rotation + Math.PI * 1.5);
+            gc.lineWidth = lineWidth;
+            gc.strokeStyle = '#5271FF';
+            gc.stroke();
+
+            rotation += speed;
+            requestAnimationFrame(draw);
+        }
+
+        draw();
+    }
+};
 
 //Para em vez de aparecer 1 ou 2 aparecer branco ou preto no html
 const playerNames = {
@@ -1070,6 +1181,7 @@ let user;
 let board;
 let game;
 let IsOnlineGame = 0; // Só para o alerta aparecer uma vez
+const leaderboard_off = new Leaderboard();
 
 // Event listener para o botão "Iniciar Jogo"
 startGameButton.addEventListener('click', async () => {
@@ -1092,7 +1204,7 @@ startGameButton.addEventListener('click', async () => {
         const new_cols = parseInt(boardSize);
         const new_rows = 6;
         const size = { rows: new_rows, columns: new_cols };
-        canvas();
+        canvasFunctions.showCanvas();
 
     try {
 
@@ -1201,7 +1313,8 @@ quit_button.addEventListener('click', () => {
     }
     game.isGameActive = false;
     playerputonline.style.display = 'none';
-    //game.updateLeaderboard(user);
+    leaderboard_off.updateLeaderboard(user);
+    canvasFunctions.hideCanvas();
 
 });
 
@@ -1284,14 +1397,12 @@ quit_button.addEventListener('click', () => {
     const leaderboardButton = document.getElementById("leaderboard");
     const leaderboardSection = document.getElementById("leaderboard-section");
 
-    
     loginForm.addEventListener("submit", async (event) => {
         event.preventDefault();
     
         (async () => {
             const username = document.getElementById("username").value;
             const password = document.getElementById("password").value;
-    
             const registrationSuccess = await clickRegister(username, password);
     
             if (registrationSuccess) {
@@ -1301,8 +1412,6 @@ quit_button.addEventListener('click', () => {
                 mainSection.style.display = 'block';
                 logoutButton.style.display = 'block';
                 leaderboardSection.style.display = 'none';
-    
-                user = new User(username,password, 0, 0, 0);
     
                 // For example, you might want to use the same function for login
                 const loginSuccess = await clickRegister(username, password);
@@ -1316,6 +1425,7 @@ quit_button.addEventListener('click', () => {
                     leaderboardSection.style.display = 'none';
     
                     user = new User(username,password, 0, 0, 0);
+                    leaderboard_off.updateLeaderboard(user);
                 } else {
                     console.log("Login failed");
                     // Handle login failure
@@ -1336,6 +1446,10 @@ quit_button.addEventListener('click', () => {
         mainSection.style.display = 'none';
         logoutButton.style.display = 'none';
         leaderboardSection.style.display = 'none';
+        if (game.online === true){
+            leave(game.game_id, user.username, user.password);
+        }
+        canvasFunctions.hideCanvas();
     });
 
 leaderboardButton.addEventListener("click", () => {
@@ -1353,11 +1467,30 @@ const rankingSelect = document.querySelector('#board_ranking');
 
 rankingSelect.addEventListener('change', event => {
     event.preventDefault(); // Prevent the default behavior of triggering the change event again in the next repaint cycle
-
     const selectedOption = document.getElementById('board_ranking').value;
     const leaderboardSize = parseInt(selectedOption);
-    console.log(leaderboardSize);
     new_leaderboard(6, leaderboardSize);
+});
+
+
+const classificationSelect = document.querySelector('#ranking_on_off');
+const rankingContainer = document.querySelector('#ranking-container');
+const leaderboardOff = document.querySelector('#leaderboard-table-off');
+
+classificationSelect.addEventListener('change', () => {
+    const selectedOption = classificationSelect.value;
+    console.log(selectedOption);
+
+    if (selectedOption === 'off') {
+        // Ocultar todos os elementos dentro do #ranking-container
+        rankingContainer.style.display = 'none';
+        leaderboardOff.style.display = 'block';
+
+    } else {
+        // Exibir todos os elementos dentro do #ranking-container
+        rankingContainer.style.display = 'inline-block';
+        leaderboardOff.style.display = 'none';
+    }
 });
 
 const clickEvent = new MouseEvent('click', {
@@ -1372,28 +1505,11 @@ function new_leaderboard(row, col) {
     ranking(4, size);
 }
 
-function canvas() {
-        const canvas = document.getElementById('tela');
-        canvas.style.display = 'block';
-        const ctx = canvas.getContext('2d');
-        const radius = 20;
-        let angle = 0;
-
-        function draw() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            const x = canvas.width / 2 + Math.cos(angle) * 50;
-            const y = canvas.height / 2 + Math.sin(angle) * 50;
-            ctx.beginPath();
-            ctx.arc(x, y, radius, 0, 2 * Math.PI);
-            ctx.fillStyle = '#3498db';
-            ctx.fill();
-            angle += 0.05;
-            requestAnimationFrame(draw);
-        }
-
-        draw();
+window.addEventListener('unload', function () {
+    if (game.online === true) {
+        leave(game.game_id, user.username, user.password);
     }
-
+});
 
 });
 

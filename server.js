@@ -83,7 +83,6 @@ function leave(game, nick, password) {
         .then(response => response.json())
         .then(data => {
             if (data.error) {
-                alert(`Error: ${data.error}`);
             } else {
                 console.log("Saida do grupo de jogo");
             }
@@ -92,35 +91,33 @@ function leave(game, nick, password) {
 }
 
 async function notify(nick, password, game, move) {
-    fetch(SERVER + 'notify', {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            nick: nick,
-            password: password,
-            game: game,
-            move: move,
-        }),
-    })
-        .then(response => {
-            if (response.ok) {
-                let message = response.json();
+    try {
+        const invalid = document.getElementById("invalid_move");
+        const response = await fetch(SERVER + 'notify', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                nick: nick,
+                password: password,
+                game: game,
+                move: move,
+            }),
+        });
+        invalid.style.display = 'none';
+        if (!response.ok) {
+            const errorObject = await response.json();
+            const errorText = errorObject.error;
 
-                if ('error' in message) {
-                    console.log(`Error: ${message.error}`);
-                }
-                else return message;
-            }else{
-                let message = response.json();
-                console.log(`Error: ${message.error}`)
-            }
-            
-        })
-        .catch(error => console.error('', error));
+            // Adicione a mensagem de erro ao elemento HTML
+            invalid.style.display = 'block';
+            invalid.innerHTML = errorText;
+        }
+    } catch (error) {
+        console.error('Error during move notification:', error);
+    }
 }
-
 
 async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
     const queryParams = new URLSearchParams({
@@ -129,7 +126,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
     });
 
     console.log("update");
-
+    const invalid = document.getElementById("invalid_move");
 
     const url = `${SERVER}update?${queryParams.toString()}`;
     const source = new EventSource(url);
@@ -155,7 +152,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     IsOnlineGame=1;
                     putDisplay.style.display = 'block';
                     game_class.isGameActive = true;
-                    hideCanvas();
+                    canvasFunctions.hideCanvas();
                 }
                 playerputonline.textContent = `Vez do ${data.turn}`;
                 if ("players" in  data){
@@ -170,13 +167,13 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                 }
                 if( "turn" in data){
                     if( data.turn == nick){
-                        hideCanvas();
+                        canvasFunctions.hideCanvas();
                         putDisplay.style.display = 'block';
                         game_class.currentPlayer = game_class.player1;
                         console.log("currentPlayer: " + game_class.currentPlayer);
                     }
                     else{
-                        canvas();
+                        canvasFunctions.showCanvas();
                         putDisplay.style.display = 'none';
                         game_class.currentPlayer = game_class.player1%2 + 1;
                         console.log("currentPlayer: " + game_class.currentPlayer);
@@ -205,7 +202,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                             }
                         }
                     }
-                    
+                    invalid.style.display = 'none';
                     const sideBoard = document.querySelector(`.side_board_1`);
                     const piecesCount = 12- piecesWhite;
                     sideBoard.innerHTML = ''; // «Limpa» o tabuleiro lateral
@@ -282,7 +279,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                         }
                 }
                 if ( "winner" in data){
-                    hideCanvas();
+                    canvasFunctions.hideCanvas();
                     console.log("winnnnnner" + data["winner"])
                     game_class.game_finished_online(data["winner"]);
                 }
@@ -385,33 +382,34 @@ function convert_board(str){
 
 }
 
-function hideCanvas() {
-    const canvas = document.getElementById('tela');
-    canvas.style.display = 'none';
-}
+const canvasFunctions = {
+    hideCanvas: function () {
+        const canvas = document.getElementById('tela');
+        canvas.style.display = 'none';
+    },
 
-function canvas() {
-    const canvas = document.getElementById('tela');
-    canvas.style.display = 'block';
-    const ctx = canvas.getContext('2d');
-    const radius = 20;
-    let angle = 0;
+    showCanvas: function () {
+        const canvas = document.getElementById('tela');
+        canvas.style.display = 'block';
+        const gc = canvas.getContext('2d');
+        const radius = 40;
+        const lineWidth = 5;
+        let rotation = 0;
+        const speed = 0.1;
 
-    function draw() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        const x = canvas.width / 2 + Math.cos(angle) * 50;
-        const y = canvas.height / 2 + Math.sin(angle) * 50;
-        ctx.beginPath();
-        ctx.arc(x, y, radius, 0, 2 * Math.PI);
-        ctx.fillStyle = '#3498db';
-        ctx.fill();
-        angle += 0.05;
-        requestAnimationFrame(draw);
+        function draw() {
+            gc.clearRect(0, 0, canvas.width, canvas.height);
+
+            gc.beginPath();
+            gc.arc(canvas.width / 2, canvas.height / 2, radius, rotation, rotation + Math.PI * 1.5);
+            gc.lineWidth = lineWidth;
+            gc.strokeStyle = '#5271FF';
+            gc.stroke();
+
+            rotation += speed;
+            requestAnimationFrame(draw);
+        }
+
+        draw();
     }
-
-    draw();
-}
-
-document.addEventListener("DOMContentLoaded", function () {
-    document.getElementById("login-button").addEventListener("click", clickRegister);
-});
+};

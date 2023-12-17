@@ -346,15 +346,23 @@ body {
     display: none;
 }
 
-.invalid-move{
+.invalid_move{
     display: none;
 }
 
 .tela {
     z-index: 1000;
     position: absolute;
-    top: 50%;
+    top: 35%;
     left: 50%;
     transform: translate(-50%, -50%);
     display: none;
+}
+
+.leaderboard-table-off {
+    display: none;
+    text-align: center;
+    margin: auto; /* Centraliza horizontalmente */
+    margin-top: 20px; /* Adiciona margem superior (opcional) */
+    width: 80%; /* Largura definida para centralizar */
 }
