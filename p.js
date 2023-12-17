@@ -103,7 +103,7 @@ class Board{
         for (let row = 0; row < this.numRows; row++) {
             for (let col = 0; col < this.numCols; col++) {
                 let boardCopy = JSON.parse(JSON.stringify(this.board));
-                if (this.possible_play(row, col, game.currentPlayer, boardCopy,0,0)) {
+                if (this.possible_play(row, col, game_server.currentPlayer, boardCopy,0,0)) {
                     availableCells.push({ row, col });
                 }
             }
@@ -202,7 +202,7 @@ class Board{
     
         board_layout[i][j] = Player;
 
-        if (!game.putPhase) {
+        if (!game_server.putPhase) {
             board_layout[rowSel][colSel] = 0; // tirar a peça da posição anterior
         }
         
@@ -221,7 +221,7 @@ class Board{
                 Player === (board_layout[i][k + 3] || 0 )
             ) {
                 board_layout[i][j] = 0;  // Põe a célula de volta a uma célula vazia
-                if (!game.putPhase) {
+                if (!game_server.putPhase) {
                     board_layout[rowSel][colSel] = Player; // Tirar a peça da posição anterior
                 }
 
@@ -243,7 +243,7 @@ class Board{
                 Player === (board_layout[k + 3][j] || 0)
             ) {
                 board_layout[i][j] = 0;  // Põe a célula de volta a uma célula vazia
-                if (!game.putPhase) {
+                if (!game_server.putPhase) {
                     board_layout[rowSel][colSel] = Player; // Tirar a peça da posição anterior
                 }
 
@@ -251,7 +251,7 @@ class Board{
             }
         }
     
-        if (!game.putPhase) {
+        if (!game_server.putPhase) {
             board_layout[i][j] = 0;
             board_layout[rowSel][colSel] = Player;
         }
@@ -332,19 +332,18 @@ class Game {
         let currentPlayer;
         if (this.players['player 1'] === nick) {
             currentPlayer = '1';
+            this.currentPlayer = '1';
         } else {
             currentPlayer = '2';
+            this.currentPlayer = '2';
         }
     
         let canPlacePiece = this.board.possible_play(row, col, currentPlayer, this.board.board, 0, 0);
-    
         if (canPlacePiece) {
-            if (this.currentPlayer === '1' && this.board.playerBpieces > 0) {
-                this.board.playerBpieces--;
-                return true;
-            } else if (this.currentPlayer === '2' && this.board.playerWpieces > 0) {
+            if (this.currentPlayer == '1' && this.board.playerWpieces > 0) {
                 this.board.playerWpieces--;
-                return true;
+            } else if (this.currentPlayer == '2' && this.board.playerBpieces > 0) {
+                this.board.playerBpieces--;
             }
     
             this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
@@ -353,7 +352,7 @@ class Game {
             return false;
         }
     
-        console.log('Peças restantes - Jogador 1:', this.board.playerBpieces, 'Jogador 2:', this.board.playerWpieces);
+        console.log('Peças restantes - Jogador 1:', this.board.playerWpieces, 'Jogador 2:', this.board.playerBpieces);
     
         if (this.board.playerBpieces === 0 && this.board.playerWpieces === 0) {
             this.putPhase = false;
@@ -364,6 +363,7 @@ class Game {
                 this.currentPlayer = '1'; // jogador branco
             }
         }
+        return true;
     }
     
 
@@ -615,7 +615,7 @@ const server = http.createServer(function (request, response) {
             switch(pathname){
                 case '/update':
                     let nick = query.nick;
-                    let game = atob(query.game);
+                    let game = query.game;
                     remember(response,game);
                     request.on('close', () =>  {console.log("fechei o SSE");forget(response,game)} );
                     setImmediate(() =>{
@@ -705,10 +705,10 @@ const server = http.createServer(function (request, response) {
                                 let size = dados.size;
                                 let rows = size.rows;
                                 let columns = size.columns;
-                                let size_string = JSON.stringify(size);
-								rankings[size_string]['ranking'].sort(function(a, b){return b['victories'] - a['victories']});
-								let max = Math.min(10,rankings[size_string]['ranking'].length);
-								let list = rankings[size_string]['ranking'].slice(0,max);
+                                let sizeString = JSON.stringify(size);
+								rankings[sizeString]['ranking'].sort(function(a, b){return b['victories'] - a['victories']});
+								let max = Math.min(10,rankings[sizeString]['ranking'].length);
+								let list = rankings[sizeString]['ranking'].slice(0,max);
 								response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8','Access-Control-Allow-Origin': '*'});
 								response.write(JSON.stringify({'ranking':list}));
 								response.end();
@@ -716,81 +716,11 @@ const server = http.createServer(function (request, response) {
                             catch(err){console.log(err);}
                         })
                         break;
-                        case "/join":
-                            request
-                                .on('data', (chunk) => {body += chunk;  })
-                                .on('end', () => {
-                                    try { 
-                                        let dados = JSON.parse(body); 
-                                        let nick = dados.nick;
-                                        let password = dados.password;
-                                        let size = dados.size;
-                                        let rows = size.rows;
-                                        let columns = size.columns;
-                                        let size_string = JSON.stringify(size);
-                                        if ((size_string in waiting)){
-                                            if (waiting[size_string].length > 0){
-                                                let waiter = waiting[size_string].pop();
-                                                let game_id = waiter.game;
-                                                let player_1 = waiter.nick;
-                                                let encoded_game_id = btoa(game_id);
-                                                //cria um jogo com player_1 e nick e manda para ambos os players, e começa o, adicionando ao dicionario games um par game_id: game_object
-                                                console.log("criei um jogo com os players "+player_1+" e "+nick +"com id: "+game_id + "e hash:" +encoded_game_id);
-                                                response.writeHead(200,defaultCorsHeaders);
-                                                response.write(JSON.stringify({'game':encoded_game_id}));
-                                                response.end();
-                                                let game = games[game_id];
-                                                game.join_p2(nick);
-                                                setTimeout(() => broadcast(game.updateGame(),game_id), 1000); // se for tudo seguido, ele n tem tempo de iniciar o sse e receber o 1º update, assim, ele entra, recebe q o jogo começou, epsra 1 segundo(provavelmente pudemos diminuir isso) e só depois é q recebe o 1º update
-                                                /*if (!(size_string in rankings)){
-                                                    rankings[size_string] = {'ranking':[]};
-                                                    for (var nicks in logins){
-                                                        rankings[size_string]['ranking'].push({'nick':nicks,'victories':0,'games':0});
-                                                    }
-                                                }*/
-                                                let found_1 = false;
-                                                let found_2 = false;
-                                                for (player of rankings[size_string]['ranking']){
-                                                    if (player['nick'] == player_1){found_1=true;}
-                                                    if (player['nick'] == nick){found_2=true;} 
-                                                }
-                                                if (!found_1){rankings[size_string]['ranking'].push({'nick':player_1,'victories':0,'games':0});}
-                                                if (!found_2){rankings[size_string]['ranking'].push({'nick':nick,'victories':0,'games':0});}
-                                                for (var player of rankings[size_string]['ranking']){
-                                                    if (player.nick==player_1){player['games']++;}
-                                                    if (player.nick==nick){player['games']++;}
-                                                }
-                                                return;
-                                            }
-                                            else{
-                                                console.log("fila de espera");
-                                                let game_id = 'game_number_'+game_counter;
-                                                game_counter++;
-                                                waiting[size_string].push({'game':game_id, 'nick':nick});
-                                                let encoded_game_id = btoa(game_id);
-                                                let new_game = new Game(size_string,rows,columns,game_id,nick);
-                                                games[game_id] = new_game;
-                                                response.writeHead(200,defaultCorsHeaders);
-                                                response.write(JSON.stringify({'game':encoded_game_id}));
-                                                response.end();
-                                                return;
-                                                }
-                                        }
-                                        else{console.log("fila de espera");
-                                            let game_id = 'game_number_'+game_counter;
-                                            game_counter++;
-                                            waiting[size_string] = [{'game':game_id, 'nick':nick}];
-                                            let encoded_game_id = btoa(game_id);
-                                            let new_game = new Game(size_string,rows,columns,game_id,nick);
-                                            games[game_id] = new_game;
-                                            response.writeHead(200,defaultCorsHeaders);
-                                            response.write(JSON.stringify({'game':encoded_game_id}));
-                                            response.end();
-                                            return;}
-                                    }
-                                    catch(err){console.log(err);}
-                                })
-                            break;
+
+                case "/join":
+                    handleJoinRequest(request, response);
+                    break;
+
                 case "/leave":
                     request
                         .on('data', (chunk) => {body += chunk;  })
@@ -799,7 +729,7 @@ const server = http.createServer(function (request, response) {
                                 let dados = JSON.parse(body); 
                                 let nick = dados.nick;
                                 let password = dados.password;
-                                let game_id = atob(dados.game);
+                                let game_id = dados.game;
                                 if (logins[nick]!=password){response.writeHead(200,defaultCorsHeaders);response.write(JSON.stringify({"error": "User registered with a different password"}));response.end();return;}
                                 if (!(game_id in games)){response.writeHead(200,defaultCorsHeaders);response.write(JSON.stringify({"error": "This game is invalid"}));response.end();return;}
                                 
@@ -820,10 +750,10 @@ const server = http.createServer(function (request, response) {
 								let winner;
 								if(nick==game.player_1){winner = game.player_2;}
 								else{winner = game.player_1;}
-								let size_string = game.size;
+								let sizeString = game.size;
 								console.log(rankings);
 								console.log(winner);
-								for (var player of rankings[size_string]['ranking']){
+								for (var player of rankings[sizeString]['ranking']){
 									console.log(player);
 									if (player['nick']==winner){console.log("hey");player['victories']++;}
 								}
@@ -843,29 +773,31 @@ const server = http.createServer(function (request, response) {
                                 let dados = JSON.parse(body); 
                                 let nick = dados.nick;
                                 let password = dados.password;
-                                let game_id = atob(dados.game);
+                                let game_id = dados.game;
                                 let move = dados.move;
                                 let row = parseInt(move.row);
                                 let column = parseInt(move.column);
-                                let game = games[game_id];
-                                let error = game.handlePlacementPhase(row,column,nick);
-                                if (error!='valid'){
+                                game_server = games[game_id];
+                                
+                                let error = game_server.handlePlacementPhase(row,column,nick);
+                                console.log(game_server.board.board);
+                                if (!error){
                                     //manda uma mensagem com o erro
                                     response.writeHead(200,defaultCorsHeaders);
                                     response.write(JSON.stringify({'error':error}));
                                     response.end();
                                     return;
                                 }
-                                game.Dothis(row,column,nick);
                                 response.writeHead(200,defaultCorsHeaders);
                                 response.write(JSON.stringify({}));
                                 response.end();
                                 broadcast(games[game_id].updateGame(), game_id);
+                                console.log("aquiii")
 								if (games[game_id].board.winner != 0){
 									let winner;
-									if(game.winner==1){winner = game.player_1;}
-									else{winner = game.player_2;}
-									for (var player in rankings[size_string]['ranking']){
+									if(game_server.winner==1){winner = game_server.player_1;}
+									else{winner = game_server.player_2;}
+									for (var player in rankings[sizeString]['ranking']){
 										if (player.nick==winner){player['victories']++;}
 									}
 									delete games[game_id];
@@ -880,5 +812,86 @@ const server = http.createServer(function (request, response) {
             
     }
 });
+
+function handleJoinRequest(request, response) {
+    let body = '';
+
+    request
+        .on('data', (chunk) => { body += chunk; })
+        .on('end', () => {
+            try {
+                const { nick, password, size } = JSON.parse(body);
+                const sizeString = JSON.stringify(size);
+
+                if (sizeString in waiting && waiting[sizeString].length > 0) {
+                    handleExistingGame(response, nick, size, sizeString);
+                } else {
+                    handleNewGame(response, nick, size, sizeString);
+                }
+            } catch (error) {
+                console.log(error);
+                // Handle JSON parsing error
+                response.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
+                response.end(JSON.stringify({ message: 'Invalid JSON format' }));
+            }
+        });
+    }
+
+function handleExistingGame(response, nick, size, sizeString) {
+    const waiter = waiting[sizeString].pop();
+    const game_id = waiter.game;
+    const player_1 = waiter.nick;
+
+    console.log(`Created a game with players ${player_1} and ${nick} with ID: ${game_id}`);
+
+    response.writeHead(200, defaultCorsHeaders);
+    response.write(JSON.stringify({ game: game_id }));
+    response.end();
+
+    const game = games[game_id];
+    game.join_p2(nick);
+    setTimeout(() => broadcast(game.updateGame(), game_id), 1000);
+
+    updateRankings(sizeString, player_1, nick);
+}
+
+function handleNewGame(response, nick, size, sizeString) {
+    console.log("Waiting queue");
+
+    let game_id = `game_number_${game_counter++}`;
+    game_id = crypto.createHash('md5').update(game_id).digest('hex');;
+    console.log('game_id: ' + game_id)
+
+    waiting[sizeString] = [{ game: game_id, nick: nick }];
+    
+
+    const new_game = new Game(sizeString, size.rows, size.columns, game_id, nick);
+    games[game_id] = new_game;
+
+    response.writeHead(200, defaultCorsHeaders);
+    response.write(JSON.stringify({ game: game_id }));
+    response.end();
+}
+
+function updateRankings(sizeString, player_1, player_2) {
+    const playersToUpdate = [player_1, player_2];
+
+    if (!(sizeString in rankings)) {
+        rankings[sizeString] = { 'ranking': [] };
+        for (const nick in logins) {
+            rankings[sizeString]['ranking'].push({ 'nick': nick, 'victories': 0, 'games': 0 });
+        }
+    }
+
+    for (const player of rankings[sizeString]['ranking']) {
+        if (playersToUpdate.includes(player.nick)) {
+            player['games']++;
+        }
+    }
+}
+
+let game_server;
+
+
 
 server.listen(8009);
