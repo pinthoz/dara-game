@@ -366,3 +366,7 @@ body {
     margin-top: 20px; /* Adiciona margem superior (opcional) */
     width: 80%; /* Largura definida para centralizar */
 }
+.login-error{
+    display: none;
+
+}

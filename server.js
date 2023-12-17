@@ -27,13 +27,15 @@ async function registerClient(username, password) {
 async function clickRegister() {
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
-
+    const invalid = document.getElementById("login-error");
     let canRegister = await registerClient(username, password);
 
     if (canRegister) {
+        invalid.style.display = 'none';
         return true;
     } else {
         console.log("Registration failed");
+        invalid.style.display = 'block';
         return false;
     }
 }
