@@ -329,6 +329,7 @@ class Game {
     }
 
     handleGame(row, col, nick) {
+        // Controla o fluxo do jogo
         if (this.putPhase) {
             let move = this.handlePlacementPhase(row, col, nick);
             if (!move) return false;
@@ -562,6 +563,7 @@ class Game {
     }
 
     updateGame() {
+        // contrói a resposta
         let json = {};
 
         
@@ -586,7 +588,7 @@ class Game {
     
         console.log(this.player_colors);
         console.log("current player: " + this.currentPlayer);  
-        json['turn'] = this.players['player '+ this.currentPlayer]; // ou 'player 2' dependendo da lógica do seu jogo
+        json['turn'] = this.players['player '+ this.currentPlayer]; 
         if (this.putPhase) {
             json['phase'] = 'drop';
         } else {
@@ -611,7 +613,7 @@ class Game {
             json['step'] = 'from';
         }
     
-        // Corrigindo esta parte
+
         json['players'] = this.player_colors; 
         console.log(this.players);
         let board_json = copy_2darray(this.board.board);
@@ -744,87 +746,91 @@ const server = http.createServer(function (request, response) {
             break;
 
         case 'POST':
+            
             let body = '';
             switch (pathname) {
                 
-        case '/register':
-            request
-                .on('data', (chunk) => { body += chunk; })
-                .on('end', () => {
-                    try {
-                        let query = JSON.parse(body);
-                        let nick = query.nick;
-                        let password = query.password;
-                        console.log(nick);
-                        console.log(password);
+                case '/register':
+                    // gere register
+                    request
+                        .on('data', (chunk) => { body += chunk; })
+                        .on('end', () => {
+                            try {
+                                let query = JSON.parse(body);
+                                let nick = query.nick;
+                                let password = query.password;
+                                console.log(nick);
+                                console.log(password);
 
-                        // Verificar se tanto o nome de usuário quanto a pass estão presentes
-                        if (!nick || !password) {
-                            response.writeHead(400, {
-                                'Content-Type': 'application/json',
-                                'Access-Control-Allow-Origin': '*',
-                            });
-                            response.end(JSON.stringify({ message: 'Username and password are required' }));
-                            return;
-                        }
+                                // Verificar se tanto o nome de usuário quanto a pass estão presentes
+                                if (!nick || !password) {
+                                    response.writeHead(400, {
+                                        'Content-Type': 'application/json',
+                                        'Access-Control-Allow-Origin': '*',
+                                    });
+                                    response.end(JSON.stringify({ message: 'Username and password are required' }));
+                                    return;
+                                }
 
-                       
-                        const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
-
-                        
-                        const logins = readLoginsFromFile();
-
-                        
-                        if (logins[nick]) {
                             
-                            if (logins[nick].hashedPassword === hashedPassword) {
-                                
-                                console.log("deu")
-                                response.writeHead(200, {
-                                    'Content-Type': 'application/json',
-                                    'Access-Control-Allow-Origin': '*',
-                                });
-                                response.write(JSON.stringify({ message: 'Login successful bvhbugyhguiygu' }));
-                                response.end();
+                                const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
 
-                            } else {
                                 
-                                response.writeHead(401, {
+                                const logins = readLoginsFromFile();
+
+                                
+                                if (logins[nick]) {
+                                    
+                                    if (logins[nick].hashedPassword === hashedPassword) {
+                                        
+                                        console.log("deu")
+                                        response.writeHead(200, {
+                                            'Content-Type': 'application/json',
+                                            'Access-Control-Allow-Origin': '*',
+                                        });
+                                        response.write(JSON.stringify({ message: 'Login successful bvhbugyhguiygu' }));
+                                        response.end();
+
+                                    } else {
+                                        
+                                        response.writeHead(401, {
+                                            'Content-Type': 'application/json',
+                                            'Access-Control-Allow-Origin': '*',
+                                        });
+                                        response.end(JSON.stringify({ message: 'Registration Failed' }));
+                                    }
+                                } else {
+                                    
+                                    logins[nick] = { hashedPassword };
+
+                                    
+                                    writeLoginsToFile(logins);
+
+                                    response.writeHead(200, {
+                                        'Content-Type': 'application/json',
+                                        'Access-Control-Allow-Origin': '*',
+                                    });
+                                    response.end(JSON.stringify({ message: 'Registration successful' }));
+                                }
+                            } catch (error) {
+                                
+                                response.writeHead(400, {
                                     'Content-Type': 'application/json',
                                     'Access-Control-Allow-Origin': '*',
                                 });
-                                response.end(JSON.stringify({ message: 'Registration Failed' }));
+                                response.end(JSON.stringify({ message: 'Invalid JSON format' }));
                             }
-                        } else {
-                            
-                            logins[nick] = { hashedPassword };
-
-                            
-                            writeLoginsToFile(logins);
-
-                            response.writeHead(200, {
-                                'Content-Type': 'application/json',
-                                'Access-Control-Allow-Origin': '*',
-                            });
-                            response.end(JSON.stringify({ message: 'Registration successful' }));
-                        }
-                    } catch (error) {
-                        
-                        response.writeHead(400, {
-                            'Content-Type': 'application/json',
-                            'Access-Control-Allow-Origin': '*',
                         });
-                        response.end(JSON.stringify({ message: 'Invalid JSON format' }));
-                    }
-                });
-            break;
+                    break;
 
                     
                 case "/join":
+                    // gere join
                     handleJoinRequest(request, response);
                     break;
 
-                case "/leave":                
+                case "/leave":
+                    // gere leave                
                     request
                         .on('data', (chunk) => {
                             body += chunk;
@@ -872,6 +878,7 @@ const server = http.createServer(function (request, response) {
                     break;
                     
                 case "/notify":
+                    // gere notify
                     request
                         .on('data', (chunk) => {body += chunk;  })
                         .on('end', () => {
@@ -909,17 +916,17 @@ const server = http.createServer(function (request, response) {
                                 response.end();
                                 broadcast(games[game_id].updateGame(), game_id);
                                 const sizeString = games[game_id].size;
-								if (games[game_id].winner != 0){
-									let winner;
+                                if (games[game_id].winner != 0){
+                                    let winner;
 
-									if(games[game_id].winner==1) winner = games[game_id].player_1;
-									else winner = games[game_id].player_2;
+                                    if(games[game_id].winner==1) winner = games[game_id].player_1;
+                                    else winner = games[game_id].player_2;
 
-									for (var player in rankings[sizeString]['ranking']){
-										if (player.nick==winner){player['victories']++;}
-									}
-									delete games[game_id];
-								}
+                                    for (var player in rankings[sizeString]['ranking']){
+                                        if (player.nick==winner){player['victories']++;}
+                                    }
+                                    delete games[game_id];
+                                }
                                 return;
                             }
                             catch(err){console.log(err);}
@@ -927,6 +934,7 @@ const server = http.createServer(function (request, response) {
                     break;
                     
                 case "/ranking":
+                    // Mostrar top 5 de jogadores por ordem decrescente de vitórias
                     request
                         .on('data', (chunk) => {body += chunk;  })
                         .on('end', () =>{
@@ -935,9 +943,10 @@ const server = http.createServer(function (request, response) {
                                 let size = query.size;
                                 let sizeString = JSON.stringify(size);
                                 
-                                rankings[sizeString]['ranking'].sort(function(a, b){return b['victories'] - a['victories']});
-                                let max = Math.min(10,rankings[sizeString]['ranking'].length);
-                                let list = rankings[sizeString]['ranking'].slice(0,max);
+                                rankings[sizeString]['ranking'].sort(function(p1, p2){return p2['victories'] - p1['victories']});
+                                let top5 = Math.min(5,rankings[sizeString]['ranking'].length);
+                                let list = rankings[sizeString]['ranking'].slice(0,top5);
+
                                 response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8','Access-Control-Allow-Origin': '*'});
                                 response.write(JSON.stringify({'ranking':list}));
                                 response.end();
@@ -953,6 +962,7 @@ const server = http.createServer(function (request, response) {
 });
 
 function handleJoinRequest(request, response) {
+    // Funçao que controla o join
     let body = '';
 
     request
@@ -969,7 +979,7 @@ function handleJoinRequest(request, response) {
                 }
             } catch (error) {
                 console.log(error);
-                // Handle JSON parsing error
+                // Erro
                 response.writeHead(400, { 'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*' });
                 response.end(JSON.stringify({ message: 'Invalid JSON format' }));
             }
@@ -977,6 +987,7 @@ function handleJoinRequest(request, response) {
     }
 
 function handleExistingGame(response, nick, size, sizeString) {
+    // Junta-se a um jogo existente
     const waiter = waiting_for_game[sizeString].pop();
     const game_id = waiter.game;
     const player_1 = waiter.nick;
@@ -995,6 +1006,7 @@ function handleExistingGame(response, nick, size, sizeString) {
 }
 
 function handleNewGame(response, nick, size, sizeString) {
+    // Cria um novo jogo
     console.log("Waiting queue");
 
     let game_id = `game_number_${game_counter++}`;
@@ -1023,11 +1035,11 @@ function updateRankings(sizeString, player_1, player_2) {
     for (const nick of playersToUpdate) {
         console.log('nick' + nick);
 
-        // Verifica se o usuário já está no ranking
+        // Verifica se o utilizador já está no ranking
         const userInRanking = rankings[sizeString]['ranking'].some((player) => player.nick === nick);
 
         if (!userInRanking) {
-            // Adiciona o novo usuário ao ranking
+            // Adiciona o novo utilizador ao ranking
             rankings[sizeString]['ranking'].push({ 'nick': nick, 'victories': 0, 'games': 0 });
         }
     }
@@ -1043,6 +1055,7 @@ function updateRankings(sizeString, player_1, player_2) {
 }
 
 function writeRankingsToFile() {
+    // Escrever rankings no ficheiro
     try {
         const data = JSON.stringify(rankings, null, 2);
         fs.writeFileSync('ranking.json', data, 'utf8');

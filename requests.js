@@ -3,6 +3,8 @@
 //const SERVER = "http://34.67.217.93:8008/";
 const SERVER = "http://localhost:8009/";
 
+
+//Função para fazer o login/registar
 async function registerClient(username, password) {
     let url = SERVER + "register";
 
@@ -26,6 +28,7 @@ async function registerClient(username, password) {
     }
 }
 
+// Função para fazer o login de acordo com o loginForm (index.html)
 async function clickRegister() {
     let username = document.getElementById("username").value;
     let password = document.getElementById("password").value;
@@ -42,7 +45,7 @@ async function clickRegister() {
     }
 }
 
-
+// Função para fazer o join de dois jogadores num game_id
 async function join(group, nick, password, size ,game_classe) {
     fetch(SERVER + 'join', {
         method: 'POST',
@@ -63,6 +66,7 @@ async function join(group, nick, password, size ,game_classe) {
                 console.log(size);
                 alert(`Error: ${data.error}`);
             } else {
+                //Armazenar o game_id
                 game_info = data.game;
                 game_classe.game_id = game_info;
                 console.log(data);
@@ -72,6 +76,7 @@ async function join(group, nick, password, size ,game_classe) {
         .catch(error => console.error('Error:', error));
 }
 
+// Função para fazer o leave de um jogador de um game_id
 function leave(game, nick, password) {
     fetch(SERVER +'leave', {
         method: 'POST',
@@ -94,6 +99,7 @@ function leave(game, nick, password) {
         .catch(error => console.error('Error:', error));
 }
 
+// Função para fazer o notify de um jogador de um game_id
 async function notify(nick, password, game, move) {
     try {
         const invalid = document.getElementById("invalid_move");
@@ -114,7 +120,7 @@ async function notify(nick, password, game, move) {
             const errorObject = await response.json();
             const errorText = errorObject.error;
 
-            // Adicione a mensagem de erro ao elemento HTML
+            // Adiciona a mensagem de erro ao elemento HTML
             invalid.style.display = 'block';
             invalid.innerHTML = errorText;
         }
@@ -123,6 +129,7 @@ async function notify(nick, password, game, move) {
     }
 }
 
+// Função para fazer o update de um jogador de um game_id
 async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
     const queryParams = new URLSearchParams({
         nick: nick,
@@ -147,9 +154,11 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
             if (data.error) {
                 alert(`Error: ${data.error}`);
             }else{
+                // Lidar com os displays
                 const putDisplay = document.getElementById("place-piece-display");
                 const moveDisplay = document.getElementById("move-piece-display");
                 const removeDisplay = document.querySelector('#remove-display')
+                // Se for a primeira vez dá um alerta
                 if (IsOnlineGame===0){
                     const opponentNick = Object.keys(data.players).find(player => player !== nick);
                     alert(`Adversário encontrado: ${opponentNick}`);
@@ -158,6 +167,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     game_class.isGameActive = true;
                     canvasFunctions.hideCanvas();
                 }
+                // Display do jogador a jogar
                 playerputonline.textContent = `Vez do ${data.turn}`;
                 if ("players" in  data){
                     if (data.players[nick] != "white"){
@@ -183,6 +193,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                         console.log("currentPlayer: " + game_class.currentPlayer);
                     }
                 }
+                // Funkão para fazer o update do tabuleiro
                 if("board" in data){
                     console.log("Received board data:", data.board);
                     // Rest of the code
@@ -206,6 +217,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                             }
                         }
                     }
+                    // Atualizar o tabuleiro lateral
                     invalid.style.display = 'none';
                     const sideBoard = document.querySelector(`.side_board_1`);
                     const piecesCount = 12- piecesWhite;
@@ -216,6 +228,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                         sideBoard.appendChild(piece);
                     }
 
+                    // Atualizar o tabuleiro lateral
                     const sideBoard2 = document.querySelector(`.side_board_2`);
                     const piecesCount2 = 12- piecesBlack;
                     sideBoard2.innerHTML = ''; // «Limpa» o tabuleiro lateral
@@ -228,7 +241,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                     
                     console.log(board_class.board)
                 }
-                
+                // Muda a fase do jogo
                 if("phase" in data){
                     if(data.phase =="drop"){
                         game_class.putPhase = true;
@@ -248,6 +261,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                         }
                     }
                 }
+                // Saber a fase do jogo
                 if("step" in data){
                     if(data.step=="take"){
                         game_class.canRemove = true;
@@ -282,6 +296,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
                             console.log("canRemove: " + game_class.canRemove)
                         }
                 }
+                // Se o jogo acabou mostra o vencedor e esconde o canvas
                 if ( "winner" in data){
                     canvasFunctions.hideCanvas();
                     console.log("winnnnnner" + data["winner"])
@@ -300,7 +315,7 @@ async function update(gameId, nick, IsOnlineGame, game_class, board_class) {
     };
 }
 
-
+// Função para fazer receber os rankings do servidor
 async function ranking(group, size) {
     const leaderboardTable = document.getElementById("ranking-container");
 
@@ -376,6 +391,7 @@ async function ranking(group, size) {
     return data;
 }
 
+// Função que converter o tabuleiro para o formato do servidor
 function convert_board(str){
     if (str == "empty"){
         return 0
@@ -387,6 +403,7 @@ function convert_board(str){
 
 }
 
+// Função para criar o canvas
 const canvasFunctions = {
     hideCanvas: function () {
         const canvas = document.getElementById('tela');
