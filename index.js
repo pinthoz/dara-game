@@ -337,13 +337,12 @@ class Game {
             this.winner =this.possible_win();
             if (!this.PieceSelected && this.ver == 0) {
                 let correctselection = this.handlePieceSelection(row, col);
-                console.log('move' + correctselection);
-                console.log('pieceSelected' + this.PieceSelected);
+
                 if (correctselection) {
                     this.PieceSelected = true;
                     this.last_move[nick] = [row, col];
                 }
-                console.log('pieceSelected' + this.PieceSelected);
+
                 if (!correctselection) return false;
             } else {
                 if (!this.moved_piece) {
@@ -352,23 +351,21 @@ class Game {
                         return true;
                     }
 
-                    console.log('psssssss' + this.currentPlayer);
                     let correctmove = this.handlePieceMovement(row, col);
                     if (correctmove) {
                         this.PieceSelected = false;
                         this.moved_piece = true;
                     }
-                    console.log('psssssssmoved' + this.moved_piece);
+
                     if (!correctmove) return false;
-                    console.log('psssssss' + this.currentPlayer);
+
                 }
             }
     
             if (this.moved_piece) {
                 if (this.canRemove) {
-                    console.log('removeeeeeeee' + this.currentPlayer);
+
                     let moveremove = this.handleRemovePiece(row, col, this.currentPlayer);
-                    console.log(moveremove);
                     if (moveremove) this.canRemove = false;
                     if (!moveremove) return false;
                     this.ver = 0;
@@ -386,9 +383,7 @@ class Game {
                         this.canRemove = false;
                         this.pieceSelected = false;
                         this.moved_piece = false;
-                        console.log('pssssss432s' + this.currentPlayer);
                         this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
-                        console.log('pssssss432s' + this.currentPlayer);
                         return true;
                     }
                 }
@@ -645,8 +640,7 @@ function copy_2darray(array) {
 	return copy;
 }
 
-    
-const { log } = require('console');
+
 const http = require('http');
 const url  = require('url');
 const crypto = require('crypto');
@@ -666,7 +660,7 @@ var HeadersSSE = {
     'Connection': 'keep-alive'
 };
 let logins = {};
-let rankings = {'{"rows":6,"columns":5}':{'ranking':[]},'{"rows":6,"columns":6}':{'ranking':[]}};
+let rankings = readRankingFromFile();
 let games = {};
 let waiting_for_game = {};
 let update_responses = {};
@@ -700,12 +694,22 @@ function readLoginsFromFile() {
         const data = fs.readFileSync('users.json', 'utf8');
         return JSON.parse(data);
     } catch (error) {
-        // If the file doesn't exist or there is an error, return an empty object
+        
         return {};
     }
 }
 
-// Function to write logins to file
+
+function readRankingFromFile() {
+    try {
+        const data = fs.readFileSync('ranking.json', 'utf8');
+        return JSON.parse(data);
+    } catch (error) {
+        
+        return {};
+    }
+}
+
 function writeLoginsToFile(logins) {
     const data = JSON.stringify(logins, null, 2);
     fs.writeFileSync('users.json', data, 'utf8');
@@ -764,17 +768,17 @@ const server = http.createServer(function (request, response) {
                             return;
                         }
 
-                        // Use MD5 hash for password
+                       
                         const hashedPassword = crypto.createHash('md5').update(password).digest('hex');
 
-                        // Read logins from file
+                        
                         const logins = readLoginsFromFile();
 
-                        // Check if the user already exists
+                        
                         if (logins[nick]) {
-                            // User already exists, check the password
+                            
                             if (logins[nick].hashedPassword === hashedPassword) {
-                                // Password is correct, send success message
+                                
                                 console.log("deu")
                                 response.writeHead(200, {
                                     'Content-Type': 'application/json',
@@ -784,7 +788,7 @@ const server = http.createServer(function (request, response) {
                                 response.end();
 
                             } else {
-                                // Password is incorrect, send error message
+                                
                                 response.writeHead(401, {
                                     'Content-Type': 'application/json',
                                     'Access-Control-Allow-Origin': '*',
@@ -792,10 +796,10 @@ const server = http.createServer(function (request, response) {
                                 response.end(JSON.stringify({ message: 'Registration Failed' }));
                             }
                         } else {
-                            // User doesn't exist, create a new user
+                            
                             logins[nick] = { hashedPassword };
 
-                            // Write logins to file
+                            
                             writeLoginsToFile(logins);
 
                             response.writeHead(200, {
@@ -805,7 +809,7 @@ const server = http.createServer(function (request, response) {
                             response.end(JSON.stringify({ message: 'Registration successful' }));
                         }
                     } catch (error) {
-                        // Handle JSON parsing error
+                        
                         response.writeHead(400, {
                             'Content-Type': 'application/json',
                             'Access-Control-Allow-Origin': '*',
@@ -837,7 +841,7 @@ const server = http.createServer(function (request, response) {
                                 const game = games[game_id];
                 
                                 if (waiting_for_game[game.size].length > 0 && waiting_for_game[game.size][0].nick === nick) {
-                                    // User leaves during the game search
+                                    
                                     waiting_for_game[game.size].pop();
                                     broadcast({ winner: null }, game_id);
                                     delete games[game_id];
@@ -847,16 +851,17 @@ const server = http.createServer(function (request, response) {
                                 game.giveUp(nick);
                 
                                 const winner = nick === game.player_1 ? game.player_2 : game.player_1;
-                                const sizeString = JSON.stringify(game.size);
+                                const aj = JSON.parse(game.size);
+                                const sizeString = JSON.stringify(aj);
+                                console.log(sizeString);
                 
-                                console.log(rankings);
-                                console.log(winner);
+                                
                 
-                                //for (const player of rankings[sizeString].ranking) {
-                                    //if (player.nick === winner) {
-                                        //player.victories++;
-                                    //}
-                                //}
+                                for (const player of rankings[sizeString]['ranking']) {
+                                    if (player.nick === winner) {
+                                        player.victories++;
+                                    }
+                                }
                 
                                 broadcast(game.updateGame(), game_id);
                                 delete games[game_id];
@@ -883,7 +888,8 @@ const server = http.createServer(function (request, response) {
                                 games[game_id].querycol = parseInt(move.column);
                                 console.log(games[game_id].querycol);
                                 console.log('selected ' + games[game_id].PieceSelected);
-                                //let game = games[game_id];
+                            
+
                                 let error = true;
                                 if (turn == nick){
                                     error = games[game_id].handleGame(games[game_id].queryrow,games[game_id].querycol,nick);
@@ -891,7 +897,7 @@ const server = http.createServer(function (request, response) {
                                 }
                                 
                                 if (!error){
-                                    //manda uma mensagem com o erro
+                                    
                                     response.writeHead(200,HeadersCORS);
                                     response.write(JSON.stringify({'error':error}));
                                     response.end();
@@ -935,6 +941,7 @@ const server = http.createServer(function (request, response) {
                                 response.writeHead(200, {'Content-Type': 'application/json; charset=utf-8','Access-Control-Allow-Origin': '*'});
                                 response.write(JSON.stringify({'ranking':list}));
                                 response.end();
+                                writeRankingsToFile();
                             }
                             catch(err){console.log(err);}
                         })
@@ -1007,10 +1014,20 @@ function handleNewGame(response, nick, size, sizeString) {
 
 function updateRankings(sizeString, player_1, player_2) {
     const playersToUpdate = [player_1, player_2];
+    console.log(sizeString);
 
     if (!(sizeString in rankings)) {
         rankings[sizeString] = { 'ranking': [] };
-        for (const nick in logins) {
+    }
+
+    for (const nick of playersToUpdate) {
+        console.log('nick' + nick);
+
+        // Verifica se o usuário já está no ranking
+        const userInRanking = rankings[sizeString]['ranking'].some((player) => player.nick === nick);
+
+        if (!userInRanking) {
+            // Adiciona o novo usuário ao ranking
             rankings[sizeString]['ranking'].push({ 'nick': nick, 'victories': 0, 'games': 0 });
         }
     }
@@ -1020,9 +1037,19 @@ function updateRankings(sizeString, player_1, player_2) {
             player['games']++;
         }
     }
+
+    console.log('RANKINGS TABELA');
+    console.log(rankings[sizeString]);
 }
 
-
+function writeRankingsToFile() {
+    try {
+        const data = JSON.stringify(rankings, null, 2);
+        fs.writeFileSync('ranking.json', data, 'utf8');
+    } catch (error) {
+        console.error('Error writing ranking to file:', error);
+    }
+}
 
 
 server.listen(8009);

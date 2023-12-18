@@ -1,1 +1,31 @@
-{}
+{
+  "{\"rows\":6,\"columns\":5}": {
+    "ranking": [
+      {
+        "nick": "yy",
+        "victories": 2,
+        "games": 5
+      },
+      {
+        "nick": "ana",
+        "victories": 1,
+        "games": 3
+      },
+      {
+        "nick": "rr",
+        "victories": 1,
+        "games": 1
+      },
+      {
+        "nick": "you",
+        "victories": 1,
+        "games": 1
+      },
+      {
+        "nick": "po",
+        "victories": 0,
+        "games": 2
+      }
+    ]
+  }
+}
