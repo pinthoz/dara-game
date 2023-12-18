@@ -325,7 +325,7 @@ class Game {
         this.querycol = 3;
         this.moved_piece = false;
         this.ver = 0;
-        this.last_play = {};
+        this.last_move = {};
     }
 
     handleGame(row, col, nick) {
@@ -351,7 +351,7 @@ class Game {
                         this.PieceSelected = false;
                         return true;
                     }
-                    
+
                     console.log('psssssss' + this.currentPlayer);
                     let correctmove = this.handlePieceMovement(row, col);
                     if (correctmove) {
@@ -655,7 +655,7 @@ const fs = require('fs');
 const usersFilePath = 'users.json';
 var HeadersCORS = {
     'access-control-allow-origin': '*',
-    'access-control-allow-methods': 'GET, POST , OPTIONS',
+    'access-control-allow-methods': 'GET, POST, OPTIONS',
     'access-control-allow-headers': 'content-type, accept',
     'access-control-max-age': 10 
 };
@@ -847,16 +847,16 @@ const server = http.createServer(function (request, response) {
                                 game.giveUp(nick);
                 
                                 const winner = nick === game.player_1 ? game.player_2 : game.player_1;
-                                const sizeString = JSON.stringify(size);
+                                const sizeString = JSON.stringify(game.size);
                 
                                 console.log(rankings);
                                 console.log(winner);
                 
-                                for (const player of rankings[sizeString].ranking) {
-                                    if (player.nick === winner) {
-                                        player.victories++;
-                                    }
-                                }
+                                //for (const player of rankings[sizeString].ranking) {
+                                    //if (player.nick === winner) {
+                                        //player.victories++;
+                                    //}
+                                //}
                 
                                 broadcast(game.updateGame(), game_id);
                                 delete games[game_id];
