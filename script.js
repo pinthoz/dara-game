@@ -927,8 +927,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Verifica se há um possível vencedor
             let winner = 0;
             this.moves_available_1 = board.moves_available('1');
-            this.moves_available_1 = board.moves_available('2');
-            if (board.finalBpieces <= 2 ||  this.moves_available_1.length == 0){
+            this.moves_available_2 = board.moves_available('2');
+            if (board.finalBpieces <= 2 ||  this.moves_available_2.length == 0){
                 winner = '1';
                 this.game_finished(winner);
                 return winner;
