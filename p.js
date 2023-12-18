@@ -11,7 +11,8 @@ class User {
 
 //classe do board
 class Board{
-    constructor(numRows, numCols){
+    constructor(numRows, numCols, gameInstance){
+        this.game = gameInstance;
         this.numRows = numRows;
         this.numCols = numCols;
         this.board = this.createBoard(this.numRows, this.numCols);
@@ -56,8 +57,6 @@ class Board{
                 Player === (this.board[i][k + 1] || 0) &&
                 Player === (this.board[i][k + 2] || 0)
             ) {
-                moveDisplay.style.display = 'none';
-                removeDisplay.style.display = 'block';
                 return true;
             }
         }
@@ -74,8 +73,6 @@ class Board{
                 Player === (this.board[k + 1][j] || 0) &&
                 Player === (this.board[k + 2][j] || 0)
             ) {
-                moveDisplay.style.display = 'none';
-                removeDisplay.style.display = 'block';
                 return true;
             }
         }
@@ -103,7 +100,7 @@ class Board{
         for (let row = 0; row < this.numRows; row++) {
             for (let col = 0; col < this.numCols; col++) {
                 let boardCopy = JSON.parse(JSON.stringify(this.board));
-                if (this.possible_play(row, col, game_server.currentPlayer, boardCopy,0,0)) {
+                if (this.possible_play(row, col, this.game.currentPlayer, boardCopy,0,0)) {
                     availableCells.push({ row, col });
                 }
             }
@@ -202,7 +199,7 @@ class Board{
     
         board_layout[i][j] = Player;
 
-        if (!game_server.putPhase) {
+        if (!this.game.putPhase) {
             board_layout[rowSel][colSel] = 0; // tirar a peça da posição anterior
         }
         
@@ -221,7 +218,7 @@ class Board{
                 Player === (board_layout[i][k + 3] || 0 )
             ) {
                 board_layout[i][j] = 0;  // Põe a célula de volta a uma célula vazia
-                if (!game_server.putPhase) {
+                if (!this.game.putPhase) {
                     board_layout[rowSel][colSel] = Player; // Tirar a peça da posição anterior
                 }
 
@@ -243,7 +240,7 @@ class Board{
                 Player === (board_layout[k + 3][j] || 0)
             ) {
                 board_layout[i][j] = 0;  // Põe a célula de volta a uma célula vazia
-                if (!game_server.putPhase) {
+                if (!this.game.putPhase) {
                     board_layout[rowSel][colSel] = Player; // Tirar a peça da posição anterior
                 }
 
@@ -251,7 +248,7 @@ class Board{
             }
         }
     
-        if (!game_server.putPhase) {
+        if (!this.game.putPhase) {
             board_layout[i][j] = 0;
             board_layout[rowSel][colSel] = Player;
         }
@@ -272,22 +269,22 @@ class Board{
                     let new_colSelected = j;
                     let new_rowSelected = i;
                     if (i > 0) {
-                        if (board.possible_play(i - 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i - 1, j, i, j) && board.go_back(i - 1, j, i, j, Player)) {
+                        if (this.possible_play(i - 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && this.possible_move(i - 1, j, i, j) && this.go_back(i - 1, j, i, j, Player)) {
                             movesAvailable.push([i, j, i - 1, j]);
                         }
                     }
                     if (i < boardCopy.length - 1) {
-                        if (board.possible_play(i + 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i + 1, j, i, j) && board.go_back(i + 1, j, i, j, Player)) {
+                        if (this.possible_play(i + 1, j, Player, boardCopy, new_rowSelected, new_colSelected) && this.possible_move(i + 1, j, i, j) && this.go_back(i + 1, j, i, j, Player)) {
                             movesAvailable.push([i, j, i + 1, j]);
                         }
                     }
                     if (j > 0) {
-                        if (board.possible_play(i, j - 1, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i, j - 1, i, j) && board.go_back(i, j - 1, i, j, Player)) {
+                        if (this.possible_play(i, j - 1, Player, boardCopy, new_rowSelected, new_colSelected) && this.possible_move(i, j - 1, i, j) && this.go_back(i, j - 1, i, j, Player)) {
                             movesAvailable.push([i, j, i, j - 1]);
                         }
                     }
                     if (j < boardCopy[0].length - 1) {
-                        if (board.possible_play(i, j + 1, Player, boardCopy, new_rowSelected, new_colSelected) && board.possible_move(i, j + 1, i, j) && board.go_back(i, j + 1, i, j, Player)) {
+                        if (this.possible_play(i, j + 1, Player, boardCopy, new_rowSelected, new_colSelected) && this.possible_move(i, j + 1, i, j) && this.go_back(i, j + 1, i, j, Player)) {
                             movesAvailable.push([i, j, i, j + 1]);
                         }
                     }
@@ -312,19 +309,83 @@ class Game {
 		this.rows = rows;
 		this.columns = columns;
 		this.startingPlayer=1;
-		this.selected = false; 
-		this.remove = false; 
+		this.PieceSelected = false; 
+		this.canRemove = false; 
 		this.rselected;
 		this.cselected;
 		this.match_history = [];
 		this.players_stats = {};
-        this.board = new Board(this.rows,this.columns);
+        this.board = new Board(this.rows,this.columns, this);
         this.winner = 0;
         this.putPhase = true;
         this.currentPlayer = 1;
         this.moves_available_1 = [];
         this.moves_available_2 = [];
+        this.queryrow = 3;
+        this.querycol = 3;
+        this.moved_piece = false;
+        this.ver = 0;
     }
+
+    handleGame(row, col, nick) {
+        if (this.putPhase) {
+            let move = this.handlePlacementPhase(row, col, nick);
+            if (!move) return false;
+        } else {
+            //this.possible_win();
+            if (!this.PieceSelected) {
+                let correctselection = this.handlePieceSelection(row, col);
+                console.log('move' + correctselection);
+                console.log('pieceSelected' + this.PieceSelected);
+                if (correctselection) this.PieceSelected = true;
+                console.log('pieceSelected' + this.PieceSelected);
+                if (!correctselection) return false;
+            } else {
+                if (!this.moved_piece) {
+                    console.log('psssssss' + this.currentPlayer);
+                    let correctmove = this.handlePieceMovement(row, col);
+                    if (correctmove) {
+                        // Se o movimento for bem-sucedido, permita selecionar outra peça
+                        this.PieceSelected = false;
+                    }
+                    console.log('psssssssmoved' + this.moved_piece);
+                    if (!correctmove) return false;
+                    console.log('psssssss' + this.currentPlayer);
+                }
+            }
+    
+            if (this.moved_piece) {
+                if (this.canRemove) {
+                    let moveremove = this.handleRemovePiece(this.rselected, this.cselected, this.currentPlayer);
+                    if (moveremove) this.canRemove = false;
+                    if (!moveremove) return false;
+                    return true;
+                } else {
+                    if (this.board.possible_remove(row, col, this.currentPlayer)) {
+                        this.canRemove = true;
+                        this.rselected = row;
+                        this.cselected = col;
+                        let moveremove = this.handleRemovePiece(row, col, this.currentPlayer);
+                        if (moveremove) this.canRemove = false;
+                        if (!moveremove) return false;
+                        return true;
+                    } else {
+                        this.canRemove = false;
+                        this.pieceSelected = false;
+                        this.moved_piece = false;
+                        console.log('pssssss432s' + this.currentPlayer);
+                        this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
+                        console.log('pssssss432s' + this.currentPlayer);
+                        return true;
+                    }
+                }
+            }
+        }
+        return true;
+    }
+    
+    
+    
 
 
     handlePlacementPhase(row, col, nick) {
@@ -367,13 +428,13 @@ class Game {
     }
     
 
-    async handlePieceSelection(row, col) {
+    handlePieceSelection(row, col) {
         // Função para lidar com a seleção de peças
         console.log(this.currentPlayer);
-        if (board.possible_click(row, col, this.currentPlayer)) {
+        if (this.board.possible_click(row, col, this.currentPlayer)) {
             if (this.canRemove) {
                 console.log("Não podes selecionar uma peça porque já removes-te uma peça");
-                return;
+                return false;
             }
     
             this.rowSelected = row;
@@ -385,37 +446,41 @@ class Game {
 
         } else {
             console.log('Peça não pode ser selecionada');
+            return false;
         }
+        return true;
     }
 
 
     handlePieceMovement(row, col) {
         // Função para lidar com o movimento de peças
         // Verifique se a célula clicada é válida para mover a peça selecionada
-        if (board.possible_play(row, col, this.currentPlayer, board.board,this.rowSelected,this.colSelected) && board.possible_move(row, col, this.rowSelected, this.colSelected) && board.go_back(row, col, this.rowSelected, this.colSelected, this.currentPlayer)) {
-            board.board[row][col] = this.currentPlayer;
-            board.board[this.rowSelected][this.colSelected] = 0; // Tirar a peça da posição anterior
+        if (this.board.possible_play(row, col, this.currentPlayer, this.board.board,this.rowSelected,this.colSelected) && this.board.possible_move(row, col, this.rowSelected, this.colSelected) && this.board.go_back(row, col, this.rowSelected, this.colSelected, this.currentPlayer)) {
+            this.board.board[row][col] = this.currentPlayer;
+            this.board.board[this.rowSelected][this.colSelected] = 0; // Tirar a peça da posição anterior
 
             if (this.currentPlayer == '1') {
-                board.LastPlay1.row = this.rowSelected;
-                board.LastPlay1.col = this.colSelected;
-                board.LastPlay1.rowSelected = row;
-                board.LastPlay1.colSelected = col;
-                console.log("LastPlay1: " + board.LastPlay1.row + " " + board.LastPlay1.col + " " + board.LastPlay1.rowSelected + " " + board.LastPlay1.colSelected);
+                this.board.LastPlay1.row = this.rowSelected;
+                this.board.LastPlay1.col = this.colSelected;
+                this.board.LastPlay1.rowSelected = row;
+                this.board.LastPlay1.colSelected = col;
+                //console.log("LastPlay1: " + board.LastPlay1.row + " " + board.LastPlay1.col + " " + board.LastPlay1.rowSelected + " " + board.LastPlay1.colSelected);
             } else {
-                board.LastPlay2.row = this.rowSelected;
-                board.LastPlay2.col = this.colSelected;
-                board.LastPlay2.rowSelected = row;
-                board.LastPlay2.colSelected = col;
-                console.log("LastPlay2: " + board.LastPlay2.row + " " + board.LastPlay2.col + " " + board.LastPlay2.rowSelected + " " + board.LastPlay2.colSelected);
+                this.board.LastPlay2.row = this.rowSelected;
+                this.board.LastPlay2.col = this.colSelected;
+                this.board.LastPlay2.rowSelected = row;
+                this.board.LastPlay2.colSelected = col;
+                //console.log("LastPlay2: " + board.LastPlay2.row + " " + board.LastPlay2.col + " " + board.LastPlay2.rowSelected + " " + board.LastPlay2.colSelected);
             }
 
             this.pieceSelected = false;
             this.currentPlayer_copy = this.currentPlayer;
-            this.currentPlayer = this.currentPlayer === '1' ? '2' : '1';
+            console.log('Peça movida '+ this.currentPlayer);
+            console.log('Peça movida '+ this.currentPlayer);
             this.moved_piece = true;
-        
+            return true;
         }
+        return false
     }
 
 
@@ -423,23 +488,23 @@ class Game {
         // Função para lidar com a remoção de peças
         let correct_choice = false;
     
-        if (Player === '1') {
-            if (board.board[row][col] === '2') {
+        if (Player == '1') {
+            if (this.board.board[row][col] == '2') {
                 correct_choice = true;
             }
         } else {
-            if (board.board[row][col] === '1') {
+            if (this.board.board[row][col] == '1') {
                 correct_choice = true;
             }
         }
     
         if (correct_choice) {
-            board.board[row][col] = 0;
+            this.board.board[row][col] = 0;
     
             if (Player == '1') {
-                board.finalBpieces--;
+                this.board.finalBpieces--;
             } else {
-                board.finalWpieces--;
+                this.board.finalWpieces--;
             }
 
 
@@ -449,26 +514,36 @@ class Game {
             this.canRemove = false;
     
         }
+        return correct_choice;
     }
         
 
     possible_win(){
         // Verifica se há um possível vencedor
         let winner = 0;
-        this.moves_available_1 = board.moves_available('1');
-        this.moves_available_1 = board.moves_available('2');
-        if (board.finalBpieces <= 2 ||  this.moves_available_1.length == 0){
+        this.moves_available_1 = this.board.moves_available('1');
+        this.moves_available_2 = this.board.moves_available('2');
+        if (this.board.finalBpieces <= 2 ||  this.moves_available_2.length == 0){
             winner = '1';
+            console.log('white wins');
             return winner;
         }
-        else if (board.finalWpieces <= 2 || this.moves_available_1.length == 0){
+        else if (this.board.finalWpieces <= 2 || this.moves_available_1.length == 0){
             winner = '2';
+            console.log('black wins');
             return winner;
         }
         else{
             return 0;
         }
     }
+
+    giveUp(nick){
+        let player;
+        if (this.players['player 1'] == nick){player=1;}
+        else{player = 2;}
+		this.winner = 3-player;
+	}
 
 
     join_p2(nick){
@@ -480,10 +555,12 @@ class Game {
 
     updateGame() {
         let json = {};
+
         
         if (this.winner !== 0) {
             json['winner'] = this.players['player ' + this.winner];
-            let board_json = copy_2darray(this.board);
+            console.log(this.players['player ' + this.winner]);
+            let board_json = copy_2darray(this.board.board);
             for (let i = 0; i < this.rows; i++) {
                 for (let j = 0; j < this.columns; j++) {
                     if (board_json[i][j] == 0) {
@@ -499,7 +576,6 @@ class Game {
             return json;
         }
     
-        // Corrigindo esta parte
         console.log(this.player_colors);
         console.log("current player: " + this.currentPlayer);  
         json['turn'] = this.players['player '+ this.currentPlayer]; // ou 'player 2' dependendo da lógica do seu jogo
@@ -508,13 +584,22 @@ class Game {
         } else {
             json['phase'] = 'move';
         }
-        if (this.selected) {
-            if (this.remove) {
-                json['step'] = 'take';
-            } else {
-                json['step'] = 'to';
-            }
-        } else {
+        console.log('pieceselected to updategame ' + this.PieceSelected);
+        if (this.PieceSelected) {
+            
+            json['step'] = 'to';
+            const sendmove = {row: this.queryrow, column: this.querycol};
+            json['move'] = sendmove;
+
+        } else if (this.canRemove) {
+            json['step'] = 'take';
+            const sendmove = {row: this.queryrow, column: this.querycol};
+            json['move'] = sendmove;
+        }    
+        
+        else {
+            const sendmove = {row: this.queryrow, column: this.querycol};
+            json['move'] = sendmove;
             json['step'] = 'from';
         }
     
@@ -552,14 +637,15 @@ const { log } = require('console');
 const http = require('http');
 const url  = require('url');
 const crypto = require('crypto');
+const { send } = require('process');
 
-var defaultCorsHeaders = {
+var HeadersCORS = {
     'access-control-allow-origin': '*',
-    'access-control-allow-methods': 'GET, POST, PUT, DELETE, OPTIONS',
+    'access-control-allow-methods': 'GET, POST , OPTIONS',
     'access-control-allow-headers': 'content-type, accept',
-    'access-control-max-age': 10 // Seconds.
+    'access-control-max-age': 10 
 };
-var sseHeaders = {    
+var HeadersSSE = {    
     'Content-Type': 'text/event-stream',
     'Cache-Control': 'no-cache',
     'Access-Control-Allow-Origin': '*',
@@ -590,6 +676,7 @@ function broadcast(body, game){
     console.log(body);
     for (let response of update_responses[game]){
         response.write('data: '+ JSON.stringify(body) +'\n\n');
+
     }
 }
 
@@ -611,21 +698,20 @@ const server = http.createServer(function (request, response) {
     console.log(pathname);
     switch(request.method){
         case 'GET':
-            response.writeHead(200,sseHeaders);
+            response.writeHead(200,HeadersSSE);
             switch(pathname){
                 case '/update':
-                    let nick = query.nick;
                     let game = query.game;
                     remember(response,game);
-                    request.on('close', () =>  {console.log("fechei o SSE");forget(response,game)} );
+                    request.on('close', () =>  {forget(response,game)} );
                     setImmediate(() =>{
-                        broadcast({},game);// isto é o q acontece quando o SSE é iniciado
+                        broadcast({},game);
                     }); 
                 break;
             }
             break;
         case 'OPTIONS':
-            response.writeHead(200, defaultCorsHeaders);
+            response.writeHead(200, HeadersCORS);
             response.end();
             break;
 
@@ -730,11 +816,7 @@ const server = http.createServer(function (request, response) {
                                 let nick = dados.nick;
                                 let password = dados.password;
                                 let game_id = dados.game;
-                                if (logins[nick]!=password){response.writeHead(200,defaultCorsHeaders);response.write(JSON.stringify({"error": "User registered with a different password"}));response.end();return;}
-                                if (!(game_id in games)){response.writeHead(200,defaultCorsHeaders);response.write(JSON.stringify({"error": "This game is invalid"}));response.end();return;}
-                                
-                                //terminar o jogo, whatever that means
-                                response.writeHead(200,defaultCorsHeaders);
+                                response.writeHead(200,HeadersCORS);
                                 response.write(JSON.stringify({}));
                                 response.end();
                                 let game = games[game_id];
@@ -770,33 +852,42 @@ const server = http.createServer(function (request, response) {
                         .on('data', (chunk) => {body += chunk;  })
                         .on('end', () => {
                             try{
-                                let dados = JSON.parse(body); 
-                                let nick = dados.nick;
-                                let password = dados.password;
-                                let game_id = dados.game;
-                                let move = dados.move;
-                                let row = parseInt(move.row);
-                                let column = parseInt(move.column);
-                                game_server = games[game_id];
+                                let query = JSON.parse(body); 
+                                let nick = query.nick;
+                                console.log('nick' + nick);
+                                let game_id = query.game;
+                                console.log('turn' + games[game_id].players['player ' + games[game_id].currentPlayer]);
+                                let turn = games[game_id].players['player ' + games[game_id].currentPlayer]
+                                let move = query.move;
+                                games[game_id].queryrow = parseInt(move.row);
+                                console.log(games[game_id].queryrow);
+                                games[game_id].querycol = parseInt(move.column);
+                                console.log(games[game_id].querycol);
+                                console.log('selected ' + games[game_id].PieceSelected);
+                                //let game = games[game_id];
+                                let error = true;
+                                if (turn == nick){
+                                    error = games[game_id].handleGame(games[game_id].queryrow,games[game_id].querycol,nick);
+                                    console.log(games[game_id].board.board);
+                                }
                                 
-                                let error = game_server.handlePlacementPhase(row,column,nick);
-                                console.log(game_server.board.board);
                                 if (!error){
                                     //manda uma mensagem com o erro
-                                    response.writeHead(200,defaultCorsHeaders);
+                                    response.writeHead(200,HeadersCORS);
                                     response.write(JSON.stringify({'error':error}));
                                     response.end();
                                     return;
                                 }
-                                response.writeHead(200,defaultCorsHeaders);
+                    
+                                response.writeHead(200,HeadersCORS);
                                 response.write(JSON.stringify({}));
                                 response.end();
                                 broadcast(games[game_id].updateGame(), game_id);
                                 console.log("aquiii")
 								if (games[game_id].board.winner != 0){
 									let winner;
-									if(game_server.winner==1){winner = game_server.player_1;}
-									else{winner = game_server.player_2;}
+									if(games[game_id].winner==1){winner = games[game_id].player_1;}
+									else{winner = games[game_id].player_2;}
 									for (var player in rankings[sizeString]['ranking']){
 										if (player.nick==winner){player['victories']++;}
 									}
@@ -844,7 +935,7 @@ function handleExistingGame(response, nick, size, sizeString) {
 
     console.log(`Created a game with players ${player_1} and ${nick} with ID: ${game_id}`);
 
-    response.writeHead(200, defaultCorsHeaders);
+    response.writeHead(200, HeadersCORS);
     response.write(JSON.stringify({ game: game_id }));
     response.end();
 
@@ -868,7 +959,7 @@ function handleNewGame(response, nick, size, sizeString) {
     const new_game = new Game(sizeString, size.rows, size.columns, game_id, nick);
     games[game_id] = new_game;
 
-    response.writeHead(200, defaultCorsHeaders);
+    response.writeHead(200, HeadersCORS);
     response.write(JSON.stringify({ game: game_id }));
     response.end();
 }
@@ -890,7 +981,6 @@ function updateRankings(sizeString, player_1, player_2) {
     }
 }
 
-let game_server;
 
 
 
