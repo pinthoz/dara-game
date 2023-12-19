@@ -1,14 +1,3 @@
-class User {
-    constructor(username, password,totalGames, victories, loses) {
-        this.username = username;
-        this.password = password;
-        this.totalGames = totalGames;
-        this.victories = victories ;
-        this.loses = loses;
-        this.totalGames = this.victories + this.loses;
-    }
-}
-
 //classe do board
 class Board{
     constructor(numRows, numCols, gameInstance){
@@ -566,10 +555,11 @@ class Game {
         // contrói a resposta
         let json = {};
 
-        
+        // Se já houver winner, retorna a resposta com o winner
         if (this.winner !== 0) {
             json['winner'] = this.players['player ' + this.winner];
             console.log(this.players['player ' + this.winner]);
+            // Transforma o tabuleiro para enviar para o cliente
             let board_json = copy_2darray(this.board.board);
             for (let i = 0; i < this.rows; i++) {
                 for (let j = 0; j < this.columns; j++) {
@@ -585,7 +575,7 @@ class Game {
             json['board'] = board_json;
             return json;
         }
-    
+        // Troca o turn e as fases do jogo
         console.log(this.player_colors);
         console.log("current player: " + this.currentPlayer);  
         json['turn'] = this.players['player '+ this.currentPlayer]; 
@@ -594,6 +584,7 @@ class Game {
         } else {
             json['phase'] = 'move';
         }
+        //Se existe uma peça selecionada, envia o step='to'
         console.log('pieceselected to updategame ' + this.PieceSelected);
         if (this.PieceSelected) {
             
@@ -601,19 +592,20 @@ class Game {
             const sendmove = {row: this.queryrow, column: this.querycol};
             json['move'] = sendmove;
 
+        //Se pode remover uma peça, envia o step='to'
         } else if (this.canRemove) {
             json['step'] = 'take';
             const sendmove = {row: this.queryrow, column: this.querycol};
             json['move'] = sendmove;
         }    
-        
+        // Se não, envia a resposta como o move e o step='from'
         else {
             const sendmove = {row: this.queryrow, column: this.querycol};
             json['move'] = sendmove;
             json['step'] = 'from';
         }
     
-
+        // Tranforma o board para o cliente
         json['players'] = this.player_colors; 
         console.log(this.players);
         let board_json = copy_2darray(this.board.board);
@@ -634,6 +626,7 @@ class Game {
     
 }
 
+// Transforma o board
 function copy_2darray(array) {
 	let copy = [];
 	for (let i = 0; i < array.length; i++) {
@@ -642,13 +635,14 @@ function copy_2darray(array) {
 	return copy;
 }
 
-
+// Requires para o server
 const http = require('http');
 const url  = require('url');
 const crypto = require('crypto');
 const { send } = require('process');
 const fs = require('fs');
 const usersFilePath = 'users.json';
+
 var HeadersCORS = {
     'access-control-allow-origin': '*',
     'access-control-allow-methods': 'GET, POST, OPTIONS',
@@ -668,6 +662,7 @@ let waiting_for_game = {};
 let update_responses = {};
 let game_counter = 1;
 
+// Lembrar do game
 function remember(response,game){
     if (game in update_responses){
         update_responses[game].push(response);
@@ -675,13 +670,14 @@ function remember(response,game){
     else{update_responses[game] = [response];}
 }
 
+// Esquecer o game
 function forget(response, game){
     let pos = update_responses[game].findIndex((resp) => resp === response);
     if (pos>-1){
         update_responses[game].slice(pos,1);
     }
 }
-
+// Enviar a resposta
 function broadcast(body, game){
     console.log(body);
     for (let response of update_responses[game]){
@@ -690,7 +686,7 @@ function broadcast(body, game){
     }
 }
 
-
+// Ler o ficheiro users.json
 function readLoginsFromFile() {
     try {
         const data = fs.readFileSync('users.json', 'utf8');
@@ -701,7 +697,7 @@ function readLoginsFromFile() {
     }
 }
 
-
+// Ler o ficheiro ranking.json
 function readRankingFromFile() {
     try {
         const data = fs.readFileSync('ranking.json', 'utf8');
@@ -711,13 +707,13 @@ function readRankingFromFile() {
         return {};
     }
 }
-
+// Escrever no ficheiro users.json
 function writeLoginsToFile(logins) {
     const data = JSON.stringify(logins, null, 2);
     fs.writeFileSync('users.json', data, 'utf8');
 }
 
-
+// Server
 const server = http.createServer(function (request, response) {
     
     const parsedUrl = url.parse(request.url,true);
@@ -1025,13 +1021,14 @@ function handleNewGame(response, nick, size, sizeString) {
 }
 
 function updateRankings(sizeString, player_1, player_2) {
+
     const playersToUpdate = [player_1, player_2];
     console.log(sizeString);
-
+    // Se não existe o tamanho do board
     if (!(sizeString in rankings)) {
         rankings[sizeString] = { 'ranking': [] };
     }
-
+    // Para cada player
     for (const nick of playersToUpdate) {
         console.log('nick' + nick);
 

@@ -4,7 +4,7 @@
       {
         "nick": "yy",
         "victories": 2,
-        "games": 5
+        "games": 6
       },
       {
         "nick": "ana",
@@ -25,6 +25,25 @@
         "nick": "po",
         "victories": 0,
         "games": 2
+      },
+      {
+        "nick": "adeus",
+        "victories": 0,
+        "games": 1
+      }
+    ]
+  },
+  "{\"rows\":6,\"columns\":6}": {
+    "ranking": [
+      {
+        "nick": "adeus",
+        "victories": 1,
+        "games": 1
+      },
+      {
+        "nick": "ana",
+        "victories": 0,
+        "games": 1
       }
     ]
   }
